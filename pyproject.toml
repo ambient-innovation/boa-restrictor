@@ -21,11 +21,11 @@ requires-python = ">=3.10"
 dependencies = []
 optional-dependencies.dev = ["pre-commit", "pytest"]
 
-scripts.validate-filename = "filename_validation.cli:main" # todo
+scripts.validate-filename = "boa_restrictor.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/stefmolin/filename-validation"
-Documentation = "https://github.com/stefmolin/filename-validation"
+Homepage = "https://github.com/ambient-innovation/boa-restrictor"
+Documentation = "https://github.com/ambient-innovation/boa-restrictor"
 
 [tool.setuptools.packages.find]
 where = ["src"]
