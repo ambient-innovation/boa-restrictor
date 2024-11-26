@@ -13,19 +13,7 @@ from boa_restrictor.rules.asterisk_required import AsteriskRequiredRule
 from boa_restrictor.rules.return_type_hints import ReturnStatementRequiresTypeHintRule
 
 
-class CustomLinter:
-    def __init__(self, rules):
-        self.rules = rules  # {rule_id: callable_rule_function}
-        self.ignored_rules = set()
-
-    def load_config(self, config_file):
-        # Beispiel: Lade ausgeschlossene Regeln aus einer Konfigurationsdatei
-        with open(config_file) as f:
-            config = f.read()
-        self.ignored_rules = set(config.splitlines())
-
-
-def main(argv: Sequence[str] | None = None) -> list[Occurrence]:  # noqa: ASF, PBR001
+def main(argv: Sequence[str] | None = None) -> list[Occurrence]:
     parser = argparse.ArgumentParser(
         prog="boa-restrictor",
     )
@@ -86,17 +74,16 @@ def load_configuration(*, file_path=None) -> dict:
         return {}
 
 
-def get_noqa_comments(source_code: str) -> list[tuple[int, str]]:
+def get_noqa_comments(*, source_code: str) -> list[tuple[int, str]]:
     noqa_statements = []
 
     tokens = tokenize.generate_tokens(StringIO(source_code).readline)
+    pattern = re.compile(r"^#\snoqa:\s*.*?" + LINTING_RULE_PREFIX + r"\d{3}")
 
     for token in tokens:
         token_type, token_string, start, _, _ = token
 
-        if token_type == tokenize.COMMENT and re.search(
-            r"^#\snoqa:\s*.*?" + LINTING_RULE_PREFIX + r"\d{3}", token_string
-        ):
+        if token_type == tokenize.COMMENT and pattern.search(token_string):
             noqa_statements.append((start[0], token_string.strip()))
 
     return noqa_statements
@@ -120,3 +107,5 @@ if __name__ == "__main__":
     sys.exit(int(any(results)))
 
 # TODO: configure RTD webhook
+# TODO: RUF100 löscht unsere PBR noqa's -> pyproject.toml lint.external
+#  (https://docs.astral.sh/ruff/settings/#lint_extend-unsafe-fixes)
