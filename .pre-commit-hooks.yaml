@@ -1,0 +1,6 @@
+- id: boa-restrictor
+  name: boa restrictor
+  description: A custom Python linter by Ambient
+  entry: validate-filename # todo
+  language: python
+  types: [python]

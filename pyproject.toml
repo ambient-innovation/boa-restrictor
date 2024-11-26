@@ -1,0 +1,31 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools", "setuptools-scm"]
+
+[project]
+name = "filename-validation"
+description = "Pre-commit hook to validate Python filenames."
+readme = "README.md"
+keywords = ["filename validation", "pre-commit"]
+license = {file = "LICENSE"}
+authors = [
+  {name = "Stefanie Molin", email = "email@example.com"},
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python"
+]
+version = "0.1.2"
+
+requires-python = ">=3.10"
+dependencies = []
+optional-dependencies.dev = ["pre-commit", "pytest"]
+
+scripts.validate-filename = "filename_validation.cli:main" # todo
+
+[project.urls]
+Homepage = "https://github.com/stefmolin/filename-validation"
+Documentation = "https://github.com/stefmolin/filename-validation"
+
+[tool.setuptools.packages.find]
+where = ["src"]
