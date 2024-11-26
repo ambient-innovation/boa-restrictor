@@ -109,3 +109,5 @@ if __name__ == "__main__":
         print("Aller Code so yeah!")
 
     sys.exit(int(any(results)))
+
+# todo: configure RTD webhook
