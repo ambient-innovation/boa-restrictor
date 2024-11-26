@@ -4,15 +4,15 @@ requires = ["setuptools", "setuptools-scm"]
 
 [project]
 name = "filename-validation"
-description = "Pre-commit hook to validate Python filenames."
+description = "Pre-commit hook to check custom Python rules."
 readme = "README.md"
 keywords = ["filename validation", "pre-commit"]
 license = {file = "LICENSE"}
 authors = [
-  {name = "Stefanie Molin", email = "email@example.com"},
+  {name = "Ambient Digital", email = "hello@ambient.digital"},
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Programming Language :: Python"
 ]
 version = "0.1.2"

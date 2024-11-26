@@ -2,10 +2,14 @@
 import argparse
 import re
 import sys
+import tokenize
+from io import StringIO
 from pathlib import Path
 from typing import Sequence
 
+from boa_restrictor.common.rule import LINTING_RULE_PREFIX
 from boa_restrictor.projections.occurrence import Occurrence
+from boa_restrictor.projections.return_type_hints import ReturnStatementRequiresTypeHintRule
 from boa_restrictor.rules.asterisk import AsteriskRequiredRule
 
 
@@ -31,7 +35,8 @@ class CustomLinter:
                 if rule_id not in self.ignored_rules and rule_id not in ignored_for_line:
                     rule_fn(line, line_no)
 
-    def _parse_inline_ignores(self, line):
+    def _parse_inline_ignores(self, line):  # noqa: BR002
+        # todo: inline comments mit noqa
         match = re.search(r"# noqa: (.+)", line)
         if match:
             return set(match.group(1).split(","))
@@ -50,11 +55,11 @@ def main(argv: Sequence[str] | None = None) -> list[Occurrence]:
 
     args = parser.parse_args(argv)
 
-    # todo: register checks dynamically depending on configured rules
+    # todo: register (or better exclude) checks dynamically depending on configured rules
     # rules = {"RULE_001": rule_001, "RULE_002": rule_002}
     # linter = CustomLinter(rules)
 
-    linter_classes = (AsteriskRequiredRule,)
+    linter_classes = (AsteriskRequiredRule, ReturnStatementRequiresTypeHintRule,)
     occurrences = []
     for filename in args.filenames[1:]:
         for linter_class in linter_classes:
@@ -63,17 +68,36 @@ def main(argv: Sequence[str] | None = None) -> list[Occurrence]:
     return occurrences
 
 
+def get_noqa_comments(source_code: str):
+    # todo: call this once and pass to rules. maybe only the ones that apply?
+    noqa_statements = []
+
+    # Tokenize den Quellcode
+    tokens = tokenize.generate_tokens(StringIO(source_code).readline)
+
+    for token in tokens:
+        token_type, token_string, start, _, _ = token
+
+        # Prüfe, ob es ein Kommentar ist und ob es "noqa" enthält
+        # todo: mit regex das hier variabler matchbar machen?
+        if token_type == tokenize.COMMENT and f"# noqa: {LINTING_RULE_PREFIX}" in token_string:
+            noqa_statements.append((start[0], token_string.strip()))
+
+    return noqa_statements
+
+
 if __name__ == "__main__":
 
     results = main()
 
     current_path = Path.cwd()
 
+    # todo: möchte ich die hier noch irgendwie sortieren?
     if any(results):
         for occurrence in results:
-            print(
-                f"\"{current_path / occurrence.filename}:{occurrence.line_number}\": ({occurrence.rule_id}) {occurrence.rule_label}")
+            sys.stdout.write(
+                f"\"{current_path / occurrence.filename}:{occurrence.line_number}\": ({occurrence.rule_id}) {occurrence.rule_label}\n")
     else:
-        print("Alle Funktionen so yeah!")
+        print("Aller Code so yeah!")
 
     sys.exit(int(any(results)))

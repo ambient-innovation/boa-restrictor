@@ -1,56 +1,33 @@
 import ast
 
+from boa_restrictor.common.rule import Rule, LINTING_RULE_PREFIX
 from boa_restrictor.projections.occurrence import Occurrence
 
 
-class AsteriskRequiredRule:
-    RULE_ID = "BR001"
+class AsteriskRequiredRule(Rule):
+    RULE_ID = f"{LINTING_RULE_PREFIX}001"
     RULE_LABEL = "Positional arguments in functions and methods are discouraged. Add an \"*\" as the first argument."
 
-    filename: str
-
-    @classmethod
-    def run_check(cls, filename: str):
-        instance = cls(filename=filename)
-        with open(filename, "r") as f:
-            return instance.check(f.read())
-
-    def __init__(self, filename: str):
-        super().__init__()
-
-        self.filename = filename
-
-    def _missing_asterisk(self, node):
-        """
-        Prüft, ob die Funktion oder Methode einen `*` verwendet,
-        um Positionsargumente zu verbieten und nur kwargs zu erlauben.
-        """
-        for arg in node.args.args:  # Normale Positionsargumente
+    def _missing_asterisk(self, node) -> bool:
+        for arg in node.args.args:
             if isinstance(arg, ast.arg):
                 return True
 
-        for default in node.args.defaults:  # Standardwerte für args
+        for default in node.args.defaults:
             if default is not None:
                 return True
 
         return False
 
-    def check(self, source_code: str):
-        """
-        Prüft, ob alle Funktionen in dem angegebenen Python-Quellcode einen `*` in den Parametern enthalten,
-        um zu gewährleisten, dass sie nur mit benannten Argumenten aufgerufen werden können.
-
-        :param source_code: Der zu analysierende Python-Quellcode als String.
-        :return: Eine Liste mit Informationen zu Funktionen, die keinen `*` in den Parametern enthalten.
-        """
+    def check(self, source_code: str) -> list[Occurrence]:
         tree = ast.parse(source_code)
-        functions_without_star = []
+        occurrences = []
 
         for node in ast.walk(tree):
             if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
             if self._missing_asterisk(node=node):
-                functions_without_star.append(
+                occurrences.append(
                     Occurrence(
                         rule_id=self.RULE_ID,
                         rule_label=self.RULE_LABEL,
@@ -60,7 +37,7 @@ class AsteriskRequiredRule:
                     )
                 )
 
-        return functions_without_star
+        return occurrences
 
 # todo
 # # Beispiel: Test mit einer Datei
