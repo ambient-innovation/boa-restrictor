@@ -1,1 +1,3 @@
-class
+class Rule:
+    # todo
+    pass
