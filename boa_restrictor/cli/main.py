@@ -3,9 +3,9 @@ import re
 import sys
 import tokenize
 import tomllib
+from collections.abc import Sequence
 from io import StringIO
 from pathlib import Path
-from typing import Sequence
 
 from boa_restrictor.common.rule import LINTING_RULE_PREFIX
 from boa_restrictor.projections.occurrence import Occurrence
@@ -20,37 +20,40 @@ class CustomLinter:
 
     def load_config(self, config_file):
         # Beispiel: Lade ausgeschlossene Regeln aus einer Konfigurationsdatei
-        with open(config_file, 'r') as f:
+        with open(config_file) as f:
             config = f.read()
         self.ignored_rules = set(config.splitlines())
 
 
 def main(argv: Sequence[str] | None = None) -> list[Occurrence]:  # noqa: ASF, PBR001
     parser = argparse.ArgumentParser(
-        prog='boa-restrictor',
+        prog="boa-restrictor",
     )
     parser.add_argument(
-        'filenames',
-        nargs='*',
-        help='Filenames to process.',
+        "filenames",
+        nargs="*",
+        help="Filenames to process.",
     )
 
     args = parser.parse_args(argv)
 
-    # todo: register (or better exclude) checks dynamically depending on configured rules
-    # rules = {"RULE_001": rule_001, "RULE_002": rule_002}
-    # linter = CustomLinter(rules)
+    # TODO: register (or better exclude) checks dynamically depending on configured rules
+    # rules = {"RULE_001": rule_001, "RULE_002": rule_002} # noqa: ERA001
+    # linter = CustomLinter(rules) # noqa: ERA001
 
     load_configuration()
 
-    # todo: get them from somewhere else
-    linter_classes = (AsteriskRequiredRule, ReturnStatementRequiresTypeHintRule,)
+    # TODO: get them from somewhere else
+    linter_classes = (
+        AsteriskRequiredRule,
+        ReturnStatementRequiresTypeHintRule,
+    )
     occurrences = []
 
     excluded_rules = load_configuration().get("excluded", [])
 
     for filename in args.filenames[1:]:
-        with open(filename, "r") as f:
+        with open(filename) as f:
             source_code = f.read()
         noqa_tokens = get_noqa_comments(source_code=source_code)
 
@@ -61,15 +64,18 @@ def main(argv: Sequence[str] | None = None) -> list[Occurrence]:  # noqa: ASF, P
             excluded_lines = {token[0] for token in noqa_tokens if linter_class.RULE_ID in token[1]}
             # Ensure that line exclusions are respected
             occurrences.extend(
-                [possible_occurrence for possible_occurrence in
-                 linter_class.run_check(filename=filename, source_code=source_code) if
-                 possible_occurrence.line_number not in excluded_lines])
+                [
+                    possible_occurrence
+                    for possible_occurrence in linter_class.run_check(filename=filename, source_code=source_code)
+                    if possible_occurrence.line_number not in excluded_lines
+                ]
+            )
 
     return occurrences
 
 
 def load_configuration(*, file_path=None) -> dict:
-    # todo: get this from pre-commit
+    # TODO: get this from pre-commit
     file_path = Path.cwd() / "../pyproject.toml"
     with open(file_path, "rb") as f:
         data = tomllib.load(f)
@@ -88,7 +94,9 @@ def get_noqa_comments(source_code: str) -> list[tuple[int, str]]:
     for token in tokens:
         token_type, token_string, start, _, _ = token
 
-        if token_type == tokenize.COMMENT and re.search(r"^#\snoqa:\s*.*?" + LINTING_RULE_PREFIX + r"\d{3}", token_string):
+        if token_type == tokenize.COMMENT and re.search(
+            r"^#\snoqa:\s*.*?" + LINTING_RULE_PREFIX + r"\d{3}", token_string
+        ):
             noqa_statements.append((start[0], token_string.strip()))
 
     return noqa_statements
@@ -99,15 +107,16 @@ if __name__ == "__main__":
 
     current_path = Path.cwd()
 
-    # todo: möchte ich die hier noch irgendwie sortieren?
+    # TODO: möchte ich die hier noch irgendwie sortieren?
     if any(results):
         for occurrence in results:
             sys.stdout.write(
-                f"\"{current_path / occurrence.filename}:{occurrence.line_number}\": "
-                f"({occurrence.rule_id}) {occurrence.rule_label}\n")
+                f'"{current_path / occurrence.filename}:{occurrence.line_number}": '
+                f"({occurrence.rule_id}) {occurrence.rule_label}\n"
+            )
     else:
         print("Aller Code so yeah!")
 
     sys.exit(int(any(results)))
 
-# todo: configure RTD webhook
+# TODO: configure RTD webhook

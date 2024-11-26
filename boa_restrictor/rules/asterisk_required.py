@@ -1,12 +1,12 @@
 import ast
 
-from boa_restrictor.common.rule import Rule, LINTING_RULE_PREFIX
+from boa_restrictor.common.rule import LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
 
 
 class AsteriskRequiredRule(Rule):
     RULE_ID = f"{LINTING_RULE_PREFIX}001"
-    RULE_LABEL = "Positional arguments in functions and methods are discouraged. Add an \"*\" as the first argument."
+    RULE_LABEL = 'Positional arguments in functions and methods are discouraged. Add an "*" as the first argument.'
 
     def _missing_asterisk(self, *, node) -> bool:
         for arg in node.args.args:
@@ -39,7 +39,7 @@ class AsteriskRequiredRule(Rule):
 
         return occurrences
 
-# todo
+
 # # Beispiel: Test mit einer Datei
 # source_code_example = """
 # class MyClass:
@@ -64,7 +64,6 @@ class AsteriskRequiredRule(Rule):
 #
 # async def test_afunc2_good(*, a, b, c):
 #     pass
-#
 #
 # a = 7 + 4
 # """
