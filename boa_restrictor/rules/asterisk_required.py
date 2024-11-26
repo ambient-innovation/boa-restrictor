@@ -8,7 +8,7 @@ class AsteriskRequiredRule(Rule):
     RULE_ID = f"{LINTING_RULE_PREFIX}001"
     RULE_LABEL = "Positional arguments in functions and methods are discouraged. Add an \"*\" as the first argument."
 
-    def _missing_asterisk(self, node) -> bool:
+    def _missing_asterisk(self, *, node) -> bool:
         for arg in node.args.args:
             if isinstance(arg, ast.arg):
                 return True
@@ -19,7 +19,7 @@ class AsteriskRequiredRule(Rule):
 
         return False
 
-    def check(self, source_code: str) -> list[Occurrence]:
+    def check(self, *, source_code: str) -> list[Occurrence]:
         tree = ast.parse(source_code)
         occurrences = []
 

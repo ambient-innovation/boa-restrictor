@@ -29,3 +29,8 @@ Documentation = "https://github.com/stefmolin/filename-validation"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.boa-restrictor]
+excluded = [
+#    "PBR001",
+]

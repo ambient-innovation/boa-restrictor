@@ -1,16 +1,16 @@
-# todo: add exclusion rules for linting (pyproject.toml + noqa
 import argparse
 import re
 import sys
 import tokenize
+import tomllib
 from io import StringIO
 from pathlib import Path
 from typing import Sequence
 
 from boa_restrictor.common.rule import LINTING_RULE_PREFIX
 from boa_restrictor.projections.occurrence import Occurrence
-from boa_restrictor.projections.return_type_hints import ReturnStatementRequiresTypeHintRule
-from boa_restrictor.rules.asterisk import AsteriskRequiredRule
+from boa_restrictor.rules.asterisk_required import AsteriskRequiredRule
+from boa_restrictor.rules.return_type_hints import ReturnStatementRequiresTypeHintRule
 
 
 class CustomLinter:
@@ -24,26 +24,8 @@ class CustomLinter:
             config = f.read()
         self.ignored_rules = set(config.splitlines())
 
-    def lint_file(self, file_path):
-        with open(file_path, 'r') as f:
-            lines = f.readlines()
 
-        for line_no, line in enumerate(lines, start=1):
-            # Inline-Ausschlüsse verarbeiten
-            ignored_for_line = self._parse_inline_ignores(line)
-            for rule_id, rule_fn in self.rules.items():
-                if rule_id not in self.ignored_rules and rule_id not in ignored_for_line:
-                    rule_fn(line, line_no)
-
-    def _parse_inline_ignores(self, line):  # noqa: BR002
-        # todo: inline comments mit noqa
-        match = re.search(r"# noqa: (.+)", line)
-        if match:
-            return set(match.group(1).split(","))
-        return set()
-
-
-def main(argv: Sequence[str] | None = None) -> list[Occurrence]:
+def main(argv: Sequence[str] | None = None) -> list[Occurrence]:  # noqa: ASF, PBR001
     parser = argparse.ArgumentParser(
         prog='boa-restrictor',
     )
@@ -59,35 +41,60 @@ def main(argv: Sequence[str] | None = None) -> list[Occurrence]:
     # rules = {"RULE_001": rule_001, "RULE_002": rule_002}
     # linter = CustomLinter(rules)
 
+    load_configuration()
+
+    # todo: get them from somewhere else
     linter_classes = (AsteriskRequiredRule, ReturnStatementRequiresTypeHintRule,)
     occurrences = []
+
+    excluded_rules = load_configuration().get("excluded", [])
+
     for filename in args.filenames[1:]:
+        with open(filename, "r") as f:
+            source_code = f.read()
+        noqa_tokens = get_noqa_comments(source_code=source_code)
+
         for linter_class in linter_classes:
-            occurrences.extend(linter_class.run_check(filename))
+            if linter_class.RULE_ID in excluded_rules:
+                continue
+
+            excluded_lines = {token[0] for token in noqa_tokens if linter_class.RULE_ID in token[1]}
+            # Ensure that line exclusions are respected
+            occurrences.extend(
+                [possible_occurrence for possible_occurrence in
+                 linter_class.run_check(filename=filename, source_code=source_code) if
+                 possible_occurrence.line_number not in excluded_lines])
 
     return occurrences
 
 
-def get_noqa_comments(source_code: str):
-    # todo: call this once and pass to rules. maybe only the ones that apply?
+def load_configuration(*, file_path=None) -> dict:
+    # todo: get this from pre-commit
+    file_path = Path.cwd() / "../pyproject.toml"
+    with open(file_path, "rb") as f:
+        data = tomllib.load(f)
+
+    try:
+        return data["tool"]["boa-restrictor"]
+    except KeyError:
+        return {}
+
+
+def get_noqa_comments(source_code: str) -> list[tuple[int, str]]:
     noqa_statements = []
 
-    # Tokenize den Quellcode
     tokens = tokenize.generate_tokens(StringIO(source_code).readline)
 
     for token in tokens:
         token_type, token_string, start, _, _ = token
 
-        # Prüfe, ob es ein Kommentar ist und ob es "noqa" enthält
-        # todo: mit regex das hier variabler matchbar machen?
-        if token_type == tokenize.COMMENT and f"# noqa: {LINTING_RULE_PREFIX}" in token_string:
+        if token_type == tokenize.COMMENT and re.search(r"^#\snoqa:\s*.*?" + LINTING_RULE_PREFIX + r"\d{3}", token_string):
             noqa_statements.append((start[0], token_string.strip()))
 
     return noqa_statements
 
 
 if __name__ == "__main__":
-
     results = main()
 
     current_path = Path.cwd()
@@ -96,7 +103,8 @@ if __name__ == "__main__":
     if any(results):
         for occurrence in results:
             sys.stdout.write(
-                f"\"{current_path / occurrence.filename}:{occurrence.line_number}\": ({occurrence.rule_id}) {occurrence.rule_label}\n")
+                f"\"{current_path / occurrence.filename}:{occurrence.line_number}\": "
+                f"({occurrence.rule_id}) {occurrence.rule_label}\n")
     else:
         print("Aller Code so yeah!")
 
