@@ -5,6 +5,11 @@ from boa_restrictor.projections.occurrence import Occurrence
 
 
 class ReturnStatementRequiresTypeHintRule(Rule):
+    """
+    This rule checks if a return statement is set, then a return type hint has to be defined.
+    Doesn't match the case if there is no return statement but a type hint.
+    """
+
     RULE_ID = f"{LINTING_RULE_PREFIX}002"
     RULE_LABEL = "Return statements require return type hint."
 

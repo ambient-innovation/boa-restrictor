@@ -5,6 +5,11 @@ from boa_restrictor.projections.occurrence import Occurrence
 
 
 class AsteriskRequiredRule(Rule):
+    """
+    Checks if a method or function contains positional arguments (missing leading "*")
+    "self" and "cls" are allowlisted, even if they are used outside a class context.
+    """
+
     RULE_ID = f"{LINTING_RULE_PREFIX}001"
     RULE_LABEL = 'Positional arguments in functions and methods are discouraged. Add an "*" as the first argument.'
 

@@ -154,6 +154,24 @@ def test_cls_outside_of_class_not_matched():
     assert len(occurrences) == 0
 
 
+def test_leading_cls_and_following_attributes():
+    source_code = """def my_function(cls, a):
+        pass
+    """
+
+    rule = AsteriskRequiredRule(filename="my_file.py", source_code=source_code)
+    occurrences = rule.check(source_code=source_code)
+
+    assert len(occurrences) == 1
+    assert occurrences[0] == Occurrence(
+        filename="my_file.py",
+        line_number=1,
+        rule_id=AsteriskRequiredRule.RULE_ID,
+        rule_label=AsteriskRequiredRule.RULE_LABEL,
+        function_name="my_function",
+    )
+
+
 def test_lambda_not_matched():
     source_code = """double = lambda x: x * 2"""
 

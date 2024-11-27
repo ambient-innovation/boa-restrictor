@@ -81,7 +81,7 @@ def load_configuration(*, file_path=None) -> dict:
         data = tomllib.load(f)
 
     try:
-        # todo: das tuts nicht
+        # TODO: das tuts nicht
         return data["tool"]["boa-restrictor"]
     except KeyError:
         return {}
