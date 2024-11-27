@@ -37,7 +37,7 @@ def main(argv: Sequence[str] | None = None):
     )
     occurrences = []
 
-    excluded_rules = load_configuration().get("excluded", [])
+    excluded_rules = load_configuration().get("exclude", [])
 
     for filename in args.filenames[1:]:
         with open(filename) as f:
@@ -81,6 +81,7 @@ def load_configuration(*, file_path=None) -> dict:
         data = tomllib.load(f)
 
     try:
+        # todo: das tuts nicht
         return data["tool"]["boa-restrictor"]
     except KeyError:
         return {}
