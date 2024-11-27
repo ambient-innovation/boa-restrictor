@@ -10,7 +10,7 @@ class AsteriskRequiredRule(Rule):
 
     def _missing_asterisk(self, *, node) -> bool:
         for arg in node.args.args:
-            if isinstance(arg, ast.arg):
+            if isinstance(arg, ast.arg) and arg.arg not in ("self", "cls"):
                 return True
 
         for default in node.args.defaults:
@@ -38,32 +38,3 @@ class AsteriskRequiredRule(Rule):
                 )
 
         return occurrences
-
-
-# # Beispiel: Test mit einer Datei
-# source_code_example = """
-# class MyClass:
-#
-#     def test_method1_evil(a, b):
-#         pass
-#
-#     def test_method2_good(*, a, b):
-#         pass
-#
-#     def test_method3_good():
-#         pass
-#
-# def test_func1_evil(a, b, c):
-#     pass
-#
-# def test_func2_good(*, a, b, c):
-#     pass
-#
-# async def test_afunc1_evil(a, b, c):
-#     pass
-#
-# async def test_afunc2_good(*, a, b, c):
-#     pass
-#
-# a = 7 + 4
-# """

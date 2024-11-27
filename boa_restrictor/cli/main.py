@@ -8,7 +8,6 @@ from io import StringIO
 from pathlib import Path
 
 from boa_restrictor.common.rule import LINTING_RULE_PREFIX
-from boa_restrictor.projections.occurrence import Occurrence
 from boa_restrictor.rules.asterisk_required import AsteriskRequiredRule
 from boa_restrictor.rules.return_type_hints import ReturnStatementRequiresTypeHintRule
 
@@ -75,7 +74,7 @@ def main(argv: Sequence[str] | None = None):
 
 
 def load_configuration(*, file_path=None) -> dict:
-    # TODO: get this from pre-commit
+    # TODO: get this from pre-commit or keep fixed file?
     file_path = Path.cwd() / "pyproject.toml"
     with open(file_path, "rb") as f:
         data = tomllib.load(f)
@@ -100,12 +99,6 @@ def get_noqa_comments(*, source_code: str) -> list[tuple[int, str]]:
 
     return noqa_statements
 
-
-# if __name__ == "__main__":
-#     results = main()
-#
-#
-#     sys.exit(int(any(results)))
 
 # TODO: configure RTD webhook
 # TODO: RUF100 löscht unsere PBR noqa's -> pyproject.toml lint.external
