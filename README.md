@@ -94,12 +94,12 @@ Example: run all hooks of pre-push stage
 
 - Create pull request / merge to main
 
-- This project uses the flit package to publish to PyPI. Thus publishing should be as easy as running:
+- This project uses the flit package to publish to PyPI. Thus, publishing should be as easy as running:
   ```
   flit publish
   ```
 
-  To publish to TestPyPI use the following ensure that you have set up your .pypirc as
+  To publish to TestPyPI use the following to ensure that you have set up your .pypirc as
   shown [here](https://flit.readthedocs.io/en/latest/upload.html#using-pypirc) and use the following command:
 
   ```
@@ -109,8 +109,8 @@ Example: run all hooks of pre-push stage
 ### Maintenance
 
 Please note that this package supports the [ambient-package-update](https://pypi.org/project/ambient-package-update/).
-So you don't have to worry about the maintenance of this package. All important configuration and setup files are
-being rendered by this updater. It works similar to well-known updaters like `pyupgrade` or `django-upgrade`.
+So you don't have to worry about the maintenance of this package. This updater is rendering all important
+configuration and setup files. It works similar to well-known updaters like `pyupgrade` or `django-upgrade`.
 
 To run an update, refer to the [documentation page](https://pypi.org/project/ambient-package-update/)
 of the "ambient-package-update".

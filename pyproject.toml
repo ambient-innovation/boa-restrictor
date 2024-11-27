@@ -33,8 +33,6 @@ license = {"file" = "LICENSE.md"}
 dependencies = [
 ]
 
-# todo: das kann der updater noch nicht
-scripts.boa-restrictor = "boa_restrictor.cli.main:main"
 
 [project.optional-dependencies]
 dev = [
@@ -173,7 +171,6 @@ skip-magic-trailing-comma = false
 # Like Black, automatically detect the appropriate line ending.
 line-ending = "auto"
 
-# todo: pytest braucht django settings -> auch fürs django-flag?
 [tool.tox]
 legacy_tox_ini = """
 [testenv]
@@ -184,7 +181,7 @@ deps =
     django51: Django==5.1.*
 extras = dev,
 commands =
-    coverage run -m pytest tests
+    coverage run -m pytest --ds settings tests
 
 [gh-actions]
 python =
@@ -206,7 +203,7 @@ python_files = [
 branch = true
 parallel = true
 source = [
-    "boa-restrictor",
+    "boa_restrictor",
     "tests",
 ]
 omit = [
@@ -232,6 +229,6 @@ exclude_also = [
 
 [tool.coverage.path]
 source = [
-    "boa-restrictor",
+    "boa_restrictor",
     ".tox/**/site-packages",
 ]
