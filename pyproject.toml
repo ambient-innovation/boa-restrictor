@@ -173,6 +173,7 @@ skip-magic-trailing-comma = false
 # Like Black, automatically detect the appropriate line ending.
 line-ending = "auto"
 
+# todo: pytest braucht django settings -> auch fürs django-flag?
 [tool.tox]
 legacy_tox_ini = """
 [testenv]
@@ -183,7 +184,7 @@ deps =
     django51: Django==5.1.*
 extras = dev,
 commands =
-    coverage run -m pytest --ds settings tests
+    coverage run -m pytest tests
 
 [gh-actions]
 python =
