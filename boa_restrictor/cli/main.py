@@ -22,6 +22,13 @@ def main(argv: Sequence[str] | None = None):
         help="Filenames to process.",
     )
 
+    parser.add_argument(
+        "--config",
+        default="pyproject.toml",
+        type=str,
+        help="Location of pyproject.toml configuration file",
+    )
+
     args = parser.parse_args(argv)
 
     # TODO: register (or better exclude) checks dynamically depending on configured rules
@@ -37,7 +44,7 @@ def main(argv: Sequence[str] | None = None):
     )
     occurrences = []
 
-    excluded_rules = load_configuration().get("exclude", [])
+    excluded_rules = load_configuration(file_path=args["--config"]).get("exclude", [])
 
     for filename in args.filenames[1:]:
         with open(filename) as f:
@@ -74,9 +81,9 @@ def main(argv: Sequence[str] | None = None):
     return bool(any(occurrences))
 
 
-def load_configuration(*, file_path=None) -> dict:
+def load_configuration(*, file_path: str | None = None) -> dict:
     # TODO: get this from pre-commit or keep fixed file?
-    file_path = Path.cwd() / "pyproject.toml"
+    file_path = Path.cwd() / file_path
     with open(file_path, "rb") as f:
         data = tomllib.load(f)
 
