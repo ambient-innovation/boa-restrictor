@@ -59,7 +59,19 @@ def main(argv: Sequence[str] | None = None) -> list[Occurrence]:
                 ]
             )
 
-    return occurrences
+    current_path = Path.cwd()
+
+    # TODO: möchte ich die hier noch irgendwie sortieren?
+    if any(results):
+        for occurrence in results:
+            sys.stdout.write(
+                f'"{current_path / occurrence.filename}:{occurrence.line_number}": '
+                f"({occurrence.rule_id}) {occurrence.rule_label}\n"
+            )
+    else:
+        print("Aller Code so yeah!")
+
+    return bool(any(results))
 
 
 def load_configuration(*, file_path=None) -> dict:
@@ -89,22 +101,11 @@ def get_noqa_comments(*, source_code: str) -> list[tuple[int, str]]:
     return noqa_statements
 
 
-if __name__ == "__main__":
-    results = main()
-
-    current_path = Path.cwd()
-
-    # TODO: möchte ich die hier noch irgendwie sortieren?
-    if any(results):
-        for occurrence in results:
-            sys.stdout.write(
-                f'"{current_path / occurrence.filename}:{occurrence.line_number}": '
-                f"({occurrence.rule_id}) {occurrence.rule_label}\n"
-            )
-    else:
-        print("Aller Code so yeah!")
-
-    sys.exit(int(any(results)))
+# if __name__ == "__main__":
+#     results = main()
+#
+#
+#     sys.exit(int(any(results)))
 
 # TODO: configure RTD webhook
 # TODO: RUF100 löscht unsere PBR noqa's -> pyproject.toml lint.external
