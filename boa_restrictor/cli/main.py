@@ -13,7 +13,7 @@ from boa_restrictor.rules.asterisk_required import AsteriskRequiredRule
 from boa_restrictor.rules.return_type_hints import ReturnStatementRequiresTypeHintRule
 
 
-def main(argv: Sequence[str] | None = None) -> list[Occurrence]:
+def main(argv: Sequence[str] | None = None):
     parser = argparse.ArgumentParser(
         prog="boa-restrictor",
     )
@@ -62,8 +62,8 @@ def main(argv: Sequence[str] | None = None) -> list[Occurrence]:
     current_path = Path.cwd()
 
     # TODO: möchte ich die hier noch irgendwie sortieren?
-    if any(results):
-        for occurrence in results:
+    if any(occurrences):
+        for occurrence in occurrences:
             sys.stdout.write(
                 f'"{current_path / occurrence.filename}:{occurrence.line_number}": '
                 f"({occurrence.rule_id}) {occurrence.rule_label}\n"
@@ -71,12 +71,12 @@ def main(argv: Sequence[str] | None = None) -> list[Occurrence]:
     else:
         print("Aller Code so yeah!")
 
-    return bool(any(results))
+    return bool(any(occurrences))
 
 
 def load_configuration(*, file_path=None) -> dict:
     # TODO: get this from pre-commit
-    file_path = Path.cwd() / "../pyproject.toml"
+    file_path = Path.cwd() / "pyproject.toml"
     with open(file_path, "rb") as f:
         data = tomllib.load(f)
 
