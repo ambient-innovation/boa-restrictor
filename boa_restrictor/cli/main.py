@@ -67,6 +67,7 @@ def main(argv: Sequence[str] | None = None):
                 f'"{current_path / occurrence.filename}:{occurrence.line_number}": '
                 f"({occurrence.rule_id}) {occurrence.rule_label}\n"
             )
+        sys.stdout.write(f"Found {len(occurrences)} occurrence(s) in the codebase.\n")
     else:
         print("Aller Code so yeah!")
 
