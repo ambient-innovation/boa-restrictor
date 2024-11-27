@@ -103,6 +103,24 @@ def test_function_asterisk_too_late():
     )
 
 
+def test_function_arg_with_defaults():
+    source_code = """def my_function(a=42):
+        pass
+    """
+
+    rule = AsteriskRequiredRule(filename="my_file.py", source_code=source_code)
+    occurrences = rule.check(source_code=source_code)
+
+    assert len(occurrences) == 1
+    assert occurrences[0] == Occurrence(
+        filename="my_file.py",
+        line_number=1,
+        rule_id=AsteriskRequiredRule.RULE_ID,
+        rule_label=AsteriskRequiredRule.RULE_LABEL,
+        function_name="my_function",
+    )
+
+
 def test_async_function_has_asterisk():
     source_code = """async def my_function(*, a):
         pass

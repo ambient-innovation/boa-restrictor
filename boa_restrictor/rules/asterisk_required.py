@@ -18,10 +18,6 @@ class AsteriskRequiredRule(Rule):
             if isinstance(arg, ast.arg) and arg.arg not in ("self", "cls"):
                 return True
 
-        for default in node.args.defaults:
-            if default is not None:
-                return True
-
         return False
 
     def check(self, *, source_code: str) -> list[Occurrence]:
