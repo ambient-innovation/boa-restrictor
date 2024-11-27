@@ -29,6 +29,8 @@ def main(argv: Sequence[str] | None = None):
         help="Location of pyproject.toml configuration file",
     )
 
+    # TODO: add exclude patterns to exclude test_*.py or certain directories
+
     args = parser.parse_args(argv)
 
     load_configuration()
@@ -51,6 +53,7 @@ def main(argv: Sequence[str] | None = None):
             if linter_class.RULE_ID in excluded_rules:
                 continue
 
+            # TODO: ruff löscht die, außer man konfiguriert es -> mindestens in die doku
             excluded_lines = {token[0] for token in noqa_tokens if linter_class.RULE_ID in token[1]}
             # Ensure that line exclusions are respected
             occurrences.extend(

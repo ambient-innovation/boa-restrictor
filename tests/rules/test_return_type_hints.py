@@ -2,6 +2,7 @@ from boa_restrictor.projections.occurrence import Occurrence
 from boa_restrictor.rules.return_type_hints import ReturnStatementRequiresTypeHintRule
 
 
+# TODO: parametrize für happy tests
 def test_function_has_return_and_type_hint():
     source_code = """def my_function(self) -> bool:
             return True

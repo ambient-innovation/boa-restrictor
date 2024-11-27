@@ -8,9 +8,10 @@ Add the following to your .pre-commit-config.yaml file:
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]
-        stages: [ pre-push ]
 ```
 
 Now you can run the linter manually:
 
-    pre-commit run --all-files --hook-stage push
+    pre-commit run --all-files boa-restrictor
+
+# todo: add rules and example output

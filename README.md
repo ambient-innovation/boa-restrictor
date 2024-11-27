@@ -25,7 +25,7 @@ Add the following to your .pre-commit-config.yaml file:
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]
-        stages: [ pre-push ]
+        stages: [ pre-push ]  # todo: marius ist damit nicht happy
 ```
 
 Now you can run the linter manually:

@@ -2,6 +2,7 @@ from boa_restrictor.projections.occurrence import Occurrence
 from boa_restrictor.rules.asterisk_required import AsteriskRequiredRule
 
 
+# TODO: parametrize für happy tests
 def test_method_has_asterisk():
     source_code = """class MyClass:
         def my_method(self, *, a):
