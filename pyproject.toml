@@ -34,7 +34,7 @@ dependencies = [
 ]
 
 # todo: das kann der updater noch nicht
-scripts.boa-restrictor = "boa_restrictor.cli:main"
+scripts.boa-restrictor = "boa_restrictor.cli.main"
 
 [project.optional-dependencies]
 dev = [
