@@ -31,10 +31,6 @@ def main(argv: Sequence[str] | None = None):
 
     args = parser.parse_args(argv)
 
-    # TODO: register (or better exclude) checks dynamically depending on configured rules
-    # rules = {"RULE_001": rule_001, "RULE_002": rule_002} # noqa: ERA001
-    # linter = CustomLinter(rules) # noqa: ERA001
-
     load_configuration()
 
     # TODO: get them from somewhere else
@@ -44,7 +40,7 @@ def main(argv: Sequence[str] | None = None):
     )
     occurrences = []
 
-    excluded_rules = load_configuration(file_path=args["--config"]).get("exclude", [])
+    excluded_rules = load_configuration(file_path=args.config).get("exclude", [])
 
     for filename in args.filenames[1:]:
         with open(filename) as f:
@@ -81,11 +77,13 @@ def main(argv: Sequence[str] | None = None):
     return bool(any(occurrences))
 
 
-def load_configuration(*, file_path: str | None = None) -> dict:
-    # TODO: get this from pre-commit or keep fixed file?
+def load_configuration(*, file_path: str = "pyproject.toml") -> dict:
     file_path = Path.cwd() / file_path
-    with open(file_path, "rb") as f:
-        data = tomllib.load(f)
+    try:
+        with open(file_path, "rb") as f:
+            data = tomllib.load(f)
+    except FileNotFoundError:
+        return {}
 
     try:
         # TODO: das tuts nicht
