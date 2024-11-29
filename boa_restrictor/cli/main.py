@@ -90,6 +90,7 @@ def load_configuration(*, file_path: str = "pyproject.toml") -> dict:
 
     try:
         # TODO: das tuts nicht
+        print(data)
         return data["tool"]["boa-restrictor"]
     except KeyError:
         return {}
