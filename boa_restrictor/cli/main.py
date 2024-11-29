@@ -2,13 +2,14 @@ import argparse
 import sys
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Optional
 
 from boa_restrictor.cli.configuration import load_configuration
 from boa_restrictor.common.noqa import get_noqa_comments
 from boa_restrictor.rules import BOA_RESTRICTOR_RULES
 
 
-def main(argv: Sequence[str] | None = None):
+def main(argv: Optional[Sequence[str]] = None):
     parser = argparse.ArgumentParser(
         prog="boa-restrictor",
     )

@@ -1,4 +1,5 @@
 import sys
+from typing import Union
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -7,7 +8,7 @@ else:
 from pathlib import Path
 
 
-def load_configuration(*, file_path: Path | str = "pyproject.toml") -> dict:
+def load_configuration(*, file_path: Union[Path, str] = "pyproject.toml") -> dict:
     """
     Load linter configuration from pyproject.toml file.
     """
