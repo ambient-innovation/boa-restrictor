@@ -2,7 +2,7 @@ import tomllib
 from pathlib import Path
 
 
-def load_configuration(*, file_path: str = "pyproject.toml") -> dict:
+def load_configuration(*, file_path: Path | str = "pyproject.toml") -> dict:
     """
     Load linter configuration from pyproject.toml file.
     """
