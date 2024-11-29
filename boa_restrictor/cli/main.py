@@ -71,9 +71,3 @@ def main(argv: Sequence[str] | None = None):
         sys.stdout.write("Aller Code so yeah!")
 
     return bool(any(occurrences))
-
-
-# TODO: add exclude patterns to exclude test_*.py or certain directories
-# TODO: configure RTD webhook
-# TODO: RUF100 löscht unsere PBR noqa's -> pyproject.toml lint.external
-#  (https://docs.astral.sh/ruff/settings/#lint_extend-unsafe-fixes)

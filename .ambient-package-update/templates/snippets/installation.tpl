@@ -4,7 +4,7 @@ Add the following to your .pre-commit-config.yaml file:
 
 ```yml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v0.1.6  # todo: version
+    rev: v{{ version }}
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]
@@ -16,6 +16,23 @@ Now you can run the linter manually:
 
 
 ## Configuration
+
+### Exclude certain files
+
+You can easily exclude certain files, for example, your tests, by using the `exclude` parameter from `pre-commit`:
+
+```yml
+  - repo: https://github.com/ambient-innovation/boa-restrictor
+    rev: v{{ version }}
+    hooks:
+      - id: boa-restrictor
+        ...
+        exclude: |
+          (?x)^(
+            /.*/tests/.*
+            |.*/test_.*\.py
+          )$
+```
 
 ### Exclude configuration rule
 
