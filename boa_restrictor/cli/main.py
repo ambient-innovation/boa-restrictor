@@ -43,7 +43,7 @@ def main(argv: Sequence[str] | None = None):
     occurrences = []
 
     excluded_rules = load_configuration(file_path=args.config).get("exclude", [])
-    print(excluded_rules)
+    print(excluded_rules, load_configuration(file_path=args.config))
 
     for filename in args.filenames[1:]:
         with open(filename) as f:
@@ -90,7 +90,6 @@ def load_configuration(*, file_path: str = "pyproject.toml") -> dict:
         return {}
 
     try:
-        # TODO: das tuts nicht
         return data["tool"]["boa-restrictor"]
     except KeyError:
         return {}
