@@ -13,7 +13,45 @@ Welcome to the **boa-restrictor** - a custom Python linter from Ambient
 * Creator & Maintainer: [Ambient Digital](https://ambient.digital/)
 
 
-None
+## Rules
+
+### Positional arguments not allowed (PBR001)
+
+This rule enforces that functions and methods don't contain any positional arguments.
+
+This will make refactorings easier, is more explicit and you avoid the boolean bug trap.
+
+*Wrong:*
+
+```python
+def my_func(a, b):
+    pass
+```
+
+*Correct:*
+
+```python
+def my_func(*, a, b):
+    pass
+```
+
+### Return type hints required if a return statement exists (PBR002)
+
+This rule will enforce that you add a return statement to all methods and functions that contain a `return` statement.
+
+*Wrong:*
+
+```python
+def my_func(a, b):
+    return a * b
+```
+
+*Correct:*
+
+```python
+def my_func(a, b) -> int:
+    return a * b
+```
 
 ## Installation
 
@@ -21,16 +59,46 @@ Add the following to your .pre-commit-config.yaml file:
 
 ```yml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v0.1.6  # todo: version
+    rev: v0.1.6  # todo: version -> mit in die metadaten?
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]
-        stages: [ pre-push ]  # todo: marius ist damit nicht happy
 ```
 
 Now you can run the linter manually:
 
-    pre-commit run --all-files --hook-stage push
+    pre-commit run --all-files boa-restrictor
+
+
+## Configuration
+
+### Exclude configuration rule
+
+You can disable any rule in your `pyproject.toml` file as follows:
+
+```toml
+[tool.boa-restrictor]
+exclude = [
+    "PBR001",
+    "PBR002",
+]
+```
+
+### Ruff support
+
+If you are using `ruff`, you need to tell it about our linting rules. Otherwise, ruff will remove all `# noqa`
+statements from your codebase.
+
+```toml
+[tool.ruff.lint]
+# Avoiding flagging (and removing) any codes starting with `PBR` from any
+# `# noqa` directives, despite Ruff's lack of support for `boa-restrictor`.
+external = ["PBR"]
+```
+
+https://docs.astral.sh/ruff/settings/#lint_extend-unsafe-fixes
+
+# todo: add rules and example output
 
 ## Contribute
 
