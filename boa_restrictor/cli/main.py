@@ -1,15 +1,11 @@
 import argparse
-import re
 import sys
-import tokenize
-import tomllib
 from collections.abc import Sequence
-from io import StringIO
 from pathlib import Path
 
-from boa_restrictor.common.rule import LINTING_RULE_PREFIX
-from boa_restrictor.rules.asterisk_required import AsteriskRequiredRule
-from boa_restrictor.rules.return_type_hints import ReturnStatementRequiresTypeHintRule
+from boa_restrictor.cli.configuration import load_configuration
+from boa_restrictor.common.noqa import get_noqa_comments
+from boa_restrictor.rules import BOA_RESTRICTOR_RULES
 
 
 def main(argv: Sequence[str] | None = None):
@@ -21,54 +17,50 @@ def main(argv: Sequence[str] | None = None):
         nargs="*",
         help="Filenames to process.",
     )
-
     parser.add_argument(
         "--config",
         default="pyproject.toml",
         type=str,
         help="Location of pyproject.toml configuration file",
     )
-
-    # TODO: add exclude patterns to exclude test_*.py or certain directories
-
     args = parser.parse_args(argv)
 
-    load_configuration()
-
-    # TODO: get them from somewhere else
-    linter_classes = (
-        AsteriskRequiredRule,
-        ReturnStatementRequiresTypeHintRule,
-    )
-    occurrences = []
-
+    # Get excluded linting rules from configuration
     excluded_rules = load_configuration(file_path=args.config).get("exclude", [])
-    print(excluded_rules, load_configuration(file_path=args.config))
 
+    # Iterate over all filenames coming from pre-commit...
+    occurrences = []
     for filename in args.filenames[1:]:
+        # Read source code
         with open(filename) as f:
             source_code = f.read()
+
+        # Fetch all ignored line comments
         noqa_tokens = get_noqa_comments(source_code=source_code)
 
-        for linter_class in linter_classes:
-            if linter_class.RULE_ID in excluded_rules:
+        # Iterate over all linters...
+        for rule_class in BOA_RESTRICTOR_RULES:
+            # Skip linters which have been disabled via the configuration
+            if rule_class.RULE_ID in excluded_rules:
                 continue
 
-            # TODO: ruff löscht die, außer man konfiguriert es -> mindestens in die doku
-            excluded_lines = {token[0] for token in noqa_tokens if linter_class.RULE_ID in token[1]}
             # Ensure that line exclusions are respected
+            excluded_lines = {token[0] for token in noqa_tokens if rule_class.RULE_ID in token[1]}
+
+            # Add issues to our occurrence list
             occurrences.extend(
                 [
                     possible_occurrence
-                    for possible_occurrence in linter_class.run_check(filename=filename, source_code=source_code)
+                    for possible_occurrence in rule_class.run_check(filename=filename, source_code=source_code)
                     if possible_occurrence.line_number not in excluded_lines
                 ]
             )
 
-    current_path = Path.cwd()
-
-    # TODO: möchte ich die hier noch irgendwie sortieren?
+    # If we have any matches...
     if any(occurrences):
+        current_path = Path.cwd()
+
+        # Iterate over them and print details for the user
         for occurrence in occurrences:
             sys.stdout.write(
                 f'"{current_path / occurrence.filename}:{occurrence.line_number}": '
@@ -76,40 +68,12 @@ def main(argv: Sequence[str] | None = None):
             )
         sys.stdout.write(f"Found {len(occurrences)} occurrence(s) in the codebase.\n")
     else:
-        print("Aller Code so yeah!")
+        sys.stdout.write("Aller Code so yeah!")
 
     return bool(any(occurrences))
 
 
-def load_configuration(*, file_path: str = "pyproject.toml") -> dict:
-    file_path = Path.cwd() / file_path
-    try:
-        with open(file_path, "rb") as f:
-            data = tomllib.load(f)
-    except FileNotFoundError:
-        return {}
-
-    try:
-        return data["tool"]["boa-restrictor"]
-    except KeyError:
-        return {}
-
-
-def get_noqa_comments(*, source_code: str) -> list[tuple[int, str]]:
-    noqa_statements = []
-
-    tokens = tokenize.generate_tokens(StringIO(source_code).readline)
-    pattern = re.compile(r"^#\snoqa:\s*.*?" + LINTING_RULE_PREFIX + r"\d{3}")
-
-    for token in tokens:
-        token_type, token_string, start, _, _ = token
-
-        if token_type == tokenize.COMMENT and pattern.search(token_string):
-            noqa_statements.append((start[0], token_string.strip()))
-
-    return noqa_statements
-
-
+# TODO: add exclude patterns to exclude test_*.py or certain directories
 # TODO: configure RTD webhook
 # TODO: RUF100 löscht unsere PBR noqa's -> pyproject.toml lint.external
 #  (https://docs.astral.sh/ruff/settings/#lint_extend-unsafe-fixes)
