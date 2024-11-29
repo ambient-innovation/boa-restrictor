@@ -19,7 +19,7 @@ Welcome to the **boa-restrictor** - a custom Python linter from Ambient
 
 This rule enforces that functions and methods don't contain any positional arguments.
 
-This will make refactorings easier, is more explicit and you avoid the boolean bug trap.
+This will make refactorings easier, is more explicit, and you avoid the boolean bug trap.
 
 *Wrong:*
 
@@ -59,7 +59,7 @@ Add the following to your .pre-commit-config.yaml file:
 
 ```yml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v0.1.6  # todo: version -> mit in die metadaten?
+    rev: v0.1.6  # todo: version
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]
@@ -98,8 +98,6 @@ external = ["PBR"]
 
 https://docs.astral.sh/ruff/settings/#lint_extend-unsafe-fixes
 
-# todo: add rules and example output
-
 ## Contribute
 
 ### Setup package for development
@@ -126,7 +124,7 @@ https://docs.astral.sh/ruff/settings/#lint_extend-unsafe-fixes
 
 - Check coverage
   ````
-  coverage run -m pytest --ds settings tests
+  coverage run -m pytest tests
   coverage report -m
   ````
 

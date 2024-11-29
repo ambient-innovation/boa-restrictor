@@ -5,6 +5,7 @@ from ambient_package_update.metadata.constants import (
     SUPPORTED_DJANGO_VERSIONS,
     SUPPORTED_PYTHON_VERSIONS,
 )
+from ambient_package_update.metadata.executables import ScriptExecutable
 from ambient_package_update.metadata.maintainer import PackageMaintainer
 from ambient_package_update.metadata.package import PackageMetadata
 from ambient_package_update.metadata.readme import ReadmeContent
@@ -27,6 +28,7 @@ METADATA = PackageMetadata(
     has_migrations=False,
     readme_content=ReadmeContent(uses_internationalisation=False),
     main_branch="main",
+    is_django_package=False,
     dependencies=[],
     supported_django_versions=SUPPORTED_DJANGO_VERSIONS,
     supported_python_versions=SUPPORTED_PYTHON_VERSIONS,
@@ -39,4 +41,5 @@ METADATA = PackageMetadata(
         RuffIgnoredInspection(key="TD002", comment="Missing issue link on the line following this TODO"),
         RuffIgnoredInspection(key="TD003", comment="Missing issue link on the line following this TODO"),
     ],
+    script_executables=[ScriptExecutable(name="boa-restrictor", import_path="boa_restrictor.cli.main:main")],
 )

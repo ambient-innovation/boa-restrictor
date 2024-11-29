@@ -33,8 +33,9 @@ license = {"file" = "LICENSE.md"}
 dependencies = [
 ]
 
-# todo: das kann der updater noch nicht
+
 scripts.boa-restrictor = "boa_restrictor.cli.main:main"
+
 
 [project.optional-dependencies]
 dev = [
@@ -173,7 +174,6 @@ skip-magic-trailing-comma = false
 # Like Black, automatically detect the appropriate line ending.
 line-ending = "auto"
 
-# todo: pytest braucht django settings -> auch fürs django-flag?
 [tool.tox]
 legacy_tox_ini = """
 [testenv]
