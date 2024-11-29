@@ -29,7 +29,7 @@ METADATA = PackageMetadata(
     readme_content=ReadmeContent(uses_internationalisation=False),
     main_branch="main",
     is_django_package=False,
-    dependencies=[],
+    dependencies=['tomli; python_version < "3.11"'],
     supported_django_versions=SUPPORTED_DJANGO_VERSIONS,
     supported_python_versions=SUPPORTED_PYTHON_VERSIONS,
     optional_dependencies={

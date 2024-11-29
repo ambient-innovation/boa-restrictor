@@ -31,6 +31,7 @@ classifiers = [
 dynamic = ["version", "description"]
 license = {"file" = "LICENSE.md"}
 dependencies = [
+    'tomli; python_version < "3.11"',
 ]
 
 
