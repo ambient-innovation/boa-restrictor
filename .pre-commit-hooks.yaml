@@ -1,0 +1,6 @@
+- id: boa-restrictor
+  name: Boa Restrictor Linter by Ambient
+  description: A custom Python linter by Ambient
+  entry: boa-restrictor
+  language: python
+  types: [ python ]
