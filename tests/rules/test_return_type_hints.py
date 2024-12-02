@@ -7,8 +7,7 @@ def test_function_has_return_and_type_hint():
             return True
         """
 
-    rule = ReturnStatementRequiresTypeHintRule(filename="my_file.py", source_code=source_code)
-    occurrences = rule.check(source_code=source_code)
+    occurrences = ReturnStatementRequiresTypeHintRule.run_check(filename="my_file.py", source_code=source_code)
 
     assert len(occurrences) == 0
 
@@ -18,8 +17,7 @@ def test_function_has_return_missing_type_hint():
             return True
         """
 
-    rule = ReturnStatementRequiresTypeHintRule(filename="my_file.py", source_code=source_code)
-    occurrences = rule.check(source_code=source_code)
+    occurrences = ReturnStatementRequiresTypeHintRule.run_check(filename="my_file.py", source_code=source_code)
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
@@ -36,7 +34,6 @@ def test_function_missing_return_has_type_hint():
             pass
         """
 
-    rule = ReturnStatementRequiresTypeHintRule(filename="my_file.py", source_code=source_code)
-    occurrences = rule.check(source_code=source_code)
+    occurrences = ReturnStatementRequiresTypeHintRule.run_check(filename="my_file.py", source_code=source_code)
 
     assert len(occurrences) == 0

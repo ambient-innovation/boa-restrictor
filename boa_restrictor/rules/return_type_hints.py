@@ -13,8 +13,8 @@ class ReturnStatementRequiresTypeHintRule(Rule):
     RULE_ID = f"{LINTING_RULE_PREFIX}002"
     RULE_LABEL = "Return statements require return type hint."
 
-    def check(self, *, source_code: str) -> list[Occurrence]:
-        tree = ast.parse(source_code)
+    def check(self) -> list[Occurrence]:
+        tree = ast.parse(self.source_code)
         occurrences = []
 
         for node in ast.walk(tree):

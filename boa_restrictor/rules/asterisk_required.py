@@ -20,8 +20,8 @@ class AsteriskRequiredRule(Rule):
 
         return False
 
-    def check(self, *, source_code: str) -> list[Occurrence]:
-        tree = ast.parse(source_code)
+    def check(self) -> list[Occurrence]:
+        tree = ast.parse(self.source_code)
         occurrences = []
 
         for node in ast.walk(tree):

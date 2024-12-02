@@ -13,13 +13,17 @@ class Rule:
     @classmethod
     def run_check(cls, *, filename: str, source_code: str) -> list[Occurrence]:
         instance = cls(filename=filename, source_code=source_code)
-        return instance.check(source_code=source_code)
+        return instance.check()
 
     def __init__(self, *, filename: str, source_code: str):
+        """
+        A rule is called via pre-commit for a specific file.
+        Variable `source_code` is the content of the given file.
+        """
         super().__init__()
 
         self.filename = filename
         self.source_code = source_code
 
-    def check(self, *, source_code: str) -> list[Occurrence]:
+    def check(self) -> list[Occurrence]:
         raise NotImplementedError
