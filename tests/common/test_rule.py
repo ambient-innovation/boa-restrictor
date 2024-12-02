@@ -9,7 +9,8 @@ from boa_restrictor.common.rule import Rule
 def test_run_check(mocked_check):
     Rule.run_check(filename="my/file.py", source_code="Python!")
 
-    mocked_check.assert_called_with(source_code="Python!")
+    mocked_check.assert_called_with()
+    mocked_check.assert_called_once()
 
 
 def test_init_variables_set():
