@@ -69,6 +69,6 @@ def main(argv: Optional[Sequence[str]] = None):
             )
         sys.stdout.write(f"Found {len(occurrences)} occurrence(s) in the codebase.\n")
     else:
-        sys.stdout.write("Aller Code so yeah!")
+        sys.stdout.write("No issues found.")
 
     return bool(any(occurrences))
