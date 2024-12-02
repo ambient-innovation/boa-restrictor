@@ -62,7 +62,7 @@ Add the following to your .pre-commit-config.yaml file:
 
 ```yml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.0.0
+    rev: v1.0.1
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]
@@ -81,7 +81,7 @@ You can easily exclude certain files, for example, your tests, by using the `exc
 
 ```yml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.0.0
+    rev: v1.0.1
     hooks:
       - id: boa-restrictor
         ...
@@ -207,6 +207,11 @@ Example: run all hooks of pre-push stage
   ```
   flit publish --repository testpypi
   ```
+
+### Create new version for pre-commit
+
+To be able to use the latest version in pre-commit, you have to create a git tag for the current commit.
+So please tag your commit and push it to GitHub.
 
 ### Maintenance
 
