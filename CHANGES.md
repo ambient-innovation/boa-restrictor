@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.0.2* (2024-12-02)
+    * Fixed sphinx docs
+
 * *1.0.1* (2024-12-02)
     * Added forgotten changelog
     * Added docs for git tags for pre-commit

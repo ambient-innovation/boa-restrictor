@@ -2,7 +2,7 @@
 
 Add the following to your .pre-commit-config.yaml file:
 
-```yml
+```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
     rev: v{{ version }}
     hooks:
@@ -21,7 +21,7 @@ Now you can run the linter manually:
 
 You can easily exclude certain files, for example, your tests, by using the `exclude` parameter from `pre-commit`:
 
-```yml
+```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
     rev: v{{ version }}
     hooks:
