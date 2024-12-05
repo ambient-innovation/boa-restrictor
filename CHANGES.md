@@ -1,5 +1,9 @@
 # Changelog
 
+* *1.0.3* (2024-12-02)
+    * Re-added Django dependency
+    * Added ruff linting rules
+
 * *1.0.2* (2024-12-02)
     * Fixed sphinx docs
 
