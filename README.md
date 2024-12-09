@@ -115,7 +115,7 @@ Add the following to your .pre-commit-config.yaml file:
 
 ```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.2.0
+    rev: v1.1.0
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]
@@ -134,7 +134,7 @@ You can easily exclude certain files, for example, your tests, by using the `exc
 
 ```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.2.0
+    rev: v1.1.0
     hooks:
       - id: boa-restrictor
         ...
