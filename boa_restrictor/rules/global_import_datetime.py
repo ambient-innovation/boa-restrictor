@@ -19,16 +19,14 @@ class GlobalImportDatetimeRule(Rule):
         for node in ast.walk(self.source_tree):
             if isinstance(node, ast.ImportFrom):
                 if node.module == "datetime":
-                    for alias in node.names:
-                        if alias.name == "datetime":
-                            occurrences.append(  # noqa: PERF401
-                                Occurrence(
-                                    filename=self.filename,
-                                    rule_label=self.RULE_LABEL,
-                                    rule_id=self.RULE_ID,
-                                    line_number=node.lineno,
-                                    function_name=None,
-                                )
-                            )
+                    occurrences.append(
+                        Occurrence(
+                            filename=self.filename,
+                            rule_label=self.RULE_LABEL,
+                            rule_id=self.RULE_ID,
+                            line_number=node.lineno,
+                            function_name=None,
+                        )
+                    )
 
         return occurrences

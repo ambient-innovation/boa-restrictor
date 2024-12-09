@@ -1,10 +1,14 @@
 import argparse
+import ast
 import os
 import sys
 from unittest import mock
 
+import pytest
+
 from boa_restrictor.cli.main import main
 from boa_restrictor.common.rule import Rule
+from boa_restrictor.exceptions.syntax_errors import BoaRestrictorParsingError
 from boa_restrictor.projections.occurrence import Occurrence
 from boa_restrictor.rules import BOA_RESTRICTOR_RULES, AsteriskRequiredRule
 
@@ -56,6 +60,19 @@ def test_main_noqa_comments_called(mocked_get_noqa_comments):
     )
 
     mocked_get_noqa_comments.assert_called_once()
+
+
+@mock.patch.object(ast, "parse", side_effect=SyntaxError)
+def test_main_invalid_syntax(*args):
+    with pytest.raises(BoaRestrictorParsingError, match=r"Source code of file"):
+        main(
+            argv=(
+                "boa-restrictor",
+                os.path.abspath(sys.argv[0]),
+                "--config",
+                "pyproject.toml",
+            )
+        )
 
 
 @mock.patch.object(sys.stdout, "write")
