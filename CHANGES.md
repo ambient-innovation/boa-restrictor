@@ -2,6 +2,7 @@
 
 * *1.1.0* (2024-12-09)
     * Added rule `PBR003` for prohibiting import nested datetime from datetime module
+    * Added rule `PBR004` for enforcing `kw_only` parameter for dataclasses
     * Moved AST creation from rule declaration to cli level for performance reasons
 
 * *1.0.3* (2024-12-02)

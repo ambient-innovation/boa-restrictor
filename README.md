@@ -80,6 +80,35 @@ import datetime
 my_datetime = datetime.datetime(2024, 9, 19)
 ```
 
+### Use dataclasses with "kw_only" (PBR004)
+
+This rule will enforce that you use the `kw_only` parameter in every dataclass decorator.
+
+This will force the developer to set all dataclass attributes as kwargs instead of args, which is more explicit and
+easier to refactor.
+
+*Wrong:*
+
+```python
+from dataclasses import dataclass
+
+
+@dataclass
+class MyDataClass:
+    pass
+```
+
+*Correct:*
+
+```python
+from dataclasses import dataclass
+
+
+@dataclass(kw_only=True)
+class MyDataClass:
+    pass
+```
+
 ## Installation
 
 Add the following to your .pre-commit-config.yaml file:
