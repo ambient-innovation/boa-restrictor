@@ -15,7 +15,7 @@ class MyDataclass:
     assert len(occurrences) == 0
 
 
-def test_no_dataclass_decorator():
+def test_other_class_decorator():
     source_tree = ast.parse("""
 @abc.ABCMeta.register
 class MyDataclass:
