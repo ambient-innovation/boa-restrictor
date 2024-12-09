@@ -56,6 +56,30 @@ def my_func(a, b) -> int:
     return a * b
 ```
 
+### Avoid nested import of datetime module (PBR003)
+
+This rule will enforce that you never import a datetime object from the datetime module, but instead import the datetime
+module and get the object from there.
+
+Since you can't distinguish in the code between a `datetime` module and `datetime` object without looking at the
+imports, this leads to inconsistent and unclear code.
+
+*Wrong:*
+
+```python
+from datetime import datetime
+
+my_datetime = datetime(2024, 9, 19)
+```
+
+*Correct:*
+
+```python
+import datetime
+
+my_datetime = datetime.datetime(2024, 9, 19)
+```
+
 ## Installation
 
 Add the following to your .pre-commit-config.yaml file:

@@ -6,7 +6,7 @@ from unittest import mock
 from boa_restrictor.cli.main import main
 from boa_restrictor.common.rule import Rule
 from boa_restrictor.projections.occurrence import Occurrence
-from boa_restrictor.rules import AsteriskRequiredRule, ReturnStatementRequiresTypeHintRule
+from boa_restrictor.rules import BOA_RESTRICTOR_RULES, AsteriskRequiredRule
 
 
 @mock.patch.object(argparse.ArgumentParser, "parse_args")
@@ -26,9 +26,9 @@ def test_main_arguments_parsed(mocked_parse_args):
 
 
 @mock.patch("boa_restrictor.cli.main.load_configuration", return_value={"exclude": ["PBR001"]})
-@mock.patch.object(ReturnStatementRequiresTypeHintRule, "run_check")
+@mock.patch.object(Rule, "run_check")
 @mock.patch.object(AsteriskRequiredRule, "run_check")
-def test_main_exclude_config_active(mocked_run_checks_asterisk, mocked_run_checks_return_type, *args):
+def test_main_exclude_config_active(mocked_run_checks_asterisk, mocked_rule_run_checks, *args):
     main(
         argv=(
             "boa-restrictor",
@@ -39,7 +39,9 @@ def test_main_exclude_config_active(mocked_run_checks_asterisk, mocked_run_check
     )
 
     mocked_run_checks_asterisk.assert_not_called()
-    mocked_run_checks_return_type.assert_called_once()
+    assert (
+        mocked_rule_run_checks.call_count == len(BOA_RESTRICTOR_RULES) - 1
+    ), "We expect all but one rule to be called."
 
 
 @mock.patch("boa_restrictor.cli.main.get_noqa_comments", return_value=[])

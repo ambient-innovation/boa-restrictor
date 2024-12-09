@@ -1,36 +1,38 @@
+import ast
+
 from boa_restrictor.projections.occurrence import Occurrence
 from boa_restrictor.rules.asterisk_required import AsteriskRequiredRule
 
 
 def test_method_has_asterisk():
-    source_code = """class MyClass:
+    source_tree = ast.parse("""class MyClass:
         def my_method(self, *, a):
             pass
-    """
+    """)
 
-    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_code=source_code)
+    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_tree=source_tree)
 
     assert len(occurrences) == 0
 
 
 def test_method_no_params():
-    source_code = """class MyClass:
+    source_tree = ast.parse("""class MyClass:
         def my_method(self):
             pass
-    """
+    """)
 
-    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_code=source_code)
+    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_tree=source_tree)
 
     assert len(occurrences) == 0
 
 
 def test_method_missing_asterisk():
-    source_code = """class MyClass:
+    source_tree = ast.parse("""class MyClass:
         def my_method(self, a):
             pass
-    """
+    """)
 
-    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_code=source_code)
+    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_tree=source_tree)
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
@@ -43,31 +45,31 @@ def test_method_missing_asterisk():
 
 
 def test_function_has_asterisk():
-    source_code = """def my_function(*, a):
+    source_tree = ast.parse("""def my_function(*, a):
         pass
-    """
+    """)
 
-    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_code=source_code)
+    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_tree=source_tree)
 
     assert len(occurrences) == 0
 
 
 def test_function_no_params():
-    source_code = """def my_function():
+    source_tree = ast.parse("""def my_function():
         pass
-    """
+    """)
 
-    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_code=source_code)
+    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_tree=source_tree)
 
     assert len(occurrences) == 0
 
 
 def test_function_missing_asterisk():
-    source_code = """def my_function(a):
+    source_tree = ast.parse("""def my_function(a):
         pass
-    """
+    """)
 
-    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_code=source_code)
+    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_tree=source_tree)
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
@@ -80,11 +82,11 @@ def test_function_missing_asterisk():
 
 
 def test_function_asterisk_too_late():
-    source_code = """def my_function(a, *, b):
+    source_tree = ast.parse("""def my_function(a, *, b):
         pass
-    """
+    """)
 
-    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_code=source_code)
+    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_tree=source_tree)
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
@@ -97,11 +99,11 @@ def test_function_asterisk_too_late():
 
 
 def test_function_arg_with_defaults():
-    source_code = """def my_function(a=42):
+    source_tree = ast.parse("""def my_function(a=42):
         pass
-    """
+    """)
 
-    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_code=source_code)
+    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_tree=source_tree)
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
@@ -114,21 +116,21 @@ def test_function_arg_with_defaults():
 
 
 def test_async_function_has_asterisk():
-    source_code = """async def my_function(*, a):
+    source_tree = ast.parse("""async def my_function(*, a):
         pass
-    """
+    """)
 
-    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_code=source_code)
+    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_tree=source_tree)
 
     assert len(occurrences) == 0
 
 
 def test_async_function_missing_asterisk():
-    source_code = """async def my_function(a):
+    source_tree = ast.parse("""async def my_function(a):
         pass
-    """
+    """)
 
-    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_code=source_code)
+    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_tree=source_tree)
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
@@ -141,31 +143,31 @@ def test_async_function_missing_asterisk():
 
 
 def test_self_outside_of_class_not_matched():
-    source_code = """def my_function(self):
+    source_tree = ast.parse("""def my_function(self):
         pass
-    """
+    """)
 
-    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_code=source_code)
+    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_tree=source_tree)
 
     assert len(occurrences) == 0
 
 
 def test_cls_outside_of_class_not_matched():
-    source_code = """def my_function(cls):
+    source_tree = ast.parse("""def my_function(cls):
         pass
-    """
+    """)
 
-    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_code=source_code)
+    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_tree=source_tree)
 
     assert len(occurrences) == 0
 
 
 def test_leading_cls_and_following_attributes():
-    source_code = """def my_function(cls, a):
+    source_tree = ast.parse("""def my_function(cls, a):
         pass
-    """
+    """)
 
-    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_code=source_code)
+    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_tree=source_tree)
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
@@ -178,8 +180,8 @@ def test_leading_cls_and_following_attributes():
 
 
 def test_lambda_not_matched():
-    source_code = """double = lambda x: x * 2"""
+    source_tree = ast.parse("""double = lambda x: x * 2""")
 
-    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_code=source_code)
+    occurrences = AsteriskRequiredRule.run_check(filename="my_file.py", source_tree=source_tree)
 
     assert len(occurrences) == 0

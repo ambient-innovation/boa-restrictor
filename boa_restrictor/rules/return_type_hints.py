@@ -14,11 +14,10 @@ class ReturnStatementRequiresTypeHintRule(Rule):
     RULE_LABEL = "Return statements require return type hint."
 
     def check(self) -> list[Occurrence]:
-        tree = ast.parse(self.source_code)
         occurrences = []
 
-        for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef):  # Funktion gefunden
+        for node in ast.walk(self.source_tree):
+            if isinstance(node, ast.FunctionDef):
                 has_return_statement = any(isinstance(child, ast.Return) for child in ast.walk(node))
                 has_return_annotation = node.returns is not None
 

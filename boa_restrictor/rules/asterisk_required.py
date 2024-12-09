@@ -21,10 +21,9 @@ class AsteriskRequiredRule(Rule):
         return False
 
     def check(self) -> list[Occurrence]:
-        tree = ast.parse(self.source_code)
         occurrences = []
 
-        for node in ast.walk(tree):
+        for node in ast.walk(self.source_tree):
             if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
             if self._missing_asterisk(node=node):
