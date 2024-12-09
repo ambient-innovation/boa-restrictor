@@ -75,15 +75,21 @@ easier to refactor.
 *Wrong:*
 
 ```python
-from datetime import datetime
+from dataclasses import dataclass
 
-my_datetime = datetime(2024, 9, 19)
+
+@dataclass
+class MyDataClass:
+    pass
 ```
 
 *Correct:*
 
 ```python
-import datetime
+from dataclasses import dataclass
 
-my_datetime = datetime.datetime(2024, 9, 19)
+
+@dataclass(kw_only=True)
+class MyDataClass:
+    pass
 ```

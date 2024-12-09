@@ -80,13 +80,42 @@ import datetime
 my_datetime = datetime.datetime(2024, 9, 19)
 ```
 
+### Use dataclasses with "kw_only" (PBR004)
+
+This rule will enforce that you use the `kw_only` parameter in every dataclass decorator.
+
+This will force the developer to set all dataclass attributes as kwargs instead of args, which is more explicit and
+easier to refactor.
+
+*Wrong:*
+
+```python
+from dataclasses import dataclass
+
+
+@dataclass
+class MyDataClass:
+    pass
+```
+
+*Correct:*
+
+```python
+from dataclasses import dataclass
+
+
+@dataclass(kw_only=True)
+class MyDataClass:
+    pass
+```
+
 ## Installation
 
 Add the following to your .pre-commit-config.yaml file:
 
 ```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.1.0
+    rev: v1.2.0
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]
@@ -105,7 +134,7 @@ You can easily exclude certain files, for example, your tests, by using the `exc
 
 ```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.1.0
+    rev: v1.2.0
     hooks:
       - id: boa-restrictor
         ...
