@@ -17,6 +17,7 @@ class MyDataclass:
 
 def test_no_dataclass_decorator():
     source_tree = ast.parse("""
+@abc.ABCMeta.register
 class MyDataclass:
     pass""")
 
