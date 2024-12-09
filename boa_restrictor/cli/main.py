@@ -76,7 +76,7 @@ def main(argv: Optional[Sequence[str]] = None):
                 f"({occurrence.rule_id}) {occurrence.rule_label}\n"
             )
         sys.stdout.write(f"Found {len(occurrences)} occurrence(s) in the codebase.\n")
-    else:
-        sys.stdout.write("No issues found.")
+
+    # Since pre-commit will run this function x times, we skip any "success" messages.
 
     return bool(any(occurrences))

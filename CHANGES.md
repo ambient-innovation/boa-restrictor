@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.1.2* (2024-12-09)
+    * Removed success message since `pre-commit` runs any linter *x* times
+
 * *1.1.1* (2024-12-09)
     * Fixed a bug that caused `PBR004` not to be executed
 
