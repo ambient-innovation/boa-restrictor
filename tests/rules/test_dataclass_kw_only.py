@@ -15,6 +15,16 @@ class MyDataclass:
     assert len(occurrences) == 0
 
 
+def test_no_dataclass_decorator():
+    source_tree = ast.parse("""
+class MyDataclass:
+    pass""")
+
+    occurrences = DataclassWithKwargsOnlyRule.run_check(filename="my_file.py", source_tree=source_tree)
+
+    assert len(occurrences) == 0
+
+
 def test_dataclass_kw_only_missing():
     source_tree = ast.parse("""import dataclass
 @dataclasses.dataclass
