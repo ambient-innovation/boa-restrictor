@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.1.1* (2024-12-09)
+    * Fixed a bug that caused `PBR004` not to be executed
+
 * *1.1.0* (2024-12-09)
     * Added rule `PBR003` for prohibiting import nested datetime from datetime module
     * Added rule `PBR004` for enforcing `kw_only` parameter for dataclasses
