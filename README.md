@@ -115,7 +115,7 @@ Add the following to your .pre-commit-config.yaml file:
 
 ```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.1.2
+    rev: v1.2.0
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]
@@ -134,7 +134,7 @@ You can easily exclude certain files, for example, your tests, by using the `exc
 
 ```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.1.2
+    rev: v1.2.0
     hooks:
       - id: boa-restrictor
         ...
@@ -145,7 +145,7 @@ You can easily exclude certain files, for example, your tests, by using the `exc
           )$
 ```
 
-### Exclude configuration rule
+### Globally exclude configuration rule
 
 You can disable any rule in your `pyproject.toml` file as follows:
 
@@ -154,6 +154,20 @@ You can disable any rule in your `pyproject.toml` file as follows:
 exclude = [
     "PBR001",
     "PBR002",
+]
+```
+
+### Per-file exclusion of configuration rule
+
+You can disable rules on a per-file-basis in your `pyproject.toml` file as follows:
+
+```toml
+[tool.boa-restrictor]
+per-file-excludes = [
+    "*/tests/*" = [
+        "PBR001",
+        "PBR002",
+    ]
 ]
 ```
 
