@@ -1,5 +1,10 @@
 # Changelog
 
+* *1.2.0* (2024-12-10)
+    * Added per-file exclusion list in configuration
+    * Added warnings if non-existing rules are excluded in the configuration
+    * Removed occurrence counter output in CLI since `pre-commit` calls the linter recursively
+
 * *1.1.2* (2024-12-09)
     * Removed success message since `pre-commit` runs any linter *x* times
 
