@@ -33,6 +33,7 @@ def main(argv: Optional[Sequence[str]] = None):
     per_file_excluded_rules: dict[str, list[str]] = load_configuration(file_path=args.config).get(
         "per-file-excludes", {}
     )
+    print(globally_excluded_rules, per_file_excluded_rules)
 
     # Iterate over all filenames coming from pre-commit...
     occurrences = []
