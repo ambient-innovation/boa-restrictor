@@ -81,3 +81,14 @@ def test_is_rule_excluded_per_file_is_not_excluded():
         )
         is False
     )
+
+
+def test_is_rule_excluded_per_file_file_not_found():
+    assert (
+        is_rule_excluded_per_file(
+            filename="src/history.py",
+            rule_class=AsteriskRequiredRule,
+            per_file_excluded_rules={"*.py": ["PBR002"]},
+        )
+        is False
+    )
