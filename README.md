@@ -162,14 +162,18 @@ exclude = [
 You can disable rules on a per-file-basis in your `pyproject.toml` file as follows:
 
 ```toml
-[tool.boa-restrictor]
-per-file-excludes = [
-    "*/tests/*" = [
-        "PBR001",
-        "PBR002",
-    ]
+[tool.boa-restrictor.per-file-excludes]
+"*/tests/*" = [
+    "PBR001",
+    "PBR002",
+]
+"scripts/*" = [
+    "PBR003",
 ]
 ```
+
+Take care that the path is relative to the location of your pyproject.toml. This means that example two targets all
+files living in a `scripts/` directory on the projects top level.
 
 ### Ruff support
 
