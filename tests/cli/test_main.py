@@ -121,5 +121,5 @@ def test_main_occurrences_are_written_to_cli(mocked_write):
     # We have more than one rule
     assert mocked_run_checks.call_count > 1
 
-    # We expect one line per occurrence and one final summary
-    assert mocked_write.call_count == mocked_run_checks.call_count + 1
+    # We expect one line per occurrence
+    assert mocked_write.call_count == mocked_run_checks.call_count
