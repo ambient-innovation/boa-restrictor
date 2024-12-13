@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.2.1* (2024-12-13)
+    * Allowed other imports from `datetime` module except `datetime` and `date`
+
 * *1.2.0* (2024-12-10)
     * Added per-file exclusion list in configuration
     * Added warnings if non-existing rules are excluded in the configuration

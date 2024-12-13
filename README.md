@@ -64,6 +64,9 @@ module and get the object from there.
 Since you can't distinguish in the code between a `datetime` module and `datetime` object without looking at the
 imports, this leads to inconsistent and unclear code.
 
+Importing the `date` object can cause a namespace conflict with the Django template tag `date`, therefore this is not
+allowed as well.
+
 *Wrong:*
 
 ```python
@@ -79,6 +82,8 @@ import datetime
 
 my_datetime = datetime.datetime(2024, 9, 19)
 ```
+
+Note, that other imports from the `datetime` module like `UTC` are allowed since there are no known conflicts.
 
 ### Use dataclasses with "kw_only" (PBR004)
 
@@ -115,7 +120,7 @@ Add the following to your .pre-commit-config.yaml file:
 
 ```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.2.0
+    rev: v1.2.1
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]
@@ -134,7 +139,7 @@ You can easily exclude certain files, for example, your tests, by using the `exc
 
 ```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.2.0
+    rev: v1.2.1
     hooks:
       - id: boa-restrictor
         ...

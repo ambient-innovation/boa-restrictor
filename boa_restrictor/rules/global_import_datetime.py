@@ -17,16 +17,17 @@ class GlobalImportDatetimeRule(Rule):
         occurrences = []
 
         for node in ast.walk(self.source_tree):
-            if isinstance(node, ast.ImportFrom):
-                if node.module == "datetime":
-                    occurrences.append(
-                        Occurrence(
-                            filename=self.filename,
-                            rule_label=self.RULE_LABEL,
-                            rule_id=self.RULE_ID,
-                            line_number=node.lineno,
-                            function_name=None,
+            if isinstance(node, ast.ImportFrom) and node.module == "datetime":
+                for alias in node.names:
+                    if alias.name in {"datetime", "date"}:
+                        occurrences.append(  # noqa: PERF401
+                            Occurrence(
+                                filename=self.filename,
+                                rule_label=self.RULE_LABEL,
+                                rule_id=self.RULE_ID,
+                                line_number=node.lineno,
+                                function_name=None,
+                            )
                         )
-                    )
 
         return occurrences
