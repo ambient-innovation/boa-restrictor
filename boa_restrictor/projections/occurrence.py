@@ -2,7 +2,8 @@ import dataclasses
 from typing import Optional
 
 
-@dataclasses.dataclass(kw_only=True)
+# TODO: Add kw_only when we drop Python 3.9 support
+@dataclasses.dataclass
 class Occurrence:
     rule_id: str
     rule_label: str
