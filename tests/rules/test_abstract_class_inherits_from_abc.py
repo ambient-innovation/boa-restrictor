@@ -115,6 +115,38 @@ def test_abstract_class_via_abc_metaclass():
     assert len(occurrences) == 0
 
 
+def test_abstract_class_base_kwarg_not_metaclass():
+    source_tree = ast.parse("""class MyAbstractMetaClass(test=True):
+    pass""")
+
+    occurrences = AbstractClassesInheritFromAbcRule.run_check(filename="my_file.py", source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0] == Occurrence(
+        filename="my_file.py",
+        line_number=1,
+        rule_id=AbstractClassesInheritFromAbcRule.RULE_ID,
+        rule_label=AbstractClassesInheritFromAbcRule.RULE_LABEL,
+        identifier="MyAbstractMetaClass",
+    )
+
+
+def test_abstract_class_base_kwarg_dynamic():
+    source_tree = ast.parse("""class MyAbstractMetaClass(metaclass=dynamic_metaclass()):
+    pass""")
+
+    occurrences = AbstractClassesInheritFromAbcRule.run_check(filename="my_file.py", source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0] == Occurrence(
+        filename="my_file.py",
+        line_number=1,
+        rule_id=AbstractClassesInheritFromAbcRule.RULE_ID,
+        rule_label=AbstractClassesInheritFromAbcRule.RULE_LABEL,
+        identifier="MyAbstractMetaClass",
+    )
+
+
 def test_abstract_class_lower_case():
     source_tree = ast.parse("""class abstractService:
     pass""")
