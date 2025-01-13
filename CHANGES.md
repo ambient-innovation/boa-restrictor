@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.3.0* (2025-01-13)
+    * Added rule `PBR005` for ensuring service classes have exactly one public method called "process"
+
 * *1.2.1* (2024-12-13)
     * Allowed other imports from `datetime` module except `datetime` and `date`
 

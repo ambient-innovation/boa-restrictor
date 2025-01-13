@@ -28,7 +28,7 @@ class ReturnStatementRequiresTypeHintRule(Rule):
                             rule_label=self.RULE_LABEL,
                             rule_id=self.RULE_ID,
                             line_number=node.lineno,
-                            function_name=node.name,
+                            identifier=node.name,
                         )
                     )
 

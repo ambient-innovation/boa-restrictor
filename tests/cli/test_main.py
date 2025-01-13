@@ -101,7 +101,7 @@ def test_main_occurrences_are_written_to_cli(mocked_write):
         rule_label="One to rule them all.",
         filename="my_file.py",
         line_number=42,
-        function_name="my_function",
+        identifier="my_function",
     )
 
     with mock.patch.object(

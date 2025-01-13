@@ -40,7 +40,7 @@ class MyDataclass:
         line_number=3,
         rule_id=DataclassWithKwargsOnlyRule.RULE_ID,
         rule_label=DataclassWithKwargsOnlyRule.RULE_LABEL,
-        function_name=None,
+        identifier=None,
     )
 
 
@@ -58,7 +58,7 @@ class MyDataclass:
         line_number=3,
         rule_id=DataclassWithKwargsOnlyRule.RULE_ID,
         rule_label=DataclassWithKwargsOnlyRule.RULE_LABEL,
-        function_name=None,
+        identifier=None,
     )
 
 
@@ -87,7 +87,7 @@ class MyDataclass:
         line_number=3,
         rule_id=DataclassWithKwargsOnlyRule.RULE_ID,
         rule_label=DataclassWithKwargsOnlyRule.RULE_LABEL,
-        function_name=None,
+        identifier=None,
     )
 
 
@@ -105,5 +105,5 @@ class MyDataclass:
         line_number=3,
         rule_id=DataclassWithKwargsOnlyRule.RULE_ID,
         rule_label=DataclassWithKwargsOnlyRule.RULE_LABEL,
-        function_name=None,
+        identifier=None,
     )
