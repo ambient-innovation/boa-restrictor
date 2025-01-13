@@ -18,7 +18,7 @@ class AbstractClassesInheritFromAbcRule(Rule):
         for node in ast.walk(self.source_tree):
             if not isinstance(node, ast.ClassDef):
                 continue
-            if "Abstract" in node.name:
+            if "abstract" in node.name.lower():
                 # Check whether the class inherits from `ABC`
                 inherits_abc = any(self.is_abc(base=base) for base in node.bases)
                 uses_abcmeta = self.has_abcmeta(node=node)
@@ -38,7 +38,7 @@ class AbstractClassesInheritFromAbcRule(Rule):
 
     def is_abc(self, *, base) -> bool:
         """
-        Prüft, ob eine gegebene Basisklasse `ABC` ist.
+        Checks whether a given base class is `ABC`.
         """
         if isinstance(base, ast.Name):
             # Direkte Referenz (z. B. `ABC`)
@@ -50,7 +50,7 @@ class AbstractClassesInheritFromAbcRule(Rule):
 
     def has_abcmeta(self, *, node) -> bool:
         """
-        Prüft, ob die Klasse `ABCMeta` als Metaklasse verwendet.
+        Checks whether the class `ABCMeta` is used as a metaclass.
         """
         for keyword in node.keywords:
             if keyword.arg == "metaclass":

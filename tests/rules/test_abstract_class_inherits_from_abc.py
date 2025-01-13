@@ -66,11 +66,25 @@ def test_abstract_class_having_abc_and_other_inheritance():
 
 
 def test_abstract_class_via_metaclass():
-    source_tree = ast.parse("""from abc import ABCMeta
-
-class MyABC(metaclass=ABCMeta):
+    source_tree = ast.parse("""class MyAbstractMetaClass(metaclass=ABCMeta):
     pass""")
 
     occurrences = AbstractClassesInheritFromAbcRule.run_check(filename="my_file.py", source_tree=source_tree)
 
     assert len(occurrences) == 0
+
+
+def test_abstract_class_lower_case():
+    source_tree = ast.parse("""class abstractService:
+    pass""")
+
+    occurrences = AbstractClassesInheritFromAbcRule.run_check(filename="my_file.py", source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0] == Occurrence(
+        filename="my_file.py",
+        line_number=1,
+        rule_id=AbstractClassesInheritFromAbcRule.RULE_ID,
+        rule_label=AbstractClassesInheritFromAbcRule.RULE_LABEL,
+        identifier="abstractService",
+    )
