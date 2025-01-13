@@ -41,10 +41,10 @@ class AbstractClassesInheritFromAbcRule(Rule):
         Checks whether a given base class is `ABC`.
         """
         if isinstance(base, ast.Name):
-            # Direkte Referenz (z. B. `ABC`)
+            # Direct reference (e.g. `ABC`)
             return base.id == "ABC"
         elif isinstance(base, ast.Attribute):
-            # Modul-Attribut (z. B. `abc.ABC`)
+            # Module attribute (e.g. `abc.ABC`)
             return base.attr == "ABC"
         return False
 

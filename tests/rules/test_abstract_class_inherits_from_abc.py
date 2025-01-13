@@ -38,6 +38,38 @@ def test_abstract_class_missing_abc_inheritance():
     )
 
 
+def test_abstract_class_missing_abc_inheritance_but_has_other():
+    source_tree = ast.parse("""class AbstractService(BaseClass):
+            pass""")
+
+    occurrences = AbstractClassesInheritFromAbcRule.run_check(filename="my_file.py", source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0] == Occurrence(
+        filename="my_file.py",
+        line_number=1,
+        rule_id=AbstractClassesInheritFromAbcRule.RULE_ID,
+        rule_label=AbstractClassesInheritFromAbcRule.RULE_LABEL,
+        identifier="AbstractService",
+    )
+
+
+def test_abstract_class_missing_abc_odd_inhertiance():
+    source_tree = ast.parse("""class AbstractService(dynamic_base()):
+            pass""")
+
+    occurrences = AbstractClassesInheritFromAbcRule.run_check(filename="my_file.py", source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0] == Occurrence(
+        filename="my_file.py",
+        line_number=1,
+        rule_id=AbstractClassesInheritFromAbcRule.RULE_ID,
+        rule_label=AbstractClassesInheritFromAbcRule.RULE_LABEL,
+        identifier="AbstractService",
+    )
+
+
 def test_abstract_class_having_abc_inheritance():
     source_tree = ast.parse("""class AbstractService(abc.ABC):
             pass""")
@@ -67,6 +99,15 @@ def test_abstract_class_having_abc_and_other_inheritance():
 
 def test_abstract_class_via_metaclass():
     source_tree = ast.parse("""class MyAbstractMetaClass(metaclass=ABCMeta):
+    pass""")
+
+    occurrences = AbstractClassesInheritFromAbcRule.run_check(filename="my_file.py", source_tree=source_tree)
+
+    assert len(occurrences) == 0
+
+
+def test_abstract_class_via_abc_metaclass():
+    source_tree = ast.parse("""class MyAbstractMetaClass(metaclass=abc.ABCMeta):
     pass""")
 
     occurrences = AbstractClassesInheritFromAbcRule.run_check(filename="my_file.py", source_tree=source_tree)
