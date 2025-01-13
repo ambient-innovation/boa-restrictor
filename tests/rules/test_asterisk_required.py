@@ -40,7 +40,7 @@ def test_method_missing_asterisk():
         line_number=2,
         rule_id=AsteriskRequiredRule.RULE_ID,
         rule_label=AsteriskRequiredRule.RULE_LABEL,
-        function_name="my_method",
+        identifier="my_method",
     )
 
 
@@ -77,7 +77,7 @@ def test_function_missing_asterisk():
         line_number=1,
         rule_id=AsteriskRequiredRule.RULE_ID,
         rule_label=AsteriskRequiredRule.RULE_LABEL,
-        function_name="my_function",
+        identifier="my_function",
     )
 
 
@@ -94,7 +94,7 @@ def test_function_asterisk_too_late():
         line_number=1,
         rule_id=AsteriskRequiredRule.RULE_ID,
         rule_label=AsteriskRequiredRule.RULE_LABEL,
-        function_name="my_function",
+        identifier="my_function",
     )
 
 
@@ -111,7 +111,7 @@ def test_function_arg_with_defaults():
         line_number=1,
         rule_id=AsteriskRequiredRule.RULE_ID,
         rule_label=AsteriskRequiredRule.RULE_LABEL,
-        function_name="my_function",
+        identifier="my_function",
     )
 
 
@@ -138,7 +138,7 @@ def test_async_function_missing_asterisk():
         line_number=1,
         rule_id=AsteriskRequiredRule.RULE_ID,
         rule_label=AsteriskRequiredRule.RULE_LABEL,
-        function_name="my_function",
+        identifier="my_function",
     )
 
 
@@ -175,7 +175,7 @@ def test_leading_cls_and_following_attributes():
         line_number=1,
         rule_id=AsteriskRequiredRule.RULE_ID,
         rule_label=AsteriskRequiredRule.RULE_LABEL,
-        function_name="my_function",
+        identifier="my_function",
     )
 
 

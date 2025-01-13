@@ -27,7 +27,7 @@ my_datetime = datetime(2024, 9, 19)
         line_number=1,
         rule_id=GlobalImportDatetimeRule.RULE_ID,
         rule_label=GlobalImportDatetimeRule.RULE_LABEL,
-        function_name=None,
+        identifier=None,
     )
 
 
@@ -44,7 +44,7 @@ my_date = date(2024, 9, 19)
         line_number=1,
         rule_id=GlobalImportDatetimeRule.RULE_ID,
         rule_label=GlobalImportDatetimeRule.RULE_LABEL,
-        function_name=None,
+        identifier=None,
     )
 
 
@@ -61,7 +61,7 @@ my_date = date(2024, 9, 19)
         line_number=1,
         rule_id=GlobalImportDatetimeRule.RULE_ID,
         rule_label=GlobalImportDatetimeRule.RULE_LABEL,
-        function_name=None,
+        identifier=None,
     )
 
 

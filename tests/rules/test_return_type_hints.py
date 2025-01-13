@@ -27,7 +27,7 @@ def test_function_has_return_missing_type_hint():
         line_number=1,
         rule_id=ReturnStatementRequiresTypeHintRule.RULE_ID,
         rule_label=ReturnStatementRequiresTypeHintRule.RULE_LABEL,
-        function_name="my_function",
+        identifier="my_function",
     )
 
 
