@@ -114,6 +114,17 @@ class MyDataClass:
     pass
 ```
 
+### Service classes have one public method called "process" (PBR005)
+
+Putting business logic in classes called "service" is a well-known and widely used pattern. To hide the inner workings
+of this logic, it's recommended to prefix all methods with an underscore ("_") to mark them as protected. The single
+entrypoint should be a public method called "process".
+
+### Abstract classes inherit from "abc.ABC" (PBR006)
+
+Python provides a base class for abstract classes. If a class is named "abstract", it should therefore inherit from
+the `abc.ABC` class.
+
 ## Installation
 
 Add the following to your .pre-commit-config.yaml file:
