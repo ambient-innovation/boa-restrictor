@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.3.1* (2025-01-13)
+    * Added check in unittests to avoid forgetting to register new rules
+
 * *1.3.0* (2025-01-13)
     * Added rule `PBR005` for ensuring service classes have exactly one public method called "process"
     * Added rule `PBR006` for ensuring abstract classes inherit from `abc.ABC`
