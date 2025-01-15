@@ -7,6 +7,8 @@ Boa Restrictor Linter
    :maxdepth: 1
    :caption: Contents:
 
+   features/configuration.md
+   features/rules.md
    features/changelog.rst
 
 Indices and tables

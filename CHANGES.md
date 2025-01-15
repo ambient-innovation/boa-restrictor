@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.3.2* (2025-01-15)
+    * Moved parts of documentation from Readme to RTD
+
 * *1.3.1* (2025-01-13)
     * Added check in unittests to avoid forgetting to register new rules
 
