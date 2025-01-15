@@ -1,13 +1,12 @@
 import argparse
-import ast
 import sys
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Optional
 
 from boa_restrictor.cli.configuration import is_rule_excluded, is_rule_excluded_per_file, load_configuration
+from boa_restrictor.cli.utils import parse_source_code_or_fail
 from boa_restrictor.common.noqa import get_noqa_comments
-from boa_restrictor.exceptions.syntax_errors import BoaRestrictorParsingError
 from boa_restrictor.rules import BOA_RESTRICTOR_RULES
 
 
@@ -41,14 +40,11 @@ def main(argv: Optional[Sequence[str]] = None):
         with open(filename) as f:
             source_code = f.read()
 
+        # Parse code through abstract syntax tree
+        source_tree = parse_source_code_or_fail(filename=filename, source_code=source_code)
+
         # Fetch all ignored line comments
         noqa_tokens = get_noqa_comments(source_code=source_code)
-
-        # Parse code through abstract syntax tree
-        try:
-            source_tree = ast.parse(source_code)
-        except SyntaxError as e:
-            raise BoaRestrictorParsingError(filename=filename) from e
 
         # Iterate over all linters...
         for rule_class in BOA_RESTRICTOR_RULES:
