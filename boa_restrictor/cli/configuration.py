@@ -58,7 +58,7 @@ def is_rule_excluded_per_file(
     Check if the given rule is in the per-file-exclusion list.
     """
     # Iterate per-file rule exclusions
-    for file_path_pattern in per_file_excluded_rules.keys():
+    for file_path_pattern in per_file_excluded_rules.keys():  # noqa: PLC0206
         # If the filename matches the pattern...
         if re.search(fnmatch.translate(file_path_pattern), filename):
             # Skip linters, which have been excluded for this file path pattern

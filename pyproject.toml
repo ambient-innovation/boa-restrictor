@@ -13,8 +13,8 @@ classifiers = [
     "Environment :: Web Environment",
     "Framework :: Django",
     "Framework :: Django :: 4.2",
-    "Framework :: Django :: 5.0",
     "Framework :: Django :: 5.1",
+    "Framework :: Django :: 5.2",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
@@ -42,7 +42,6 @@ scripts.boa-restrictor = "boa_restrictor.cli.main:main"
 [project.optional-dependencies]
 dev = [
    'typer~=0.12',
-   'freezegun~=1.5',
    'pytest-django~=4.9',
    'pytest-mock~=3.14',
    'coverage~=7.6',
@@ -94,10 +93,11 @@ lint.select = [
     "ANN401",  # Checks that function arguments are annotated with a more specific type than Any
     "TRY",     # Clean try/except
     "ERA",     # Commented out code
+    "INP"      # Ban PEP-420 implicit namespace packages
 ]
 lint.ignore = [
-    'TD002', # Missing issue link on the line following this TODO
-    'TD003', # Missing issue link on the line following this TODO
+    "TD002", # Missing issue link on the line following this TODO
+    "TD003", # Missing issue link on the line following this TODO
 ]
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
@@ -127,6 +127,7 @@ lint.fixable = [
     "ANN401",  # Checks that function arguments are annotated with a more specific type than Any
     "TRY",     # Clean try/except
     "ERA",     # Commented out code
+    "INP"      # Ban PEP-420 implicit namespace packages
 ]
 lint.unfixable = []
 
@@ -176,14 +177,36 @@ skip-magic-trailing-comma = false
 # Like Black, automatically detect the appropriate line ending.
 line-ending = "auto"
 
+[tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = [
+  # Allow seemingly unused imports
+  "F401",
+]
+"**/tests/**/test_*.py" = [
+  # Allow boolean positional params in tests (for assertIs())
+  "FBT003",
+]
+"scripts/*.py" = [
+  # Checks for packages that are missing an __init__.py file
+  "INP001",
+]
+".ambient-package-update/*.py" = [
+  # Checks for packages that are missing an __init__.py file
+  "INP001",
+]
+"docs/*.py" = [
+  # Checks for packages that are missing an __init__.py file
+  "INP001",
+]
+
 [tool.tox]
 legacy_tox_ini = """
 [testenv]
 # Django deprecation overview: https://www.djangoproject.com/download/
 deps =
     django42: Django==4.2.*
-    django50: Django==5.0.*
     django51: Django==5.1.*
+    django52: Django==5.2.*
 extras = dev,
 commands =
     coverage run -m pytest tests

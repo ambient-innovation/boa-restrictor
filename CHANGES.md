@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.3.4* (2025-04-04)
+    * Maintenance via ambient-package-update
+
 * *1.3.3* (2025-01-15)
     * Fixed a crash when invalid source code was passed to the linter
 
