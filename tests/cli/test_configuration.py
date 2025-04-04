@@ -1,7 +1,11 @@
 import os
+import re
 import sys
 import warnings
 
+import pytest
+
+from boa_restrictor.exceptions.configuration import TomlParsingError
 from boa_restrictor.rules import AsteriskRequiredRule
 
 if sys.version_info >= (3, 11):
@@ -37,6 +41,13 @@ def test_load_configuration_invalid_file(mocked_load):
 
     mocked_load.assert_not_called()
     assert data == {}
+
+
+@mock.patch.object(tomllib, "load", side_effect=tomllib.TOMLDecodeError)
+def test_load_configuration_invalid_toml(mocked_load):
+    filename = os.path.abspath(sys.argv[0])
+    with pytest.raises(TomlParsingError, match=rf'TOML file "{re.escape(filename)}" contains syntax errors.'):
+        load_configuration(file_path=filename)
 
 
 @mock.patch.object(tomllib, "load", return_value={"tool": {"other_linter": True}})

@@ -5,6 +5,7 @@ import warnings
 from typing import Union
 
 from boa_restrictor.common.rule import Rule
+from boa_restrictor.exceptions.configuration import TomlParsingError
 from boa_restrictor.rules import BOA_RESTRICTOR_RULES
 
 if sys.version_info >= (3, 11):
@@ -24,6 +25,8 @@ def load_configuration(*, file_path: Union[Path, str] = "pyproject.toml") -> dic
             data = tomllib.load(f)
     except FileNotFoundError:
         return {}
+    except tomllib.TOMLDecodeError as e:
+        raise TomlParsingError(filename=f.name) from e
 
     try:
         return data["tool"]["boa-restrictor"]

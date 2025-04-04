@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.3.5* (2025-04-04)
+    * Caught exception when pyproject.toml contains syntax errors
+
 * *1.3.4* (2025-04-04)
     * Maintenance via ambient-package-update
 
