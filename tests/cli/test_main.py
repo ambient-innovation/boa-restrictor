@@ -43,9 +43,9 @@ def test_main_exclude_config_active(mocked_run_checks_asterisk, mocked_rule_run_
     )
 
     mocked_run_checks_asterisk.assert_not_called()
-    assert (
-        mocked_rule_run_checks.call_count == len(BOA_RESTRICTOR_RULES) - 1
-    ), "We expect all but one rule to be called."
+    assert mocked_rule_run_checks.call_count == len(BOA_RESTRICTOR_RULES) - 1, (
+        "We expect all but one rule to be called."
+    )
 
 
 @mock.patch("boa_restrictor.cli.main.load_configuration", return_value={"per-file-excludes": {"*.py": ["PBR001"]}})
@@ -62,9 +62,9 @@ def test_main_per_file_exclude_config_active(mocked_run_checks_asterisk, mocked_
     )
 
     mocked_run_checks_asterisk.assert_not_called()
-    assert (
-        mocked_rule_run_checks.call_count == len(BOA_RESTRICTOR_RULES) - 1
-    ), "We expect all but one rule to be called."
+    assert mocked_rule_run_checks.call_count == len(BOA_RESTRICTOR_RULES) - 1, (
+        "We expect all but one rule to be called."
+    )
 
 
 @mock.patch("boa_restrictor.cli.main.get_noqa_comments", return_value=[])
