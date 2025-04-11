@@ -67,6 +67,51 @@ def test_main_per_file_exclude_config_active(mocked_run_checks_asterisk, mocked_
     )
 
 
+@mock.patch("boa_restrictor.cli.main.load_configuration", return_value={})
+@mock.patch("boa_restrictor.cli.main.get_rules")
+def test_main_django_rules_default_enabled(mocked_get_rule, *args):
+    main(
+        argv=(
+            "boa-restrictor",
+            os.path.abspath(sys.argv[0]),
+            "--config",
+            "pyproject.toml",
+        )
+    )
+
+    mocked_get_rule.assert_called_with(use_django_rules=True)
+
+
+@mock.patch("boa_restrictor.cli.main.load_configuration", return_value={"enable_django_rules": True})
+@mock.patch("boa_restrictor.cli.main.get_rules")
+def test_main_django_rules_enabled(mocked_get_rule, *args):
+    main(
+        argv=(
+            "boa-restrictor",
+            os.path.abspath(sys.argv[0]),
+            "--config",
+            "pyproject.toml",
+        )
+    )
+
+    mocked_get_rule.assert_called_with(use_django_rules=True)
+
+
+@mock.patch("boa_restrictor.cli.main.load_configuration", return_value={"enable_django_rules": False})
+@mock.patch("boa_restrictor.cli.main.get_rules")
+def test_main_django_rules_disabled(mocked_get_rule, *args):
+    main(
+        argv=(
+            "boa-restrictor",
+            os.path.abspath(sys.argv[0]),
+            "--config",
+            "pyproject.toml",
+        )
+    )
+
+    mocked_get_rule.assert_called_with(use_django_rules=False)
+
+
 @mock.patch("boa_restrictor.cli.main.get_noqa_comments", return_value=[])
 def test_main_noqa_comments_called(mocked_get_noqa_comments):
     main(

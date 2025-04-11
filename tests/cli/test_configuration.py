@@ -6,7 +6,7 @@ import warnings
 import pytest
 
 from boa_restrictor.exceptions.configuration import TomlParsingError
-from boa_restrictor.rules import AsteriskRequiredRule
+from boa_restrictor.rules import AssertRaisesProhibitedRule, AsteriskRequiredRule
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -68,6 +68,10 @@ def test_load_configuration_key_missing(mocked_load):
 
 def test_is_rule_excluded_is_excluded():
     assert is_rule_excluded(rule_class=AsteriskRequiredRule, excluded_rules=["PBR001"]) is True
+
+
+def test_is_django_rule_excluded_is_excluded():
+    assert is_rule_excluded(rule_class=AssertRaisesProhibitedRule, excluded_rules=["DBR001"]) is True
 
 
 def test_is_rule_excluded_is_not_excluded():
