@@ -18,11 +18,19 @@ from boa_restrictor.cli.configuration import is_rule_excluded, is_rule_excluded_
 
 
 @mock.patch.object(tomllib, "load", return_value={"tool": {"boa-restrictor": {"exclude": ["PBR001"]}}})
-def test_load_configuration_happy_path(mocked_load):
+def test_load_configuration_exclusion_rules(mocked_load):
     data = load_configuration(file_path=os.path.abspath(sys.argv[0]))
 
     mocked_load.assert_called_once()
     assert data == {"exclude": ["PBR001"]}
+
+
+@mock.patch.object(tomllib, "load", return_value={"tool": {"boa-restrictor": {"enable_django_rules": False}}})
+def test_load_configuration_enable_django_rules_set(mocked_load):
+    data = load_configuration(file_path=os.path.abspath(sys.argv[0]))
+
+    mocked_load.assert_called_once()
+    assert data == {"enable_django_rules": False}
 
 
 @mock.patch.object(

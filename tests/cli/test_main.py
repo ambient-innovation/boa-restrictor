@@ -10,7 +10,7 @@ from boa_restrictor.cli.main import main
 from boa_restrictor.common.rule import Rule
 from boa_restrictor.exceptions.syntax_errors import BoaRestrictorParsingError
 from boa_restrictor.projections.occurrence import Occurrence
-from boa_restrictor.rules import BOA_RESTRICTOR_RULES, AsteriskRequiredRule
+from boa_restrictor.rules import BOA_RESTRICTOR_RULES, DJANGO_BOA_RULES, AsteriskRequiredRule
 
 
 @mock.patch.object(argparse.ArgumentParser, "parse_args")
@@ -43,7 +43,7 @@ def test_main_exclude_config_active(mocked_run_checks_asterisk, mocked_rule_run_
     )
 
     mocked_run_checks_asterisk.assert_not_called()
-    assert mocked_rule_run_checks.call_count == len(BOA_RESTRICTOR_RULES) - 1, (
+    assert mocked_rule_run_checks.call_count == len(BOA_RESTRICTOR_RULES) + len(DJANGO_BOA_RULES) - 1, (
         "We expect all but one rule to be called."
     )
 
@@ -62,7 +62,7 @@ def test_main_per_file_exclude_config_active(mocked_run_checks_asterisk, mocked_
     )
 
     mocked_run_checks_asterisk.assert_not_called()
-    assert mocked_rule_run_checks.call_count == len(BOA_RESTRICTOR_RULES) - 1, (
+    assert mocked_rule_run_checks.call_count == len(BOA_RESTRICTOR_RULES) + len(DJANGO_BOA_RULES) - 1, (
         "We expect all but one rule to be called."
     )
 

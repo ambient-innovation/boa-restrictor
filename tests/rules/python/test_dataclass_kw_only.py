@@ -1,7 +1,7 @@
 import ast
 
 from boa_restrictor.projections.occurrence import Occurrence
-from boa_restrictor.rules.dataclass_kw_only import DataclassWithKwargsOnlyRule
+from boa_restrictor.rules.python.dataclass_kw_only import DataclassWithKwargsOnlyRule
 
 
 def test_dataclass_kw_only_set():

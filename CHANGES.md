@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.4.0* (2025-04-11)
+    * Added first Django-only rule to prohibit use of `TestCase.assertRaises()`
+
 * *1.3.5* (2025-04-04)
     * Caught exception when pyproject.toml contains syntax errors
 

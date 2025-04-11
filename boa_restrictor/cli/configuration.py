@@ -6,7 +6,7 @@ from typing import Union
 
 from boa_restrictor.common.rule import Rule
 from boa_restrictor.exceptions.configuration import TomlParsingError
-from boa_restrictor.rules import BOA_RESTRICTOR_RULES
+from boa_restrictor.rules import get_rules
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -38,8 +38,8 @@ def is_rule_excluded(*, rule_class: type[Rule], excluded_rules: list) -> bool:
     """
     Check if the given rule is in the exclusion list.
     """
-    # Generate set of valid rules
-    valid_rules = (rule_class.RULE_ID for rule_class in BOA_RESTRICTOR_RULES)
+    # Generate set of valid rules (filtering Django rules happens one level above)
+    valid_rules = (rule_class.RULE_ID for rule_class in get_rules(use_django_rules=True))
 
     # Check if the given rule is valid
     for invalid_configured_rule in [rule_id for rule_id in excluded_rules if rule_id not in valid_rules]:

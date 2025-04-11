@@ -1,7 +1,7 @@
 import ast
 
 from boa_restrictor.projections.occurrence import Occurrence
-from boa_restrictor.rules.service_class_only_one_public import ServiceClassHasOnlyOnePublicMethodRule
+from boa_restrictor.rules.python.service_class_only_one_public import ServiceClassHasOnlyOnePublicMethodRule
 
 
 def test_functions_named_service_are_ignored():

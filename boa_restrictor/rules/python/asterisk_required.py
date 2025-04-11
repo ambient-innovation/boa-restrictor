@@ -1,6 +1,6 @@
 import ast
 
-from boa_restrictor.common.rule import LINTING_RULE_PREFIX, Rule
+from boa_restrictor.common.rule import PYTHON_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
 
 
@@ -10,7 +10,7 @@ class AsteriskRequiredRule(Rule):
     "self" and "cls" are allowlisted, even if they are used outside a class context.
     """
 
-    RULE_ID = f"{LINTING_RULE_PREFIX}001"
+    RULE_ID = f"{PYTHON_LINTING_RULE_PREFIX}001"
     RULE_LABEL = 'Positional arguments in functions and methods are discouraged. Add an "*" as the first argument.'
 
     def _missing_asterisk(self, *, node) -> bool:

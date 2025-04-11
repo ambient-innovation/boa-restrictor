@@ -1,7 +1,7 @@
 import ast
 
 from boa_restrictor.projections.occurrence import Occurrence
-from boa_restrictor.rules.global_import_datetime import GlobalImportDatetimeRule
+from boa_restrictor.rules.python.global_import_datetime import GlobalImportDatetimeRule
 
 
 def test_global_import_datetime():

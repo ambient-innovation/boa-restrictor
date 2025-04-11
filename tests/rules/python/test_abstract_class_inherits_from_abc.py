@@ -1,7 +1,7 @@
 import ast
 
 from boa_restrictor.projections.occurrence import Occurrence
-from boa_restrictor.rules.abstract_class_inherits_from_abc import AbstractClassesInheritFromAbcRule
+from boa_restrictor.rules.python.abstract_class_inherits_from_abc import AbstractClassesInheritFromAbcRule
 
 
 def test_functions_named_abstract_are_ignored():

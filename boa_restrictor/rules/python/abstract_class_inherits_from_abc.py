@@ -1,6 +1,6 @@
 import ast
 
-from boa_restrictor.common.rule import LINTING_RULE_PREFIX, Rule
+from boa_restrictor.common.rule import PYTHON_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
 
 
@@ -9,7 +9,7 @@ class AbstractClassesInheritFromAbcRule(Rule):
     Checks if classes having "abstract" in their name inherit from Pythons "abstract base class".
     """
 
-    RULE_ID = f"{LINTING_RULE_PREFIX}006"
+    RULE_ID = f"{PYTHON_LINTING_RULE_PREFIX}006"
     RULE_LABEL = 'Abstract classes have to inherit from "abc.ABC".'
 
     def check(self) -> list[Occurrence]:
