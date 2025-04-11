@@ -1,6 +1,6 @@
 import ast
 
-from boa_restrictor.common.rule import LINTING_RULE_PREFIX, Rule
+from boa_restrictor.common.rule import PYTHON_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
 
 
@@ -11,7 +11,7 @@ class DataclassWithKwargsOnlyRule(Rule):
     easier to refactor.
     """
 
-    RULE_ID = f"{LINTING_RULE_PREFIX}004"
+    RULE_ID = f"{PYTHON_LINTING_RULE_PREFIX}004"
     RULE_LABEL = 'Enforces "kw_only" parameter in dataclass decorator.'
 
     def check(self) -> list[Occurrence]:

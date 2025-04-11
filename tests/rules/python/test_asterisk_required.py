@@ -1,7 +1,7 @@
 import ast
 
 from boa_restrictor.projections.occurrence import Occurrence
-from boa_restrictor.rules.asterisk_required import AsteriskRequiredRule
+from boa_restrictor.rules.python.asterisk_required import AsteriskRequiredRule
 
 
 def test_method_has_asterisk():

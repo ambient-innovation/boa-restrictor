@@ -7,7 +7,7 @@ from typing import Optional
 from boa_restrictor.cli.configuration import is_rule_excluded, is_rule_excluded_per_file, load_configuration
 from boa_restrictor.cli.utils import parse_source_code_or_fail
 from boa_restrictor.common.noqa import get_noqa_comments
-from boa_restrictor.rules import BOA_RESTRICTOR_RULES
+from boa_restrictor.rules import get_rules
 
 
 def main(argv: Optional[Sequence[str]] = None):
@@ -28,7 +28,9 @@ def main(argv: Optional[Sequence[str]] = None):
     args = parser.parse_args(argv)
 
     # Get excluded linting rules from configuration
-    globally_excluded_rules = load_configuration(file_path=args.config).get("exclude", [])
+    configuration = load_configuration(file_path=args.config)
+    globally_excluded_rules = configuration.get("exclude", [])
+    enable_django_rules = configuration.get("enable_django_rules", True)
     per_file_excluded_rules: dict[str, list[str]] = load_configuration(file_path=args.config).get(
         "per-file-excludes", {}
     )
@@ -47,7 +49,8 @@ def main(argv: Optional[Sequence[str]] = None):
         noqa_tokens = get_noqa_comments(source_code=source_code)
 
         # Iterate over all linters...
-        for rule_class in BOA_RESTRICTOR_RULES:
+        enabled_rules = get_rules(use_django_rules=enable_django_rules)
+        for rule_class in enabled_rules:
             # Skip linters, which have been excluded globally via the configuration
             if is_rule_excluded(rule_class=rule_class, excluded_rules=globally_excluded_rules):
                 continue

@@ -2,7 +2,7 @@ import re
 import tokenize
 from io import StringIO
 
-from boa_restrictor.common.rule import LINTING_RULE_PREFIX
+from boa_restrictor.common.rule import PYTHON_LINTING_RULE_PREFIX
 
 
 def get_noqa_comments(*, source_code: str) -> list[tuple[int, str]]:
@@ -12,7 +12,7 @@ def get_noqa_comments(*, source_code: str) -> list[tuple[int, str]]:
     noqa_statements = []
 
     tokens = tokenize.generate_tokens(StringIO(source_code).readline)
-    pattern = re.compile(r"^#\snoqa:\s*.*?" + LINTING_RULE_PREFIX + r"\d{3}")
+    pattern = re.compile(r"^#\snoqa:\s*.*?" + PYTHON_LINTING_RULE_PREFIX + r"\d{3}")
 
     for token in tokens:
         token_type, token_string, start, _, _ = token

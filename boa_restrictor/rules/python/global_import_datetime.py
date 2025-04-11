@@ -1,6 +1,6 @@
 import ast
 
-from boa_restrictor.common.rule import LINTING_RULE_PREFIX, Rule
+from boa_restrictor.common.rule import PYTHON_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
 
 
@@ -10,7 +10,7 @@ class GlobalImportDatetimeRule(Rule):
     This will lead to unclear and inconsistent code. Thus, we enforce a single way of using the datetime module.
     """
 
-    RULE_ID = f"{LINTING_RULE_PREFIX}003"
+    RULE_ID = f"{PYTHON_LINTING_RULE_PREFIX}003"
     RULE_LABEL = "Prohibiting nested import of datetime from datetime module."
 
     def check(self) -> list[Occurrence]:

@@ -2,7 +2,8 @@ from _ast import AST
 
 from boa_restrictor.projections.occurrence import Occurrence
 
-LINTING_RULE_PREFIX = "PBR"
+PYTHON_LINTING_RULE_PREFIX = "PBR"
+DJANGO_LINTING_RULE_PREFIX = "DBR"
 
 
 class Rule:

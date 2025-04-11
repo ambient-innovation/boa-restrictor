@@ -1,6 +1,6 @@
 import ast
 
-from boa_restrictor.common.rule import LINTING_RULE_PREFIX, Rule
+from boa_restrictor.common.rule import PYTHON_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
 
 
@@ -9,7 +9,7 @@ class ServiceClassHasOnlyOnePublicMethodRule(Rule):
     Checks if service class, which is defined by ending on "Service" has only one public method called "process".
     """
 
-    RULE_ID = f"{LINTING_RULE_PREFIX}005"
+    RULE_ID = f"{PYTHON_LINTING_RULE_PREFIX}005"
     RULE_LABEL = 'Service classes must have exactly one public method named "process".'
 
     def check(self) -> list[Occurrence]:

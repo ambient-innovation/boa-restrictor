@@ -29,6 +29,15 @@ exclude = [
 ]
 ```
 
+## Disable Django rules
+
+You can disable Django-specific rules by setting `enable_django_rules` to `false`.
+
+```toml
+[tool.boa-restrictor]
+enable_django_rules = false
+```
+
 ## Per-file exclusion of configuration rule
 
 You can disable rules on a per-file-basis in your `pyproject.toml` file as follows:

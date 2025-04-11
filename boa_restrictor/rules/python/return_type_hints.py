@@ -1,6 +1,6 @@
 import ast
 
-from boa_restrictor.common.rule import LINTING_RULE_PREFIX, Rule
+from boa_restrictor.common.rule import PYTHON_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
 
 
@@ -10,7 +10,7 @@ class ReturnStatementRequiresTypeHintRule(Rule):
     Doesn't match the case if there is no return statement but a type hint.
     """
 
-    RULE_ID = f"{LINTING_RULE_PREFIX}002"
+    RULE_ID = f"{PYTHON_LINTING_RULE_PREFIX}002"
     RULE_LABEL = "Return statements require return type hint."
 
     def check(self) -> list[Occurrence]:

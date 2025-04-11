@@ -1,7 +1,7 @@
 import ast
 
 from boa_restrictor.projections.occurrence import Occurrence
-from boa_restrictor.rules.return_type_hints import ReturnStatementRequiresTypeHintRule
+from boa_restrictor.rules.python.return_type_hints import ReturnStatementRequiresTypeHintRule
 
 
 def test_function_has_return_and_type_hint():

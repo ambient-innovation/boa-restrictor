@@ -6,7 +6,7 @@ import warnings
 import pytest
 
 from boa_restrictor.exceptions.configuration import TomlParsingError
-from boa_restrictor.rules import AsteriskRequiredRule
+from boa_restrictor.rules import AssertRaisesProhibitedRule, AsteriskRequiredRule
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -18,11 +18,19 @@ from boa_restrictor.cli.configuration import is_rule_excluded, is_rule_excluded_
 
 
 @mock.patch.object(tomllib, "load", return_value={"tool": {"boa-restrictor": {"exclude": ["PBR001"]}}})
-def test_load_configuration_happy_path(mocked_load):
+def test_load_configuration_exclusion_rules(mocked_load):
     data = load_configuration(file_path=os.path.abspath(sys.argv[0]))
 
     mocked_load.assert_called_once()
     assert data == {"exclude": ["PBR001"]}
+
+
+@mock.patch.object(tomllib, "load", return_value={"tool": {"boa-restrictor": {"enable_django_rules": False}}})
+def test_load_configuration_enable_django_rules_set(mocked_load):
+    data = load_configuration(file_path=os.path.abspath(sys.argv[0]))
+
+    mocked_load.assert_called_once()
+    assert data == {"enable_django_rules": False}
 
 
 @mock.patch.object(
@@ -60,6 +68,10 @@ def test_load_configuration_key_missing(mocked_load):
 
 def test_is_rule_excluded_is_excluded():
     assert is_rule_excluded(rule_class=AsteriskRequiredRule, excluded_rules=["PBR001"]) is True
+
+
+def test_is_django_rule_excluded_is_excluded():
+    assert is_rule_excluded(rule_class=AssertRaisesProhibitedRule, excluded_rules=["DBR001"]) is True
 
 
 def test_is_rule_excluded_is_not_excluded():
