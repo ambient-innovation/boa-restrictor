@@ -10,6 +10,30 @@ def test_check_occurrence_duplication_no_duplication():
     assert rule._check_occurrence_duplication(occurrences=[], filename="my_file.py", line_number=7) is False
 
 
+def test_check_occurrence_duplication_no_duplication_via_file():
+    rule = AssertRaisesProhibitedRule(filename="my_file.py", source_tree=ast.parse("a=1"))
+    occurrence = Occurrence(
+        line_number=7,
+        filename="my_file.py",
+        rule_id=AssertRaisesProhibitedRule.RULE_ID,
+        rule_label=AssertRaisesProhibitedRule.RULE_LABEL,
+        identifier=None,
+    )
+    assert rule._check_occurrence_duplication(occurrences=[occurrence], filename="my_file.py", line_number=1) is False
+
+
+def test_check_occurrence_duplication_no_duplication_via_line_no():
+    rule = AssertRaisesProhibitedRule(filename="my_file.py", source_tree=ast.parse("a=1"))
+    occurrence = Occurrence(
+        line_number=1,
+        filename="other_file.py",
+        rule_id=AssertRaisesProhibitedRule.RULE_ID,
+        rule_label=AssertRaisesProhibitedRule.RULE_LABEL,
+        identifier=None,
+    )
+    assert rule._check_occurrence_duplication(occurrences=[occurrence], filename="my_file.py", line_number=1) is False
+
+
 def test_check_occurrence_duplication_has_duplication():
     rule = AssertRaisesProhibitedRule(filename="my_file.py", source_tree=ast.parse("a=1"))
 
@@ -36,7 +60,7 @@ def test_check_direct_call_false():
 def test_check_context_manager_call_not_a_call():
     rule = AssertRaisesProhibitedRule(filename="my_file.py", source_tree=ast.parse("a=1"))
 
-    code = """with self.assertEqual(1, 1):
+    code = """with obj.some_method as value:
          my_function()
      """
     tree = ast.parse(code)

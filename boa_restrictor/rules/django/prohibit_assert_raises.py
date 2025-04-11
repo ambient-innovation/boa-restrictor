@@ -32,10 +32,9 @@ class AssertRaisesProhibitedRule(Rule):
         for item in node.items:
             if isinstance(item.context_expr, ast.Call):
                 func = item.context_expr.func
-                if isinstance(func, ast.Attribute):
-                    if func.attr == "assertRaises":
-                        if isinstance(func.value, ast.Name) and func.value.id == "self":
-                            return True
+                if isinstance(func, ast.Attribute) and func.attr == "assertRaises":
+                    if isinstance(func.value, ast.Name) and func.value.id == "self":
+                        return True
         return False
 
     def check(self) -> list[Occurrence]:
