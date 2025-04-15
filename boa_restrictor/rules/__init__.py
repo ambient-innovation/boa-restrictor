@@ -1,3 +1,4 @@
+from boa_restrictor.rules.django.no_db_in_views import NoDjangoDbImportInViewsRule
 from boa_restrictor.rules.django.prohibit_assert_raises import AssertRaisesProhibitedRule
 from boa_restrictor.rules.python.abstract_class_inherits_from_abc import AbstractClassesInheritFromAbcRule
 from boa_restrictor.rules.python.asterisk_required import AsteriskRequiredRule
@@ -15,7 +16,10 @@ BOA_RESTRICTOR_RULES = (
     AbstractClassesInheritFromAbcRule,
 )
 
-DJANGO_BOA_RULES = (AssertRaisesProhibitedRule,)
+DJANGO_BOA_RULES = (
+    AssertRaisesProhibitedRule,
+    NoDjangoDbImportInViewsRule,
+)
 
 
 def get_rules(*, use_django_rules: bool) -> tuple:

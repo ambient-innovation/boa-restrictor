@@ -68,7 +68,7 @@ def main(argv: Optional[Sequence[str]] = None):
             occurrences.extend(
                 [
                     possible_occurrence
-                    for possible_occurrence in rule_class.run_check(filename=filename, source_tree=source_tree)
+                    for possible_occurrence in rule_class.run_check(file_path=Path(filename), source_tree=source_tree)
                     if possible_occurrence.line_number not in excluded_lines
                 ]
             )
