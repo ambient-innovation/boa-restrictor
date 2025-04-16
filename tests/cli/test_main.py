@@ -173,8 +173,7 @@ def test_main_occurrences_are_written_to_cli(mocked_write):
     assert mocked_write.call_count == mocked_run_checks.call_count
 
 
-@mock.patch.object(sys.stdout, "write")
-def test_main_occurrences_cli_output_correctly_formatted(mocked_write):
+def test_main_occurrences_cli_output_correctly_formatted():
     occurrence = Occurrence(
         rule_id="PBR000",
         rule_label="One to rule them all.",
