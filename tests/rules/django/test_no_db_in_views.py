@@ -98,3 +98,19 @@ def test_check_migrations_are_ok():
     )
 
     assert len(occurrences) == 0
+
+
+def test_check_no_db_import_import():
+    source_tree = ast.parse("""import django.conf.settings""")
+
+    occurrences = NoDjangoDbImportInViewsRule.run_check(file_path=Path("views.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 0
+
+
+def test_check_no_db_form_import():
+    source_tree = ast.parse("""from django.conf import settings""")
+
+    occurrences = NoDjangoDbImportInViewsRule.run_check(file_path=Path("views.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 0
