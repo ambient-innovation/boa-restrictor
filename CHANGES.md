@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.5.1* (2025-04-16)
+    * Fixed a bug which would show wrong occurrence paths in pre-commit output
+
 * *1.5.0* (2025-04-16)
     * Added Django-only rule to prohibit usage of "django.db" in the view layer
 

@@ -75,13 +75,10 @@ def main(argv: Optional[Sequence[str]] = None):
 
     # If we have any matches...
     if any(occurrences):
-        current_path = Path.cwd()
-
         # Iterate over them and print details for the user
         for occurrence in occurrences:
             sys.stdout.write(
-                f'"{current_path / occurrence.filename}:{occurrence.line_number}": '
-                f"({occurrence.rule_id}) {occurrence.rule_label}\n"
+                f'"{occurrence.file_path}:{occurrence.line_number}": ({occurrence.rule_id}) {occurrence.rule_label}\n'
             )
 
     # Since pre-commit will run this function x times, we skip any success or result count messages.

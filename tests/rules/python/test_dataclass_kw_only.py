@@ -11,7 +11,9 @@ def test_dataclass_kw_only_set():
 class MyDataclass:
     pass""")
 
-    occurrences = DataclassWithKwargsOnlyRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = DataclassWithKwargsOnlyRule.run_check(
+        file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree
+    )
 
     assert len(occurrences) == 0
 
@@ -22,7 +24,9 @@ def test_other_class_decorator():
 class MyDataclass:
     pass""")
 
-    occurrences = DataclassWithKwargsOnlyRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = DataclassWithKwargsOnlyRule.run_check(
+        file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree
+    )
 
     assert len(occurrences) == 0
 
@@ -33,11 +37,14 @@ def test_dataclass_kw_only_missing():
 class MyDataclass:
     pass""")
 
-    occurrences = DataclassWithKwargsOnlyRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = DataclassWithKwargsOnlyRule.run_check(
+        file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree
+    )
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
         filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
         line_number=3,
         rule_id=DataclassWithKwargsOnlyRule.RULE_ID,
         rule_label=DataclassWithKwargsOnlyRule.RULE_LABEL,
@@ -51,11 +58,14 @@ def test_dataclass_kw_only_set_but_false():
 class MyDataclass:
     pass""")
 
-    occurrences = DataclassWithKwargsOnlyRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = DataclassWithKwargsOnlyRule.run_check(
+        file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree
+    )
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
         filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
         line_number=3,
         rule_id=DataclassWithKwargsOnlyRule.RULE_ID,
         rule_label=DataclassWithKwargsOnlyRule.RULE_LABEL,
@@ -69,7 +79,9 @@ def test_nested_import_kwargs_set():
 class MyDataclass:
     pass""")
 
-    occurrences = DataclassWithKwargsOnlyRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = DataclassWithKwargsOnlyRule.run_check(
+        file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree
+    )
 
     assert len(occurrences) == 0
 
@@ -80,11 +92,14 @@ def test_nested_import_kwargs_missing():
 class MyDataclass:
     pass""")
 
-    occurrences = DataclassWithKwargsOnlyRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = DataclassWithKwargsOnlyRule.run_check(
+        file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree
+    )
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
         filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
         line_number=3,
         rule_id=DataclassWithKwargsOnlyRule.RULE_ID,
         rule_label=DataclassWithKwargsOnlyRule.RULE_LABEL,
@@ -98,11 +113,14 @@ def test_nested_import_kwargs_set_but_false():
 class MyDataclass:
     pass""")
 
-    occurrences = DataclassWithKwargsOnlyRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = DataclassWithKwargsOnlyRule.run_check(
+        file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree
+    )
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
         filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
         line_number=3,
         rule_id=DataclassWithKwargsOnlyRule.RULE_ID,
         rule_label=DataclassWithKwargsOnlyRule.RULE_LABEL,

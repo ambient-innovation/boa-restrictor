@@ -1,4 +1,5 @@
 import dataclasses
+from pathlib import Path
 from typing import Optional
 
 
@@ -8,5 +9,6 @@ class Occurrence:
     rule_id: str
     rule_label: str
     filename: str
+    file_path: Path
     identifier: Optional[str]
     line_number: int

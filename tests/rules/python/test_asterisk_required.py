@@ -11,7 +11,7 @@ def test_method_has_asterisk():
             pass
     """)
 
-    occurrences = AsteriskRequiredRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = AsteriskRequiredRule.run_check(file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 0
 
@@ -22,7 +22,7 @@ def test_method_no_params():
             pass
     """)
 
-    occurrences = AsteriskRequiredRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = AsteriskRequiredRule.run_check(file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 0
 
@@ -33,11 +33,12 @@ def test_method_missing_asterisk():
             pass
     """)
 
-    occurrences = AsteriskRequiredRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = AsteriskRequiredRule.run_check(file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
         filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
         line_number=2,
         rule_id=AsteriskRequiredRule.RULE_ID,
         rule_label=AsteriskRequiredRule.RULE_LABEL,
@@ -50,7 +51,7 @@ def test_function_has_asterisk():
         pass
     """)
 
-    occurrences = AsteriskRequiredRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = AsteriskRequiredRule.run_check(file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 0
 
@@ -60,7 +61,7 @@ def test_function_no_params():
         pass
     """)
 
-    occurrences = AsteriskRequiredRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = AsteriskRequiredRule.run_check(file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 0
 
@@ -70,11 +71,12 @@ def test_function_missing_asterisk():
         pass
     """)
 
-    occurrences = AsteriskRequiredRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = AsteriskRequiredRule.run_check(file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
         filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
         line_number=1,
         rule_id=AsteriskRequiredRule.RULE_ID,
         rule_label=AsteriskRequiredRule.RULE_LABEL,
@@ -87,11 +89,12 @@ def test_function_asterisk_too_late():
         pass
     """)
 
-    occurrences = AsteriskRequiredRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = AsteriskRequiredRule.run_check(file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
         filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
         line_number=1,
         rule_id=AsteriskRequiredRule.RULE_ID,
         rule_label=AsteriskRequiredRule.RULE_LABEL,
@@ -104,11 +107,12 @@ def test_function_arg_with_defaults():
         pass
     """)
 
-    occurrences = AsteriskRequiredRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = AsteriskRequiredRule.run_check(file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
         filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
         line_number=1,
         rule_id=AsteriskRequiredRule.RULE_ID,
         rule_label=AsteriskRequiredRule.RULE_LABEL,
@@ -121,7 +125,7 @@ def test_async_function_has_asterisk():
         pass
     """)
 
-    occurrences = AsteriskRequiredRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = AsteriskRequiredRule.run_check(file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 0
 
@@ -131,11 +135,12 @@ def test_async_function_missing_asterisk():
         pass
     """)
 
-    occurrences = AsteriskRequiredRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = AsteriskRequiredRule.run_check(file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
         filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
         line_number=1,
         rule_id=AsteriskRequiredRule.RULE_ID,
         rule_label=AsteriskRequiredRule.RULE_LABEL,
@@ -148,7 +153,7 @@ def test_self_outside_of_class_not_matched():
         pass
     """)
 
-    occurrences = AsteriskRequiredRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = AsteriskRequiredRule.run_check(file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 0
 
@@ -158,7 +163,7 @@ def test_cls_outside_of_class_not_matched():
         pass
     """)
 
-    occurrences = AsteriskRequiredRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = AsteriskRequiredRule.run_check(file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 0
 
@@ -168,11 +173,12 @@ def test_leading_cls_and_following_attributes():
         pass
     """)
 
-    occurrences = AsteriskRequiredRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = AsteriskRequiredRule.run_check(file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
         filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
         line_number=1,
         rule_id=AsteriskRequiredRule.RULE_ID,
         rule_label=AsteriskRequiredRule.RULE_LABEL,
@@ -183,6 +189,6 @@ def test_leading_cls_and_following_attributes():
 def test_lambda_not_matched():
     source_tree = ast.parse("""double = lambda x: x * 2""")
 
-    occurrences = AsteriskRequiredRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = AsteriskRequiredRule.run_check(file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 0

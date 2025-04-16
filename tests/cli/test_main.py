@@ -2,6 +2,8 @@ import argparse
 import ast
 import os
 import sys
+from io import StringIO
+from pathlib import Path
 from unittest import mock
 
 import pytest
@@ -145,6 +147,7 @@ def test_main_occurrences_are_written_to_cli(mocked_write):
         rule_id="PBR000",
         rule_label="One to rule them all.",
         filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
         line_number=42,
         identifier="my_function",
     )
@@ -168,3 +171,31 @@ def test_main_occurrences_are_written_to_cli(mocked_write):
 
     # We expect one line per occurrence
     assert mocked_write.call_count == mocked_run_checks.call_count
+
+
+@mock.patch.object(sys.stdout, "write")
+def test_main_occurrences_cli_output_correctly_formatted(mocked_write):
+    occurrence = Occurrence(
+        rule_id="PBR000",
+        rule_label="One to rule them all.",
+        filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
+        line_number=42,
+        identifier="my_function",
+    )
+
+    with mock.patch("sys.stdout", new=StringIO()) as mock_stdout:
+        with mock.patch.object(Rule, "run_check", return_value=[occurrence]):
+            main(
+                argv=(
+                    "boa-restrictor",
+                    os.path.abspath(sys.argv[0]),
+                    "--config",
+                    "pyproject.toml",
+                )
+            )
+    actual_output = mock_stdout.getvalue()
+
+    # Check that the formatting is correct
+    assert '\\path\\to\\file\\my_file.py:42": ' in actual_output
+    assert "(PBR000) One to rule them all." in actual_output
