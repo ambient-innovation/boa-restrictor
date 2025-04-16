@@ -32,6 +32,7 @@ class AsteriskRequiredRule(Rule):
                         rule_id=self.RULE_ID,
                         rule_label=self.RULE_LABEL,
                         filename=self.filename,
+                        file_path=self.file_path,
                         identifier=node.name,
                         line_number=node.lineno,
                     )

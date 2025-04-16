@@ -10,7 +10,9 @@ def test_global_import_datetime():
 my_date = datetime.datetime(2024, 9, 19)
     """)
 
-    occurrences = GlobalImportDatetimeRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = GlobalImportDatetimeRule.run_check(
+        file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree
+    )
 
     assert len(occurrences) == 0
 
@@ -20,11 +22,14 @@ def test_nested_import_datetime():
 my_datetime = datetime(2024, 9, 19)
     """)
 
-    occurrences = GlobalImportDatetimeRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = GlobalImportDatetimeRule.run_check(
+        file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree
+    )
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
         filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
         line_number=1,
         rule_id=GlobalImportDatetimeRule.RULE_ID,
         rule_label=GlobalImportDatetimeRule.RULE_LABEL,
@@ -37,11 +42,14 @@ def test_nested_import_date():
 my_date = date(2024, 9, 19)
     """)
 
-    occurrences = GlobalImportDatetimeRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = GlobalImportDatetimeRule.run_check(
+        file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree
+    )
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
         filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
         line_number=1,
         rule_id=GlobalImportDatetimeRule.RULE_ID,
         rule_label=GlobalImportDatetimeRule.RULE_LABEL,
@@ -54,11 +62,14 @@ def test_nested_import_renamed():
 my_date = date(2024, 9, 19)
     """)
 
-    occurrences = GlobalImportDatetimeRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = GlobalImportDatetimeRule.run_check(
+        file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree
+    )
 
     assert len(occurrences) == 1
     assert occurrences[0] == Occurrence(
         filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
         line_number=1,
         rule_id=GlobalImportDatetimeRule.RULE_ID,
         rule_label=GlobalImportDatetimeRule.RULE_LABEL,
@@ -69,6 +80,8 @@ my_date = date(2024, 9, 19)
 def test_nested_import_other_things_ok():
     source_tree = ast.parse("""from datetime import UTC""")
 
-    occurrences = GlobalImportDatetimeRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
+    occurrences = GlobalImportDatetimeRule.run_check(
+        file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree
+    )
 
     assert len(occurrences) == 0
