@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.5.0* (2025-04-16)
+    * Added Django-only rule to prohibit usage of "django.db" in the view layer
+
 * *1.4.0* (2025-04-11)
     * Added first Django-only rule to prohibit use of `TestCase.assertRaises()`
 
