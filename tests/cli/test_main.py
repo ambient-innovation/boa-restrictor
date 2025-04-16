@@ -201,6 +201,4 @@ def test_main_occurrences_cli_output_correctly_formatted(mocked_write):
 
     # Check that the formatting is correct
     assert '/path/to/file/my_file.py:42": ' in actual_output
-    assert '/path/to/file/my_file.py:42": ' in actual_output
-    assert '/path/to/file/my_file.py:42": ' in actual_output
     assert "(PBR000) One to rule them all." in actual_output
