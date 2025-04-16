@@ -91,6 +91,13 @@ def test_assert_raises_in_context_manager():
     occurrences = AssertRaisesProhibitedRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 1
+    assert occurrences[0] == Occurrence(
+        filename="my_file.py",
+        line_number=3,
+        rule_id=AssertRaisesProhibitedRule.RULE_ID,
+        rule_label=AssertRaisesProhibitedRule.RULE_LABEL,
+        identifier=None,
+    )
 
 
 def test_assert_raises_direct_usage():
@@ -101,6 +108,13 @@ def test_assert_raises_direct_usage():
     occurrences = AssertRaisesProhibitedRule.run_check(file_path=Path("my_file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 1
+    assert occurrences[0] == Occurrence(
+        filename="my_file.py",
+        line_number=3,
+        rule_id=AssertRaisesProhibitedRule.RULE_ID,
+        rule_label=AssertRaisesProhibitedRule.RULE_LABEL,
+        identifier=None,
+    )
 
 
 def test_assert_raises_message_used():

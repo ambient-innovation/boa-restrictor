@@ -144,3 +144,10 @@ class MyTestCase(TestCase):
         with self.assertRaisesMessage(RuntimeError, "Ooops, that's an error."):
             my_function()
 ```
+
+### Don't import "django.db" in the view layer (DBR002)
+
+Ensures that no Django low-level database functionality is imported and therefore used in the view layer.
+Adding business logic and complex queries to the view layer is discouraged since it simply doesn't belong there.
+Secondly, it's hard to write proper unit-tests since you always have to initialise the whole view, making it a way more
+complex integration test.
