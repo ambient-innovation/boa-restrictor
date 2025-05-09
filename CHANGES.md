@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.7.0* (2025-05-09)
+    * Avoid usage of type-hints in variable names as suffixes (PBR007)
+
 * *1.6.0* (2025-05-09)
     * Added rule DBR003 to prohibit usage of "assertTrue" and "assertFalse" in Django unittests
 

@@ -5,6 +5,7 @@ from boa_restrictor.rules.python.abstract_class_inherits_from_abc import Abstrac
 from boa_restrictor.rules.python.asterisk_required import AsteriskRequiredRule
 from boa_restrictor.rules.python.dataclass_kw_only import DataclassWithKwargsOnlyRule
 from boa_restrictor.rules.python.global_import_datetime import GlobalImportDatetimeRule
+from boa_restrictor.rules.python.no_type_hints_in_variable_names import AvoidTypeHintsInVariableNamesAsSuffix
 from boa_restrictor.rules.python.return_type_hints import ReturnStatementRequiresTypeHintRule
 from boa_restrictor.rules.python.service_class_only_one_public import ServiceClassHasOnlyOnePublicMethodRule
 
@@ -15,6 +16,7 @@ BOA_RESTRICTOR_RULES = (
     DataclassWithKwargsOnlyRule,
     ServiceClassHasOnlyOnePublicMethodRule,
     AbstractClassesInheritFromAbcRule,
+    AvoidTypeHintsInVariableNamesAsSuffix,
 )
 
 DJANGO_BOA_RULES = (

@@ -40,6 +40,7 @@ METADATA = PackageMetadata(
     ruff_ignore_list=[
         RuffIgnoredInspection(key="TD002", comment="Missing issue link on the line following this TODO"),
         RuffIgnoredInspection(key="TD003", comment="Missing issue link on the line following this TODO"),
+        RuffIgnoredInspection(key="PERF401", comment="Use `list.extend` to create a transformed list"),
     ],
     script_executables=[ScriptExecutable(name="boa-restrictor", import_path="boa_restrictor.cli.main:main")],
 )

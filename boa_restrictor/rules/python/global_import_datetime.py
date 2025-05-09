@@ -20,7 +20,7 @@ class GlobalImportDatetimeRule(Rule):
             if isinstance(node, ast.ImportFrom) and node.module == "datetime":
                 for alias in node.names:
                     if alias.name in {"datetime", "date"}:
-                        occurrences.append(  # noqa: PERF401
+                        occurrences.append(
                             Occurrence(
                                 filename=self.filename,
                                 file_path=self.file_path,

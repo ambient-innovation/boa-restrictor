@@ -57,7 +57,7 @@ class NoDjangoDbImportInViewsRule(Rule):
             if isinstance(node, ast.Import):
                 for alias in node.names:
                     if node.lineno not in type_checking_lines and alias.name.startswith("django.db"):
-                        occurrences.append(  # noqa: PERF401
+                        occurrences.append(
                             Occurrence(
                                 filename=self.filename,
                                 file_path=self.file_path,

@@ -22,6 +22,6 @@ def get_noqa_comments(*, source_code: str) -> list[tuple[int, str]]:
 
         for pattern in patterns:
             if token_type == tokenize.COMMENT and pattern.search(token_string):
-                noqa_statements.append((start[0], token_string.strip()))  # noqa: PERF401
+                noqa_statements.append((start[0], token_string.strip()))
 
     return noqa_statements
