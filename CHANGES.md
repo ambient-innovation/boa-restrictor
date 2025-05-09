@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.6.0* (2025-05-09)
+    * Added rule DBR003 to prohibit usage of "assertTrue" and "assertFalse" in Django unittests
+
 * *1.5.3* (2025-05-09)
     * Fixed bug that DBR rules couldn't be ignored via "noqa" statements
 
