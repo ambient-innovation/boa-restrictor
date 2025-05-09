@@ -131,3 +131,44 @@ def test_check_no_db_form_import():
     )
 
     assert len(occurrences) == 0
+
+
+def test_check_typing_type_hinting_imports_are_excluded():
+    source_tree = ast.parse("""if typing.TYPE_CHECKING:
+    from django.db import QuerySet""")
+
+    occurrences = NoDjangoDbImportInViewsRule.run_check(
+        file_path=Path("/path/to/file/views.py"), source_tree=source_tree
+    )
+
+    assert len(occurrences) == 0
+
+
+def test_check_constant_type_hinting_imports_are_excluded():
+    source_tree = ast.parse("""if TYPE_CHECKING:
+    from django.db import QuerySet""")
+
+    occurrences = NoDjangoDbImportInViewsRule.run_check(
+        file_path=Path("/path/to/file/views.py"), source_tree=source_tree
+    )
+
+    assert len(occurrences) == 0
+
+
+def test_check_other_ifs_are_ignored():
+    source_tree = ast.parse("""if a == 1:
+    from django.db import QuerySet""")
+
+    occurrences = NoDjangoDbImportInViewsRule.run_check(
+        file_path=Path("/path/to/file/views.py"), source_tree=source_tree
+    )
+
+    assert len(occurrences) == 1
+    assert occurrences[0] == Occurrence(
+        filename="views.py",
+        file_path=Path("/path/to/file/views.py"),
+        line_number=2,
+        rule_id=NoDjangoDbImportInViewsRule.RULE_ID,
+        rule_label=NoDjangoDbImportInViewsRule.RULE_LABEL,
+        identifier=None,
+    )

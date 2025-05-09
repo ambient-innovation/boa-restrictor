@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.5.2* (2025-05-09)
+    * Removed matches of DBR002 if import is just for type-hinting purposes
+
 * *1.5.1* (2025-04-16)
     * Fixed a bug which would show wrong occurrence paths in pre-commit output
 
