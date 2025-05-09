@@ -98,6 +98,7 @@ lint.select = [
 lint.ignore = [
     "TD002", # Missing issue link on the line following this TODO
     "TD003", # Missing issue link on the line following this TODO
+    "PERF401", # Use `list.extend` to create a transformed list
 ]
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.

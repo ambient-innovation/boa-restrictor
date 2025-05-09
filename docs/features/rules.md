@@ -112,6 +112,22 @@ entrypoint should be a public method called "process".
 Python provides a base class for abstract classes. If a class is named "abstract", it should therefore inherit from
 the `abc.ABC` class.
 
+### Abstract classes inherit from "abc.ABC" (PBR007)
+
+This rule will enforce that variables don't contain type hints as suffixes like "user_list" or "project_qs".
+
+*Wrong:*
+
+```python
+user_list = []
+```
+
+*Correct:*
+
+```python
+users = []
+```
+
 ## Django rules
 
 ### Prohibit usage of TestCase.assertRaises() (DBR001)
