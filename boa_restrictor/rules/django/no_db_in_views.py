@@ -45,6 +45,7 @@ class NoDjangoDbImportInViewsRule(Rule):
         if not self.is_view_file(path=self.file_path):
             return occurrences
 
+        # Find and store all type-checking imports by line number
         for node in ast.walk(self.source_tree):
             if self.is_type_checking_if(node):
                 for inner in node.body:
