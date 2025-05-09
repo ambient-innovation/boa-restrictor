@@ -1,4 +1,4 @@
-from _ast import AST
+from _ast import AST, Module
 from pathlib import Path
 
 from boa_restrictor.projections.occurrence import Occurrence
@@ -16,7 +16,7 @@ class Rule:
     source_tree: AST
 
     @classmethod
-    def run_check(cls, *, file_path: Path, source_tree: AST) -> list[Occurrence]:
+    def run_check(cls, *, file_path: Path, source_tree: AST | Module) -> list[Occurrence]:
         instance = cls(file_path=file_path, source_tree=source_tree)
         return instance.check()
 

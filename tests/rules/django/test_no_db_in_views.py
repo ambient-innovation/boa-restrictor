@@ -131,3 +131,25 @@ def test_check_no_db_form_import():
     )
 
     assert len(occurrences) == 0
+
+
+def test_check_typing_type_hinting_imports_are_excluded():
+    source_tree = ast.parse("""if typing.TYPE_CHECKING:
+    from django.db import QuerySet""")
+
+    occurrences = NoDjangoDbImportInViewsRule.run_check(
+        file_path=Path("/path/to/file/views.py"), source_tree=source_tree
+    )
+
+    assert len(occurrences) == 0
+
+
+def test_check_constant_type_hinting_imports_are_excluded():
+    source_tree = ast.parse("""if TYPE_CHECKING:
+    from django.db import QuerySet""")
+
+    occurrences = NoDjangoDbImportInViewsRule.run_check(
+        file_path=Path("/path/to/file/views.py"), source_tree=source_tree
+    )
+
+    assert len(occurrences) == 0
