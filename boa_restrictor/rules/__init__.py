@@ -1,3 +1,4 @@
+from boa_restrictor.rules.django.no_assert_booleans_in_tests import ProhibitAssertBooleanInTests
 from boa_restrictor.rules.django.no_db_in_views import NoDjangoDbImportInViewsRule
 from boa_restrictor.rules.django.prohibit_assert_raises import AssertRaisesProhibitedRule
 from boa_restrictor.rules.python.abstract_class_inherits_from_abc import AbstractClassesInheritFromAbcRule
@@ -19,6 +20,7 @@ BOA_RESTRICTOR_RULES = (
 DJANGO_BOA_RULES = (
     AssertRaisesProhibitedRule,
     NoDjangoDbImportInViewsRule,
+    ProhibitAssertBooleanInTests,
 )
 
 
