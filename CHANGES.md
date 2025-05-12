@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.7.1* (2025-05-12)
+    * Updated docs about ruff support and Django-based rules
+
 * *1.7.0* (2025-05-09)
     * Avoid usage of type-hints in variable names as suffixes (PBR007)
 

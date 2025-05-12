@@ -49,7 +49,7 @@ You can disable rules on a per-file-basis in your `pyproject.toml` file as follo
     "PBR002",
 ]
 "scripts/*" = [
-    "PBR003",
+    "DBR001",
 ]
 ```
 
@@ -65,7 +65,7 @@ statements from your codebase.
 [tool.ruff.lint]
 # Avoiding flagging (and removing) any codes starting with `PBR` from any
 # `# noqa` directives, despite Ruff's lack of support for `boa-restrictor`.
-external = ["PBR"]
+external = ["PBR", "DBR"]
 ```
 
 https://docs.astral.sh/ruff/settings/#lint_extend-unsafe-fixes
