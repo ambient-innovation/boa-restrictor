@@ -1,5 +1,8 @@
 # Changelog
 
+* *1.7.2* (2025-05-12)
+    * Fixed a bug in the docs at "DBR002"
+
 * *1.7.1* (2025-05-12)
     * Updated docs about ruff support and Django-based rules
 

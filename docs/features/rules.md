@@ -195,7 +195,7 @@ if typing.TYPE_CHECKING:
 
 
 class MyView(generic.DetailView):
-    def get_queryset(self) -> QuerySet: ...
+    def get_queryset(self) -> "QuerySet": ...
 ```
 
 ### Prohibit usage of "assertTrue" and "assertFalse" in Django unittests (DBR003)
