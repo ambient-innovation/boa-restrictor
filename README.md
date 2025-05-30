@@ -21,7 +21,7 @@ Add the following to your .pre-commit-config.yaml file:
 
 ```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.7.2
+    rev: v1.7.3
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]
@@ -72,4 +72,3 @@ configuration and setup files. It works similar to well-known updaters like `pyu
 
 To run an update, refer to the [documentation page](https://pypi.org/project/ambient-package-update/)
 of the "ambient-package-update".
-

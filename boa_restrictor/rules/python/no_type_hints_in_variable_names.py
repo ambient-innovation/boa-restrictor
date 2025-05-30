@@ -14,7 +14,7 @@ class AvoidTypeHintsInVariableNamesAsSuffix(Rule):
 
     BAD_SUFFIXES = ("_list", "_dict", "_set", "_str", "_int", "_float", "_bool", "_qs")
 
-    def check(self) -> list[Occurrence]:
+    def check(self) -> list[Occurrence]:  # noqa: C901
         occurrences = []
 
         for node in ast.walk(self.source_tree):

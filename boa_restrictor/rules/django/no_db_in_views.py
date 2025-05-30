@@ -38,7 +38,7 @@ class NoDjangoDbImportInViewsRule(Rule):
                 return True
         return False
 
-    def check(self) -> list[Occurrence]:
+    def check(self) -> list[Occurrence]:  # noqa: C901
         occurrences = []
         type_checking_lines = set()
 
