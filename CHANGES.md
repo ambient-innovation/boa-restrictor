@@ -1,5 +1,8 @@
 # Changelog
 
+**1.7.3** (2025-05-29)
+  * Maintenance updates via ambient-package-update
+
 * *1.7.2* (2025-05-12)
     * Fixed a bug in the docs at "DBR002"
 
