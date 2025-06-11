@@ -8,7 +8,8 @@ Boa Restrictor Linter
    :caption: Contents:
 
    features/configuration.md
-   features/rules.md
+   features/rules/python_rule_index.rst
+   features/rules/django_rule_index.rst
    features/changelog.rst
 
 Indices and tables
