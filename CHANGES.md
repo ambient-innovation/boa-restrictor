@@ -1,5 +1,10 @@
 # Changelog
 
+**1.8.0** (2025-06-11)
+  * Added rule to prohibit usage of "datetime.now()" in favour of "django.utils.timezone.now()"
+  * Restructured documentation
+  * Updated package claim to include Django
+
 **1.7.3** (2025-05-29)
   * Maintenance updates via ambient-package-update
 
