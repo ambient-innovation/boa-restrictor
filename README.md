@@ -5,7 +5,7 @@
 [![Coding Style](https://img.shields.io/badge/code%20style-Ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Documentation Status](https://readthedocs.org/projects/boa-restrictor/badge/?version=latest)](https://boa-restrictor.readthedocs.io/en/latest/?badge=latest)
 
-Welcome to the **boa-restrictor** - a custom Python linter from Ambient
+Welcome to the **boa-restrictor** - a custom Python and Django linter from Ambient
 
 * [PyPI](https://pypi.org/project/boa-restrictor/)
 * [GitHub](https://github.com/ambient-innovation/boa-restrictor)
@@ -21,7 +21,7 @@ Add the following to your .pre-commit-config.yaml file:
 
 ```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.7.3
+    rev: v1.8.0
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]
