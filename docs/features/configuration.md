@@ -44,12 +44,15 @@ You can disable rules on a per-file-basis in your `pyproject.toml` file as follo
 
 ```toml
 [tool.boa-restrictor.per-file-excludes]
-"*/tests/*" = [
+"*/tests/*.py" = [
     "PBR001",
     "PBR002",
 ]
-"scripts/*" = [
+"scripts/*.py" = [
     "DBR001",
+]
+"*/my_app/*.py" = [
+    "PBR003",
 ]
 ```
 

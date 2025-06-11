@@ -1,5 +1,8 @@
 # Changelog
 
+**1.8.1** (2025-06-11)
+  * Improved docs and added test for file-based rule exclusions
+
 **1.8.0** (2025-06-11)
   * Added rule to prohibit usage of "datetime.now()" in favour of "django.utils.timezone.now()"
   * Restructured documentation

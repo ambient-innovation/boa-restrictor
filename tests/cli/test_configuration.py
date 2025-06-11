@@ -115,3 +115,25 @@ def test_is_rule_excluded_per_file_file_not_matched():
         )
         is False
     )
+
+
+def test_is_rule_excluded_per_file_exclude_directory():
+    assert (
+        is_rule_excluded_per_file(
+            filename="apps/common/file.py",
+            rule_class=AsteriskRequiredRule,
+            per_file_excluded_rules={"*/common/*.py": ["PBR001"]},
+        )
+        is True
+    )
+
+
+def test_is_rule_excluded_per_file_exclude_subdirectory():
+    assert (
+        is_rule_excluded_per_file(
+            filename="apps/common/package/file.py",
+            rule_class=AsteriskRequiredRule,
+            per_file_excluded_rules={"*/common/**/*.py": ["PBR001"]},
+        )
+        is True
+    )
