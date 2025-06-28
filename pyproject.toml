@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core>=3.4"]
+requires = ["flit_core~=3.12"]
 build-backend = "flit_core.buildapi"
 
 [project]
@@ -35,9 +35,7 @@ dependencies = [
     'tomli; python_version < "3.11"',
 ]
 
-
 scripts.boa-restrictor = "boa_restrictor.cli.main:main"
-
 
 [project.optional-dependencies]
 dev = [

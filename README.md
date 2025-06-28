@@ -12,16 +12,13 @@ Welcome to the **boa-restrictor** - a custom Python and Django linter from Ambie
 * [Full documentation](https://boa-restrictor.readthedocs.io/en/latest/index.html)
 * Creator & Maintainer: [Ambient Digital](https://ambient.digital/)
 
-
-
-
 ## Installation
 
 Add the following to your .pre-commit-config.yaml file:
 
 ```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.8.0
+    rev: v1.8.1
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]

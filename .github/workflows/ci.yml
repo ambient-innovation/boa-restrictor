@@ -23,7 +23,6 @@ jobs:
       - name: Run pre-commit hooks
         run: pre-commit run --all-files
 
-
   tests:
     name: Python ${{ matrix.python-version }}, django ${{ matrix.django-version }}
     runs-on: ubuntu-24.04
