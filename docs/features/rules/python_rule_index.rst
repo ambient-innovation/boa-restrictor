@@ -12,3 +12,4 @@ Python rules
    python/005_service_class_with_process.md
    python/006_abstract_class_inherits_from_abc.md
    python/007_variable_names_no_type_hinting.md
+   python/008_no_loops_in_unittests.md
