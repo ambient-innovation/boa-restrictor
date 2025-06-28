@@ -1,4 +1,4 @@
-# Prohibit usage of loops in unittests
+# Prohibit usage of loops in unittests (PBR008)
 
 This rule will prohibit the usage of loops (`for`, `while`) in unittests.
 
