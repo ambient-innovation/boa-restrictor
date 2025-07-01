@@ -1,5 +1,8 @@
 # Changelog
 
+**1.10.0** (2025-07-01)
+  * Added Django-only rule to prohibit usage of "django.db" in the API layer (DBR005)
+
 **1.9.0** (2025-06-28)
   * Added new rule to prohibit usage of loops in unittests
 
