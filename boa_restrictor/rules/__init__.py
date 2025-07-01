@@ -1,4 +1,5 @@
 from boa_restrictor.rules.django.no_assert_booleans_in_tests import ProhibitAssertBooleanInTests
+from boa_restrictor.rules.django.no_db_in_api import NoDjangoDbImportInApiRule
 from boa_restrictor.rules.django.no_db_in_views import NoDjangoDbImportInViewsRule
 from boa_restrictor.rules.django.prohibit_assert_raises import AssertRaisesProhibitedRule
 from boa_restrictor.rules.django.prohibit_datetime_now import ProhibitDatetimeNow
@@ -27,6 +28,7 @@ DJANGO_BOA_RULES = (
     NoDjangoDbImportInViewsRule,
     ProhibitAssertBooleanInTests,
     ProhibitDatetimeNow,
+    NoDjangoDbImportInApiRule,
 )
 
 
