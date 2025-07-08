@@ -1,10 +1,13 @@
 # Changelog
 
+**1.10.1** (2025-07-08)
+  * Extended PBR008 to also detect list comprehensions
+
 **1.10.0** (2025-07-01)
   * Added Django-only rule to prohibit usage of "django.db" in the API layer (DBR005)
 
 **1.9.0** (2025-06-28)
-  * Added new rule to prohibit usage of loops in unittests
+  * Added new rule to prohibit usage of loops in unittests (PBR008)
 
 **1.8.1** (2025-06-11)
   * Improved docs and added test for file-based rule exclusions
