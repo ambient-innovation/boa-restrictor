@@ -41,6 +41,24 @@ def test_pytest_while_loop_is_detected():
     )
 
 
+def test_pytest_list_comprehension_loop_is_detected():
+    source_tree = ast.parse("""def test_something():
+    numbers = [1, 2, 3, 4, 5]
+    squared_numbers = [x * x for x in numbers]""")
+
+    occurrences = NoLoopsInTestsRule.run_check(file_path=Path("/path/to/tests/test_file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0] == Occurrence(
+        filename="test_file.py",
+        file_path=Path("/path/to/tests/test_file.py"),
+        line_number=1,
+        rule_id=NoLoopsInTestsRule.RULE_ID,
+        rule_label=NoLoopsInTestsRule.RULE_LABEL,
+        identifier="test_something",
+    )
+
+
 def test_pytest_nested_loop_is_detected():
     source_tree = ast.parse("""def test_something():
     if len(list) > 0:
