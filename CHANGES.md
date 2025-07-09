@@ -1,5 +1,8 @@
 # Changelog
 
+**1.10.2** (2025-07-09)
+  * Extended PBR008 to also detect set and dict comprehensions
+
 **1.10.1** (2025-07-08)
   * Extended PBR008 to also detect list comprehensions
 

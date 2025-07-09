@@ -59,6 +59,40 @@ def test_pytest_list_comprehension_loop_is_detected():
     )
 
 
+def test_pytest_set_comprehension_loop_is_detected():
+    source_tree = ast.parse("""def test_something():
+    {x ** 2 for x in range(10) if x % 2 == 0}""")
+
+    occurrences = NoLoopsInTestsRule.run_check(file_path=Path("/path/to/tests/test_file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0] == Occurrence(
+        filename="test_file.py",
+        file_path=Path("/path/to/tests/test_file.py"),
+        line_number=1,
+        rule_id=NoLoopsInTestsRule.RULE_ID,
+        rule_label=NoLoopsInTestsRule.RULE_LABEL,
+        identifier="test_something",
+    )
+
+
+def test_pytest_dict_comprehension_loop_is_detected():
+    source_tree = ast.parse("""def test_something():
+    {x: x ** 2 for x in range(5)}""")
+
+    occurrences = NoLoopsInTestsRule.run_check(file_path=Path("/path/to/tests/test_file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0] == Occurrence(
+        filename="test_file.py",
+        file_path=Path("/path/to/tests/test_file.py"),
+        line_number=1,
+        rule_id=NoLoopsInTestsRule.RULE_ID,
+        rule_label=NoLoopsInTestsRule.RULE_LABEL,
+        identifier="test_something",
+    )
+
+
 def test_pytest_nested_loop_is_detected():
     source_tree = ast.parse("""def test_something():
     if len(list) > 0:

@@ -21,7 +21,7 @@ class NoLoopsInTestsRule(Rule):
 
         for node in ast.walk(self.source_tree):
             if isinstance(node, ast.FunctionDef) and node.name.startswith("test"):
-                if self._contains_loop_or_list_comprehension(node):
+                if self._contains_loop_or_comprehension(node):
                     occurrences.append(
                         Occurrence(
                             rule_id=self.RULE_ID,
@@ -43,10 +43,10 @@ class NoLoopsInTestsRule(Rule):
             and filepath.name.endswith(".py")
         )
 
-    def _contains_loop_or_list_comprehension(self, node) -> bool:
+    def _contains_loop_or_comprehension(self, node) -> bool:
         for child in ast.iter_child_nodes(node):
-            if isinstance(child, (ast.For, ast.While, ast.ListComp)):
+            if isinstance(child, (ast.For, ast.While, ast.ListComp, ast.SetComp, ast.DictComp)):
                 return True
-            if self._contains_loop_or_list_comprehension(child):
+            if self._contains_loop_or_comprehension(child):
                 return True
         return False
