@@ -7,6 +7,7 @@ Boa Restrictor Linter
    :maxdepth: 1
    :caption: Contents:
 
+   features/disclaimer.md
    features/configuration.md
    features/rules/python_rule_index.rst
    features/rules/django_rule_index.rst

@@ -1,5 +1,8 @@
 # Changelog
 
+**1.10.3** (2025-08-14)
+  * Added disclaimer about linter usage to the docs
+
 **1.10.2** (2025-07-09)
   * Extended PBR008 to also detect set and dict comprehensions
 
