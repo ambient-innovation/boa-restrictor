@@ -119,6 +119,14 @@ def test_check_no_db_form_import():
     assert len(occurrences) == 0
 
 
+def test_check_relative_import():
+    source_tree = ast.parse("""from . import db""")
+
+    occurrences = NoDjangoDbImportInApiRule.run_check(file_path=Path("/path/to/file/api.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 0
+
+
 def test_check_typing_type_hinting_imports_are_excluded():
     source_tree = ast.parse("""if typing.TYPE_CHECKING:
     from django.db import QuerySet""")
