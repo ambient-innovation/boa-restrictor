@@ -1,5 +1,8 @@
 # Changelog
 
+**1.10.4** (2025-08-15)
+  * Fixed a bug which caused `DBR005` rule to crash on relative imports
+
 **1.10.3** (2025-08-14)
   * Added disclaimer about linter usage to the docs
 
