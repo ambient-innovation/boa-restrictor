@@ -1,5 +1,8 @@
 # Changelog
 
+**1.10.5** (2025-08-18)
+  * Fixed an odd issue with rules not being detected
+
 **1.10.4** (2025-08-15)
   * Fixed a bug which caused `DBR005` rule to crash on relative imports
 

@@ -38,8 +38,8 @@ def is_rule_excluded(*, rule_class: type[Rule], excluded_rules: list) -> bool:
     """
     Check if the given rule is in the exclusion list.
     """
-    # Generate set of valid rules (filtering Django rules happens one level above)
-    valid_rules = (rule_class.RULE_ID for rule_class in get_rules(use_django_rules=True))
+    # Generate list of valid rules (filtering Django rules happens one level above)
+    valid_rules = [rule_class.RULE_ID for rule_class in get_rules(use_django_rules=True)]
 
     # Check if the given rule is valid
     for invalid_configured_rule in [rule_id for rule_id in excluded_rules if rule_id not in valid_rules]:
