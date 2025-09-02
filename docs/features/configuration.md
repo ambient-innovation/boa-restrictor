@@ -59,7 +59,14 @@ You can disable rules on a per-file-basis in your `pyproject.toml` file as follo
 Take care that the path is relative to the location of your pyproject.toml. This means that example two targets all
 files living in a `scripts/` directory on the projects top level.
 
-## Ruff support
+## noqa & ruff support
+
+As any other linter, you can disable certain rules on a per-line basis with `#noqa`.
+
+````python
+def function_with_args(arg1, arg2):  # noqa: PBR001
+    ...
+````
 
 If you are using `ruff`, you need to tell it about our linting rules. Otherwise, ruff will remove all `# noqa`
 statements from your codebase.

@@ -1,5 +1,8 @@
 # Changelog
 
+**1.10.6** (2025-09-02)
+  * Added `noqa` option to docs
+
 **1.10.5** (2025-08-18)
   * Fixed an odd issue with rules not being detected
 
