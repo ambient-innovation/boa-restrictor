@@ -1,5 +1,8 @@
 # Changelog
 
+**1.11.1** (2025-09-29)
+  * Made linter more robust against unexpected issues
+
 **1.11.0** (2025-09-29)
   * Added new `AvoidTupleBasedModelChoices` rule
 

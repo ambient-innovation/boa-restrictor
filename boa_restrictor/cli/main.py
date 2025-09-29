@@ -38,40 +38,47 @@ def main(argv: Optional[Sequence[str]] = None):
     # Iterate over all filenames coming from pre-commit...
     occurrences = []
     for filename in args.filenames[1:]:
-        # Read source code
-        with open(filename) as f:
-            source_code = f.read()
+        try:
+            # Read source code
+            with open(filename) as f:
+                source_code = f.read()
 
-        # Parse code through abstract syntax tree
-        source_tree = parse_source_code_or_fail(filename=filename, source_code=source_code)
+            # Parse code through abstract syntax tree
+            source_tree = parse_source_code_or_fail(filename=filename, source_code=source_code)
 
-        # Fetch all ignored line comments
-        noqa_tokens = get_noqa_comments(source_code=source_code)
+            # Fetch all ignored line comments
+            noqa_tokens = get_noqa_comments(source_code=source_code)
 
-        # Iterate over all linters...
-        enabled_rules = get_rules(use_django_rules=enable_django_rules)
-        for rule_class in enabled_rules:
-            # Skip linters, which have been excluded globally via the configuration
-            if is_rule_excluded(rule_class=rule_class, excluded_rules=globally_excluded_rules):
-                continue
+            # Iterate over all linters...
+            enabled_rules = get_rules(use_django_rules=enable_django_rules)
+            for rule_class in enabled_rules:
+                # Skip linters, which have been excluded globally via the configuration
+                if is_rule_excluded(rule_class=rule_class, excluded_rules=globally_excluded_rules):
+                    continue
 
-            # Iterate per-file rule exclusions
-            if is_rule_excluded_per_file(
-                filename=filename, rule_class=rule_class, per_file_excluded_rules=per_file_excluded_rules
-            ):
-                continue
+                # Iterate per-file rule exclusions
+                if is_rule_excluded_per_file(
+                    filename=filename, rule_class=rule_class, per_file_excluded_rules=per_file_excluded_rules
+                ):
+                    continue
 
-            # Ensure that line exclusions are respected
-            excluded_lines = {token[0] for token in noqa_tokens if rule_class.RULE_ID in token[1]}
+                # Ensure that line exclusions are respected
+                excluded_lines = {token[0] for token in noqa_tokens if rule_class.RULE_ID in token[1]}
 
-            # Add issues to our occurrence list
-            occurrences.extend(
-                [
-                    possible_occurrence
-                    for possible_occurrence in rule_class.run_check(file_path=Path(filename), source_tree=source_tree)
-                    if possible_occurrence.line_number not in excluded_lines
-                ]
-            )
+                # Add issues to our occurrence list
+                occurrences.extend(
+                    [
+                        possible_occurrence
+                        for possible_occurrence in rule_class.run_check(
+                            file_path=Path(filename), source_tree=source_tree
+                        )
+                        if possible_occurrence.line_number not in excluded_lines
+                    ]
+                )
+        except Exception as e:  # noqa: BLE001
+            # Print error message to stderr and continue processing other files
+            sys.stderr.write(f"Error processing file '{filename}': {e}\n")
+            continue
 
     # If we have any matches...
     if any(occurrences):
