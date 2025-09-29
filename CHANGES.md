@@ -1,5 +1,8 @@
 # Changelog
 
+**1.12.0** (2025-09-29)
+  * Reverted changes after finding **critical bug** leading to always skipping first file passed from pre-commit
+
 **1.11.2** (2025-09-29)
   * Possible bugfix with pre-commit integration
 
