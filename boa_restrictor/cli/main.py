@@ -31,9 +31,7 @@ def main(argv: Optional[Sequence[str]] = None):
     configuration = load_configuration(file_path=args.config)
     globally_excluded_rules = configuration.get("exclude", [])
     enable_django_rules = configuration.get("enable_django_rules", True)
-    per_file_excluded_rules: dict[str, list[str]] = load_configuration(file_path=args.config).get(
-        "per-file-excludes", {}
-    )
+    per_file_excluded_rules: dict[str, list[str]] = configuration.get("per-file-excludes", {})
 
     # Iterate over all filenames coming from pre-commit...
     occurrences = []

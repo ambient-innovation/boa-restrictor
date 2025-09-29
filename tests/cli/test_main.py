@@ -29,12 +29,12 @@ def test_main_arguments_parsed(mocked_parse_args):
 
 
 @mock.patch("boa_restrictor.cli.main.load_configuration", return_value={"exclude": ["PBR001"]})
+@mock.patch("builtins.open", mock.mock_open(read_data="# test file"))
 @mock.patch.object(Rule, "run_check")
 @mock.patch.object(AsteriskRequiredRule, "run_check")
 def test_main_exclude_config_active(mocked_run_checks_asterisk, mocked_rule_run_checks, *args):
     main(
         argv=(
-            "boa-restrictor",
             os.path.abspath(sys.argv[0]),
             "--config",
             "pyproject.toml",
@@ -48,12 +48,12 @@ def test_main_exclude_config_active(mocked_run_checks_asterisk, mocked_rule_run_
 
 
 @mock.patch("boa_restrictor.cli.main.load_configuration", return_value={"per-file-excludes": {"*.py": ["PBR001"]}})
+@mock.patch("builtins.open", mock.mock_open(read_data="# test file"))
 @mock.patch.object(Rule, "run_check")
 @mock.patch.object(AsteriskRequiredRule, "run_check")
 def test_main_per_file_exclude_config_active(mocked_run_checks_asterisk, mocked_rule_run_checks, *args):
     main(
         argv=(
-            "boa-restrictor",
             os.path.abspath(sys.argv[0]),
             "--config",
             "pyproject.toml",
@@ -67,11 +67,11 @@ def test_main_per_file_exclude_config_active(mocked_run_checks_asterisk, mocked_
 
 
 @mock.patch("boa_restrictor.cli.main.load_configuration", return_value={})
+@mock.patch("builtins.open", mock.mock_open(read_data="# test file"))
 @mock.patch("boa_restrictor.cli.main.get_rules")
 def test_main_django_rules_default_enabled(mocked_get_rule, *args):
     main(
         argv=(
-            "boa-restrictor",
             os.path.abspath(sys.argv[0]),
             "--config",
             "pyproject.toml",
@@ -82,11 +82,11 @@ def test_main_django_rules_default_enabled(mocked_get_rule, *args):
 
 
 @mock.patch("boa_restrictor.cli.main.load_configuration", return_value={"enable_django_rules": True})
+@mock.patch("builtins.open", mock.mock_open(read_data="# test file"))
 @mock.patch("boa_restrictor.cli.main.get_rules")
 def test_main_django_rules_enabled(mocked_get_rule, *args):
     main(
         argv=(
-            "boa-restrictor",
             os.path.abspath(sys.argv[0]),
             "--config",
             "pyproject.toml",
@@ -97,11 +97,11 @@ def test_main_django_rules_enabled(mocked_get_rule, *args):
 
 
 @mock.patch("boa_restrictor.cli.main.load_configuration", return_value={"enable_django_rules": False})
+@mock.patch("builtins.open", mock.mock_open(read_data="# test file"))
 @mock.patch("boa_restrictor.cli.main.get_rules")
 def test_main_django_rules_disabled(mocked_get_rule, *args):
     main(
         argv=(
-            "boa-restrictor",
             os.path.abspath(sys.argv[0]),
             "--config",
             "pyproject.toml",
@@ -111,46 +111,43 @@ def test_main_django_rules_disabled(mocked_get_rule, *args):
     mocked_get_rule.assert_called_with(use_django_rules=False)
 
 
-@mock.patch("boa_restrictor.cli.main.get_noqa_comments", return_value=[])
-def test_main_noqa_comments_called(mocked_get_noqa_comments):
-    main(
-        argv=(
-            "boa-restrictor",
-            os.path.abspath(sys.argv[0]),
-            "--config",
-            "pyproject.toml",
-        )
-    )
+def test_main_noqa_comments_called():
+    with mock.patch("boa_restrictor.cli.main.get_noqa_comments", return_value=[]) as mocked_get_noqa_comments:
+        with mock.patch("boa_restrictor.cli.main.load_configuration", return_value={}):
+            with mock.patch("builtins.open", mock.mock_open(read_data="# test file")):
+                main(
+                    argv=(
+                        os.path.abspath(sys.argv[0]),
+                        "--config",
+                        "pyproject.toml",
+                    )
+                )
 
-    mocked_get_noqa_comments.assert_called_once()
+                mocked_get_noqa_comments.assert_called_once()
 
 
 @mock.patch.object(ast, "parse", side_effect=SyntaxError)
-@mock.patch.object(sys.stderr, "write")
-def test_main_invalid_syntax(mock_stderr_write, *args):
-    # With the new exception handling, syntax errors should be caught and logged to stderr
-    # but not crash the entire program
-    result = main(
-        argv=(
-            "boa-restrictor",
-            os.path.abspath(sys.argv[0]),
-            "--config",
-            "pyproject.toml",
+@mock.patch("boa_restrictor.cli.main.load_configuration", return_value={})
+@mock.patch("builtins.open", mock.mock_open(read_data="# test file"))
+def test_main_invalid_syntax(*args):
+    # With syntax error in parsing, the function should raise the SyntaxError
+    # since exception handling was removed in the revert
+    try:
+        main(
+            argv=(
+                os.path.abspath(sys.argv[0]),
+                "--config",
+                "pyproject.toml",
+            )
         )
-    )
-
-    # Should complete without raising exception
-    assert result is False  # No violations found due to syntax error
-
-    # Should write error message to stderr
-    mock_stderr_write.assert_called()
-    stderr_output = "".join(call.args[0] for call in mock_stderr_write.call_args_list)
-    assert "Error processing file" in stderr_output
-    assert "contains syntax errors" in stderr_output
+        # If no exception was raised, this test should fail
+        raise AssertionError
+    except SyntaxError:
+        # This is expected behavior after the revert
+        pass
 
 
-@mock.patch.object(sys.stdout, "write")
-def test_main_occurrences_are_written_to_cli(mocked_write):
+def test_main_occurrences_are_written_to_cli():
     occurrence = Occurrence(
         rule_id="PBR000",
         rule_label="One to rule them all.",
@@ -160,28 +157,32 @@ def test_main_occurrences_are_written_to_cli(mocked_write):
         identifier="my_function",
     )
 
-    with mock.patch.object(
-        Rule,
-        "run_check",
-        return_value=[occurrence],
-    ) as mocked_run_checks:
-        main(
-            argv=(
-                "boa-restrictor",
-                os.path.abspath(sys.argv[0]),
-                "--config",
-                "pyproject.toml",
-            )
-        )
+    with mock.patch.object(sys.stdout, "write") as mocked_write:
+        with mock.patch("boa_restrictor.cli.main.load_configuration", return_value={}):
+            with mock.patch("builtins.open", mock.mock_open(read_data="# test file")):
+                with mock.patch.object(
+                    Rule,
+                    "run_check",
+                    return_value=[occurrence],
+                ) as mocked_run_checks:
+                    main(
+                        argv=(
+                            os.path.abspath(sys.argv[0]),
+                            "--config",
+                            "pyproject.toml",
+                        )
+                    )
 
-    # We have more than one rule
-    assert mocked_run_checks.call_count > 1
+                    # We have more than one rule
+                    assert mocked_run_checks.call_count > 1
 
-    # We expect one line per occurrence
-    assert mocked_write.call_count == mocked_run_checks.call_count
+                    # We expect one line per occurrence
+                    assert mocked_write.call_count == mocked_run_checks.call_count
 
 
-def test_main_occurrences_cli_output_correctly_formatted():
+@mock.patch("boa_restrictor.cli.main.load_configuration", return_value={})
+@mock.patch("builtins.open", mock.mock_open(read_data="# test file"))
+def test_main_occurrences_cli_output_correctly_formatted(mocked_load_config):
     occurrence = Occurrence(
         rule_id="PBR000",
         rule_label="One to rule them all.",
@@ -195,7 +196,6 @@ def test_main_occurrences_cli_output_correctly_formatted():
         with mock.patch.object(Rule, "run_check", return_value=[occurrence]):
             main(
                 argv=(
-                    "boa-restrictor",
                     os.path.abspath(sys.argv[0]),
                     "--config",
                     "pyproject.toml",
