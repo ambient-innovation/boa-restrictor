@@ -1,3 +1,3 @@
 """A custom Python and Django linter from Ambient"""
 
-__version__ = "1.10.6"
+__version__ = "1.11.0"

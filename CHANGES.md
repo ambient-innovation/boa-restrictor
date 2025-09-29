@@ -1,5 +1,8 @@
 # Changelog
 
+**1.11.0** (2025-09-29)
+  * Added new `AvoidTupleBasedModelChoices` rule
+
 **1.10.6** (2025-09-02)
   * Added `noqa` option to docs
 
