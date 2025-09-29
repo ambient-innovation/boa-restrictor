@@ -1,3 +1,4 @@
+from boa_restrictor.rules.django.avoid_tuple_based_model_choices import AvoidTupleBasedModelChoices
 from boa_restrictor.rules.django.no_assert_booleans_in_tests import ProhibitAssertBooleanInTests
 from boa_restrictor.rules.django.no_db_in_api import NoDjangoDbImportInApiRule
 from boa_restrictor.rules.django.no_db_in_views import NoDjangoDbImportInViewsRule
@@ -29,6 +30,7 @@ DJANGO_BOA_RULES = (
     ProhibitAssertBooleanInTests,
     ProhibitDatetimeNow,
     NoDjangoDbImportInApiRule,
+    AvoidTupleBasedModelChoices,
 )
 
 
