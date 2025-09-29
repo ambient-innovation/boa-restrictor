@@ -1,5 +1,8 @@
 # Changelog
 
+**1.11.2** (2025-09-29)
+  * Possible bugfix with pre-commit integration
+
 **1.11.1** (2025-09-29)
   * Made linter more robust against unexpected issues
 

@@ -37,7 +37,7 @@ def main(argv: Optional[Sequence[str]] = None):
 
     # Iterate over all filenames coming from pre-commit...
     occurrences = []
-    for filename in args.filenames[1:]:
+    for filename in args.filenames:
         try:
             # Read source code
             with open(filename) as f:
