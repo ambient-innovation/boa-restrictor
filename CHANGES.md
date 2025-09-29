@@ -1,5 +1,8 @@
 # Changelog
 
+**1.12.1** (2025-09-29)
+  * Optimized toml variable loading
+
 **1.12.0** (2025-09-29)
   * Reverted changes after finding **critical bug** leading to always skipping first file passed from pre-commit
 
