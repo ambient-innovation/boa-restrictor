@@ -156,3 +156,6 @@ _build
 
 # Test databases
 *.sqlite
+
+# AI
+.claude
