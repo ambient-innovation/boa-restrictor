@@ -209,3 +209,23 @@ def test_main_occurrences_cli_output_correctly_formatted(mocked_load_config):
     # Check that the formatting is correct
     assert '/path/to/file/my_file.py:42": ' in actual_output
     assert "(PBR000) One to rule them all." in actual_output
+
+
+@mock.patch("boa_restrictor.cli.main.load_configuration", return_value={"per-file-excludes": {"*.py": ["PBR001"]}})
+@mock.patch("builtins.open", mock.mock_open(read_data="# test file"))
+@mock.patch("boa_restrictor.cli.main.is_rule_excluded_per_file", return_value=True)
+@mock.patch.object(AsteriskRequiredRule, "run_check")
+def test_main_per_file_exclusion_skips_rule(mocked_run_check, mocked_is_excluded, *args):
+    """Test that line 59 continue statement is executed when per-file exclusion matches"""
+    main(
+        argv=(
+            os.path.abspath(sys.argv[0]),
+            "--config",
+            "pyproject.toml",
+        )
+    )
+
+    # Verify the rule was excluded via per-file config
+    mocked_is_excluded.assert_called()
+    # Verify that the rule check was NOT called for the excluded rule
+    mocked_run_check.assert_not_called()
