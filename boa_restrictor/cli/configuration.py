@@ -2,7 +2,6 @@ import fnmatch
 import re
 import sys
 import warnings
-from typing import Union
 
 from boa_restrictor.common.rule import Rule
 from boa_restrictor.exceptions.configuration import TomlParsingError
@@ -15,7 +14,7 @@ else:
 from pathlib import Path
 
 
-def load_configuration(*, file_path: Union[Path, str] = "pyproject.toml") -> dict:
+def load_configuration(*, file_path: Path | str = "pyproject.toml") -> dict:
     """
     Load linter configuration from pyproject.toml file.
     """

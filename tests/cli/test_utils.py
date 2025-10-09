@@ -13,5 +13,5 @@ def test_parse_source_code_or_fail_valid_code():
 
 
 def test_parse_source_code_or_fail_invalid_code():
-    with pytest.raises(BoaRestrictorParsingError, match='Source code of file "my_file.py" contains syntax errors.'):
+    with pytest.raises(BoaRestrictorParsingError, match=r'Source code of file "my_file.py" contains syntax errors.'):
         parse_source_code_or_fail(filename="my_file.py", source_code="""f\"asf""")
