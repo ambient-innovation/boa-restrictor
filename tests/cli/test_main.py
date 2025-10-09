@@ -54,7 +54,7 @@ def test_main_exclude_config_active(mocked_run_checks_asterisk, mocked_rule_run_
 def test_main_per_file_exclude_config_active(mocked_run_checks_asterisk, mocked_rule_run_checks, *args):
     main(
         argv=(
-            os.path.abspath(sys.argv[0]),
+            "test_file.py",
             "--config",
             "pyproject.toml",
         )
