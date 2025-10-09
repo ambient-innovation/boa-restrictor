@@ -26,6 +26,7 @@ METADATA = PackageMetadata(
     license_year=2024,
     development_status="4 - Beta",
     has_migrations=False,
+    claim="A custom Python and Django linter from Ambient",
     readme_content=ReadmeContent(uses_internationalisation=False),
     main_branch="main",
     tests_require_django=False,
