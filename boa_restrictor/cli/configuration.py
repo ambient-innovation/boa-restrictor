@@ -2,20 +2,19 @@ import fnmatch
 import re
 import sys
 import warnings
-from typing import Union
 
 from boa_restrictor.common.rule import Rule
 from boa_restrictor.exceptions.configuration import TomlParsingError
 from boa_restrictor.rules import get_rules
 
 if sys.version_info >= (3, 11):
-    import tomllib
+    import tomllib  # pragma: no cover
 else:
-    import tomli as tomllib
+    import tomli as tomllib  # pragma: no cover
 from pathlib import Path
 
 
-def load_configuration(*, file_path: Union[Path, str] = "pyproject.toml") -> dict:
+def load_configuration(*, file_path: Path | str = "pyproject.toml") -> dict:
     """
     Load linter configuration from pyproject.toml file.
     """

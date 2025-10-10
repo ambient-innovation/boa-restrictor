@@ -1,6 +1,5 @@
 import dataclasses
 from pathlib import Path
-from typing import Optional
 
 
 # TODO: Add kw_only when we drop Python 3.9 support
@@ -10,5 +9,5 @@ class Occurrence:
     rule_label: str
     filename: str
     file_path: Path
-    identifier: Optional[str]
+    identifier: str | None
     line_number: int

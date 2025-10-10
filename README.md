@@ -7,10 +7,9 @@
 
 Welcome to the **boa-restrictor** - a custom Python and Django linter from Ambient
 
-* [PyPI](https://pypi.org/project/boa-restrictor/)
-* [GitHub](https://github.com/ambient-innovation/boa-restrictor)
-* [Full documentation](https://boa-restrictor.readthedocs.io/en/latest/index.html)
-* Creator & Maintainer: [Ambient Digital](https://ambient.digital/)
+[PyPI](https://pypi.org/project/boa-restrictor/) | [GitHub](https://github.com/ambient-innovation/boa-restrictor) | [Full documentation](https://boa-restrictor.readthedocs.io/en/latest/index.html)
+
+Creator & Maintainer: [Ambient Digital](https://ambient.digital/)
 
 ## Installation
 
@@ -18,7 +17,7 @@ Add the following to your .pre-commit-config.yaml file:
 
 ```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.10.3
+    rev: v1.12.1
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]

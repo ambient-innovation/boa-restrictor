@@ -2,7 +2,6 @@ import argparse
 import sys
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Optional
 
 from boa_restrictor.cli.configuration import is_rule_excluded, is_rule_excluded_per_file, load_configuration
 from boa_restrictor.cli.utils import parse_source_code_or_fail
@@ -10,7 +9,7 @@ from boa_restrictor.common.noqa import get_noqa_comments
 from boa_restrictor.rules import get_rules
 
 
-def main(argv: Optional[Sequence[str]] = None):
+def main(argv: Sequence[str] | None = None):
     parser = argparse.ArgumentParser(
         prog="boa-restrictor",
     )
