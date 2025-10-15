@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10"
 
 [[package]]
@@ -54,7 +54,7 @@ dependencies = [
     { name = "tomli", marker = "python_full_version < '3.11'" },
 ]
 
-[package.dev-dependencies]
+[package.optional-dependencies]
 dev = [
     { name = "ambient-package-update" },
     { name = "m2r2" },
@@ -70,23 +70,20 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "ambient-package-update", marker = "extra == 'dev'" },
     { name = "django", specifier = ">=4.2" },
+    { name = "m2r2", marker = "extra == 'dev'", specifier = "~=0.3" },
+    { name = "pre-commit", marker = "extra == 'dev'", specifier = "~=4.3" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = "~=7.0" },
+    { name = "pytest-django", marker = "extra == 'dev'", specifier = "~=4.11" },
+    { name = "pytest-mock", marker = "extra == 'dev'", specifier = "~=3.15" },
+    { name = "sphinx", marker = "extra == 'dev'", specifier = "~=7.4" },
+    { name = "sphinx-rtd-theme", marker = "extra == 'dev'", specifier = "~=3.0" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
+    { name = "typer", marker = "extra == 'dev'", specifier = "~=0.19" },
+    { name = "uv", marker = "extra == 'dev'", specifier = "~=0.9" },
 ]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "ambient-package-update" },
-    { name = "m2r2", specifier = "~=0.3" },
-    { name = "pre-commit", specifier = "~=4.3" },
-    { name = "pytest-cov", specifier = "~=7.0" },
-    { name = "pytest-django", specifier = "~=4.11" },
-    { name = "pytest-mock", specifier = "~=3.15" },
-    { name = "sphinx", specifier = "~=7.4" },
-    { name = "sphinx-rtd-theme", specifier = "~=3.0" },
-    { name = "typer", specifier = "~=0.19" },
-    { name = "uv", specifier = "~=0.9" },
-]
+provides-extras = ["dev"]
 
 [[package]]
 name = "certifi"
