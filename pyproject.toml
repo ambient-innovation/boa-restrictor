@@ -39,7 +39,7 @@ dependencies = [
 
 scripts.boa-restrictor = "boa_restrictor.cli.main:main"
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
    'typer~=0.19',
    'pytest-cov~=7.0',
@@ -207,7 +207,7 @@ env_list = ["django42", "django51", "django52", ]
 package = "wheel"
 wheel_build_env = ".pkg"
 runner = "uv-venv-lock-runner"
-dependency_groups = ["dev", ]
+extras = ["dev", ]
 commands = [
     ["pytest", "--cov=boa_restrictor", "--cov-report=term", "--cov-report=xml", "tests"]
 ]
