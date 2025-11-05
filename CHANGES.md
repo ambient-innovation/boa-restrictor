@@ -1,5 +1,8 @@
 # Changelog
 
+**1.12.4** (2025-11-05)
+  * Updating linters and formatters
+
 **1.12.3** (2025-10-15)
   * Maintenance updates via ambient-package-update
 
