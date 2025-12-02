@@ -16,7 +16,7 @@ def test_check_assert_true_found():
     assert occurrences[0] == Occurrence(
         filename="test_x.py",
         file_path=Path("test_x.py"),
-        line_number=1,
+        line_number=3,
         rule_id=ProhibitAssertBooleanInTests.RULE_ID,
         rule_label=ProhibitAssertBooleanInTests.RULE_LABEL,
         identifier=None,
@@ -34,7 +34,7 @@ def test_check_assert_false_found():
     assert occurrences[0] == Occurrence(
         filename="test_x.py",
         file_path=Path("test_x.py"),
-        line_number=1,
+        line_number=3,
         rule_id=ProhibitAssertBooleanInTests.RULE_ID,
         rule_label=ProhibitAssertBooleanInTests.RULE_LABEL,
         identifier=None,
@@ -52,7 +52,7 @@ def test_check_assert_via_test_case_class_indirect_usage():
     assert occurrences[0] == Occurrence(
         filename="test_x.py",
         file_path=Path("test_x.py"),
-        line_number=1,
+        line_number=3,
         rule_id=ProhibitAssertBooleanInTests.RULE_ID,
         rule_label=ProhibitAssertBooleanInTests.RULE_LABEL,
         identifier=None,
@@ -69,24 +69,36 @@ def test_check_different_assert_not_found():
     assert len(occurrences) == 0
 
 
-def test_check_assert_in_different_class():
-    source_tree = ast.parse("""class MyTest(Service):
+def test_check_assert_on_non_self_object():
+    source_tree = ast.parse("""class MyTest(TestCase):
     def test_x(self):
-        self.assertTrue(x)""")
+        some_other_object.assertTrue(x)""")
 
     occurrences = ProhibitAssertBooleanInTests.run_check(file_path=Path("test_x.py"), source_tree=source_tree)
 
     assert len(occurrences) == 0
 
 
-def test_check_assert_in_different_class_indirect_import():
-    source_tree = ast.parse("""class MyTest(my_app.Service):
+def test_check_assert_in_custom_testcase_subclass():
+    """Verify the rule works with custom TestCase subclasses (not direct TestCase inheritance)."""
+    source_tree = ast.parse("""class CustomTestCase(TestCase):
+    pass
+
+class MyTest(CustomTestCase):
     def test_x(self):
         self.assertTrue(x)""")
 
     occurrences = ProhibitAssertBooleanInTests.run_check(file_path=Path("test_x.py"), source_tree=source_tree)
 
-    assert len(occurrences) == 0
+    assert len(occurrences) == 1
+    assert occurrences[0] == Occurrence(
+        filename="test_x.py",
+        file_path=Path("test_x.py"),
+        line_number=6,
+        rule_id=ProhibitAssertBooleanInTests.RULE_ID,
+        rule_label=ProhibitAssertBooleanInTests.RULE_LABEL,
+        identifier=None,
+    )
 
 
 def test_check_assert_with_class_variable():

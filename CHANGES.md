@@ -1,5 +1,8 @@
 # Changelog
 
+**1.12.5** (2025-12-02)
+  * Fixed a bug not detecting DBR003 issues
+
 **1.12.4** (2025-11-05)
   * Updating linters and formatters
 
