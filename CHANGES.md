@@ -1,5 +1,8 @@
 # Changelog
 
+**1.12.6** (2025-12-11)
+  * Maintenance updates via ambient-package-update
+
 **1.12.5** (2025-12-02)
   * Fixed a bug not detecting DBR003 issues
 

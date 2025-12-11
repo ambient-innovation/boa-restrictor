@@ -3,7 +3,7 @@
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.3
+    rev: v0.14.8
     hooks:
       # Run the Ruff formatter.
       - id: ruff-format
@@ -20,7 +20,7 @@ repos:
         files: '(?:README\.md|\.ambient-package-update\/templates\/snippets\/.*\.tpl|docs\/.*\.(?:md|rst))'
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.21.0
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
         args: [ --py310-plus ]
@@ -32,7 +32,7 @@ repos:
         args: [--target-version, "4.2"]
 
   - repo: https://github.com/adamchainz/djade-pre-commit
-    rev: 1.6.0
+    rev: 1.7.0
     hooks:
     -   id: djade
         args: [--target-version, "4.2"]
