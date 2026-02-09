@@ -59,6 +59,27 @@ You can disable rules on a per-file-basis in your `pyproject.toml` file as follo
 Take care that the path is relative to the location of your pyproject.toml. This means that example two targets all
 files living in a `scripts/` directory on the projects top level.
 
+## Python version compatibility
+
+boa-restrictor uses Python's built-in `ast.parse()` to analyze your source code. This means the Python version
+running boa-restrictor must support all syntax used in the files being linted.
+
+For example, Python 3.14 introduced unparenthesized multiple exception types (`except TypeError, ValueError:`).
+If your code uses this syntax but boa-restrictor runs on Python 3.13 or earlier, parsing will fail with a
+`SyntaxError`.
+
+**Solution:** Run boa-restrictor with a Python version that matches (or exceeds) the version your code targets.
+
+In pre-commit, you can pin the Python version with `language_version`:
+
+```yaml
+  - repo: https://github.com/ambient-innovation/boa-restrictor
+    rev: v{{ version }}
+    hooks:
+      - id: boa-restrictor
+        language_version: python3.14
+```
+
 ## noqa & ruff support
 
 As any other linter, you can disable certain rules on a per-line basis with `#noqa`.
