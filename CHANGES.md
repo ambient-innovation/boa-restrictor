@@ -1,5 +1,9 @@
 # Changelog
 
+**1.12.7** (2025-12-11)
+  * Added improved warning on SyntaxErrors to indicate possible Python version mismatch
+  * Updated docs about mismatching Python versions
+
 **1.12.6** (2025-12-11)
   * Maintenance updates via ambient-package-update
 
