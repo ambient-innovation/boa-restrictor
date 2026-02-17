@@ -13,12 +13,20 @@ class ReturnStatementRequiresTypeHintRule(Rule):
     RULE_ID = f"{PYTHON_LINTING_RULE_PREFIX}002"
     RULE_LABEL = "Return statements require return type hint."
 
+    @staticmethod
+    def _walk_scope(node: ast.AST):
+        """Walk AST nodes within the current scope, skipping nested function definitions."""
+        for child in ast.iter_child_nodes(node):
+            yield child
+            if not isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                yield from ReturnStatementRequiresTypeHintRule._walk_scope(child)
+
     def check(self) -> list[Occurrence]:
         occurrences = []
 
         for node in ast.walk(self.source_tree):
-            if isinstance(node, ast.FunctionDef):
-                has_return_statement = any(isinstance(child, ast.Return) for child in ast.walk(node))
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                has_return_statement = any(isinstance(child, ast.Return) for child in self._walk_scope(node))
                 has_return_annotation = node.returns is not None
 
                 if has_return_statement and not has_return_annotation:

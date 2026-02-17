@@ -1,5 +1,8 @@
 # Changelog
 
+**1.12.8** (2026-02-17)
+  * Fixed a bug where `PBR002` would trigger for functions having an inner function
+
 **1.12.7** (2025-12-11)
   * Added improved warning on SyntaxErrors to indicate possible Python version mismatch
   * Updated docs about mismatching Python versions

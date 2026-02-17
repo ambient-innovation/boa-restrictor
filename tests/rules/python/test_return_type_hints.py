@@ -47,3 +47,38 @@ def test_function_missing_return_has_type_hint():
     )
 
     assert len(occurrences) == 0
+
+
+def test_nested_function_return_does_not_trigger_outer():
+    source_tree = ast.parse("""def outer_function(self):
+    def inner_function() -> bool:
+        return True
+        """)
+
+    occurrences = ReturnStatementRequiresTypeHintRule.run_check(
+        file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree
+    )
+
+    assert len(occurrences) == 0
+
+
+def test_nested_function_return_with_outer_return_missing_hint():
+    source_tree = ast.parse("""def outer_function(self):
+    def inner_function() -> bool:
+        return True
+    return False
+        """)
+
+    occurrences = ReturnStatementRequiresTypeHintRule.run_check(
+        file_path=Path("/path/to/file/my_file.py"), source_tree=source_tree
+    )
+
+    assert len(occurrences) == 1
+    assert occurrences[0] == Occurrence(
+        filename="my_file.py",
+        file_path=Path("/path/to/file/my_file.py"),
+        line_number=1,
+        rule_id=ReturnStatementRequiresTypeHintRule.RULE_ID,
+        rule_label=ReturnStatementRequiresTypeHintRule.RULE_LABEL,
+        identifier="outer_function",
+    )
