@@ -11,3 +11,4 @@ Django rules
    django/004_prohibit_datetime_now.md
    django/005_avoid_django_db_imports_in_api.md
    django/006_avoid_tuple_based_model_choices.md
+   django/007_charfield_max_length_required.md
