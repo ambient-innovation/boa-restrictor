@@ -1,5 +1,8 @@
 # Changelog
 
+**1.13.0** (2026-02-27)
+  * Added new rule `DBR007` to require `max_length` for Django model `CharField`
+
 **1.12.8** (2026-02-17)
   * Fixed a bug where `PBR002` would trigger for functions having an inner function
 
