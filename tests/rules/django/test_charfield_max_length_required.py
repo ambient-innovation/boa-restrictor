@@ -55,6 +55,25 @@ def test_direct_charfield_import_found():
     assert occurrences[0].line_number == 2  # noqa: PLR2004
 
 
+def test_charfield_with_other_kwargs_but_no_max_length_found():
+    source_tree = ast.parse("""class MyModel(models.Model):
+    name = models.CharField(blank=True, null=True)""")
+
+    occurrences = CharFieldMaxLengthRequiredRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0].line_number == 2  # noqa: PLR2004
+
+
+def test_charfield_with_other_kwargs_and_valid_max_length_ok():
+    source_tree = ast.parse("""class MyModel(models.Model):
+    name = models.CharField(blank=True, max_length=255)""")
+
+    occurrences = CharFieldMaxLengthRequiredRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 0
+
+
 def test_charfield_with_valid_max_length_ok():
     source_tree = ast.parse("""class MyModel(models.Model):
     name = models.CharField(max_length=255)""")
