@@ -136,3 +136,12 @@ def test_annotated_charfield_with_max_length_none_found():
 
     assert len(occurrences) == 1
     assert occurrences[0].line_number == 2  # noqa: PLR2004
+
+
+def test_bare_annotation_without_value_not_detected():
+    source_tree = ast.parse("""class MyModel(models.Model):
+    name: str""")
+
+    occurrences = CharFieldMaxLengthRequiredRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 0
