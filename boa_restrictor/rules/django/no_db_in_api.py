@@ -38,22 +38,25 @@ class NoDjangoDbImportInApiRule(Rule):
                 return True
         return False
 
-    def check(self) -> list[Occurrence]:  # noqa: C901
+    def check(self) -> list[Occurrence]:  # noqa: C901, PLR0912
         occurrences = []
         type_checking_lines = set()
+        pending_imports = []
 
         if not self.is_api_file(path=self.file_path):
             return occurrences
 
-        # Find and store all type-checking imports by line number
+        # Single walk: collect type-checking line numbers and pending imports simultaneously
         for node in ast.walk(self.source_tree):
             if self.is_type_checking_if(node):
                 for inner in node.body:
                     for subnode in ast.walk(inner):
                         if isinstance(subnode, (ast.Import, ast.ImportFrom)):
                             type_checking_lines.add(subnode.lineno)
+            elif isinstance(node, (ast.Import, ast.ImportFrom)):
+                pending_imports.append(node)
 
-        for node in ast.walk(self.source_tree):
+        for node in pending_imports:
             if isinstance(node, ast.Import):
                 for alias in node.names:
                     if node.lineno not in type_checking_lines and alias.name.startswith("django.db"):
