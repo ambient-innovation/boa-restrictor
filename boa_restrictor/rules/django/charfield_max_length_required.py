@@ -77,7 +77,7 @@ class CharFieldMaxLengthRequiredRule(Rule):
                                 file_path=self.file_path,
                                 rule_label=self.RULE_LABEL,
                                 rule_id=self.RULE_ID,
-                                line_number=stmt.lineno,
+                                line_number=call_node.lineno,
                                 identifier=None,
                             )
                         )
