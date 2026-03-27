@@ -72,7 +72,7 @@ class NoDjangoDbImportInViewsRule(Rule):
                             )
                         )
             elif node.lineno not in type_checking_lines and (
-                node.module.startswith("django.db")
+                (node.module and node.module.startswith("django.db"))
                 or (node.module == "django" and any(alias.name == "db" for alias in node.names))
             ):
                 occurrences.append(

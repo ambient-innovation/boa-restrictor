@@ -141,6 +141,16 @@ def test_check_relative_import():
     assert len(occurrences) == 0
 
 
+def test_check_relative_import_in_view_file():
+    source_tree = ast.parse("""from . import something""")
+
+    occurrences = NoDjangoDbImportInViewsRule.run_check(
+        file_path=Path("/path/to/file/views.py"), source_tree=source_tree
+    )
+
+    assert len(occurrences) == 0
+
+
 def test_check_typing_type_hinting_imports_are_excluded():
     source_tree = ast.parse("""if typing.TYPE_CHECKING:
     from django.db import QuerySet""")
