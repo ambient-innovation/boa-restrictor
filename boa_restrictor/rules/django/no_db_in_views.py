@@ -41,19 +41,23 @@ class NoDjangoDbImportInViewsRule(Rule):
     def check(self) -> list[Occurrence]:  # noqa: C901
         occurrences = []
         type_checking_lines = set()
+        pending_imports = []
 
         if not self.is_view_file(path=self.file_path):
             return occurrences
 
-        # Find and store all type-checking imports by line number
+        # Single walk: collect type-checking lines and import nodes simultaneously
         for node in ast.walk(self.source_tree):
             if self.is_type_checking_if(node):
                 for inner in node.body:
                     for subnode in ast.walk(inner):
                         if isinstance(subnode, (ast.Import, ast.ImportFrom)):
                             type_checking_lines.add(subnode.lineno)
+            elif isinstance(node, (ast.Import, ast.ImportFrom)):
+                pending_imports.append(node)
 
-        for node in ast.walk(self.source_tree):
+        # Process pending imports in a tight loop (no tree traversal)
+        for node in pending_imports:
             if isinstance(node, ast.Import):
                 for alias in node.names:
                     if node.lineno not in type_checking_lines and alias.name.startswith("django.db"):
@@ -67,20 +71,19 @@ class NoDjangoDbImportInViewsRule(Rule):
                                 identifier=None,
                             )
                         )
-            elif isinstance(node, ast.ImportFrom):
-                if node.lineno not in type_checking_lines and (
-                    node.module.startswith("django.db")
-                    or (node.module == "django" and any(alias.name == "db" for alias in node.names))
-                ):
-                    occurrences.append(
-                        Occurrence(
-                            filename=self.filename,
-                            file_path=self.file_path,
-                            rule_label=self.RULE_LABEL,
-                            rule_id=self.RULE_ID,
-                            line_number=node.lineno,
-                            identifier=None,
-                        )
+            elif node.lineno not in type_checking_lines and (
+                node.module.startswith("django.db")
+                or (node.module == "django" and any(alias.name == "db" for alias in node.names))
+            ):
+                occurrences.append(
+                    Occurrence(
+                        filename=self.filename,
+                        file_path=self.file_path,
+                        rule_label=self.RULE_LABEL,
+                        rule_id=self.RULE_ID,
+                        line_number=node.lineno,
+                        identifier=None,
                     )
+                )
 
         return occurrences
