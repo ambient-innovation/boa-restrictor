@@ -145,3 +145,15 @@ def test_bare_annotation_without_value_not_detected():
     occurrences = CharFieldMaxLengthRequiredRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 0
+
+
+def test_method_in_model_class_not_detected():
+    source_tree = ast.parse("""class MyModel(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name""")
+
+    occurrences = CharFieldMaxLengthRequiredRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 0
