@@ -68,7 +68,7 @@ class AvoidTupleBasedModelChoices(Rule):
             identifier=None,
         )
 
-    def check(self) -> list[Occurrence]:
+    def check(self) -> list[Occurrence]:  # noqa: C901
         occurrences: list[Occurrence] = []
 
         # First pass: check assignments inside Django model classes
