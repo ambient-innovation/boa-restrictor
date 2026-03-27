@@ -68,10 +68,11 @@ class AvoidTupleBasedModelChoices(Rule):
             identifier=None,
         )
 
-    def _check_django_model_assignments(self, occurrences: list[Occurrence]) -> set[int]:
-        """Check assignments inside Django model classes and return set of processed assignment IDs."""
-        django_model_assignments = set()
+    def check(self) -> list[Occurrence]:
+        occurrences: list[Occurrence] = []
 
+        # First pass: check assignments inside Django model classes
+        django_model_assignments: set[int] = set()
         for node in ast.walk(self.source_tree):
             if isinstance(node, ast.ClassDef) and self._is_django_model(node):
                 for stmt in node.body:
@@ -80,10 +81,7 @@ class AvoidTupleBasedModelChoices(Rule):
                         if self._is_tuple_based_choices(stmt.value):
                             occurrences.append(self._create_occurrence(stmt.lineno))
 
-        return django_model_assignments
-
-    def _check_standalone_assignments(self, occurrences: list[Occurrence], django_model_assignments: set[int]) -> None:
-        """Check tuple-based choices assignments outside of Django models."""
+        # Second pass: check tuple-based choices assignments outside of Django models
         for node in ast.walk(self.source_tree):
             if isinstance(node, ast.Assign) and id(node) not in django_model_assignments:
                 if self._is_tuple_based_choices(node.value):
@@ -92,14 +90,5 @@ class AvoidTupleBasedModelChoices(Rule):
                             # Report the line number of the first tuple element for better user experience
                             line_number = node.value.elts[0].lineno if node.value.elts else node.lineno
                             occurrences.append(self._create_occurrence(line_number))
-
-    def check(self) -> list[Occurrence]:
-        occurrences: list[Occurrence] = []
-
-        # Check assignments inside Django models first
-        django_model_assignments = self._check_django_model_assignments(occurrences)
-
-        # Check standalone assignments outside of models
-        self._check_standalone_assignments(occurrences, django_model_assignments)
 
         return occurrences
