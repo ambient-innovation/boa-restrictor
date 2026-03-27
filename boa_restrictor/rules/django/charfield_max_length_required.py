@@ -63,24 +63,21 @@ class CharFieldMaxLengthRequiredRule(Rule):
         for node in ast.walk(self.source_tree):
             if isinstance(node, ast.ClassDef) and self._is_django_model(node):
                 for stmt in node.body:
-                    # Note: only ast.Assign is checked, not ast.AnnAssign (annotated assignments
-                    # like `name: str = models.CharField()`). Django's metaclass picks up field
-                    # descriptors regardless of annotation style, and django-stubs handles type
-                    # inference via stubs, so annotated field assignments are essentially unheard
-                    # of in real codebases. Worth a follow-up if it ever surfaces.
-                    if (
-                        isinstance(stmt, ast.Assign)
-                        and isinstance(stmt.value, ast.Call)
-                        and self._is_charfield_call(stmt.value)
-                        and not self._has_valid_max_length(stmt.value)
-                    ):
+                    if isinstance(stmt, ast.Assign):
+                        call_node = stmt.value if isinstance(stmt.value, ast.Call) else None
+                    elif isinstance(stmt, ast.AnnAssign):
+                        call_node = stmt.value if isinstance(stmt.value, ast.Call) else None
+                    else:
+                        call_node = None
+
+                    if call_node and self._is_charfield_call(call_node) and not self._has_valid_max_length(call_node):
                         occurrences.append(
                             Occurrence(
                                 filename=self.filename,
                                 file_path=self.file_path,
                                 rule_label=self.RULE_LABEL,
                                 rule_id=self.RULE_ID,
-                                line_number=stmt.value.lineno,
+                                line_number=stmt.lineno,
                                 identifier=None,
                             )
                         )
