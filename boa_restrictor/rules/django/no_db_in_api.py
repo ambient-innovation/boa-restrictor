@@ -38,7 +38,7 @@ class NoDjangoDbImportInApiRule(Rule):
                 return True
         return False
 
-    def check(self) -> list[Occurrence]:  # noqa: C901, PLR0912
+    def check(self) -> list[Occurrence]:  # noqa: C901
         occurrences = []
         type_checking_lines = set()
         pending_imports = []
@@ -70,20 +70,19 @@ class NoDjangoDbImportInApiRule(Rule):
                                 identifier=None,
                             )
                         )
-            elif isinstance(node, ast.ImportFrom):
-                if node.lineno not in type_checking_lines and (
-                    (node.module and node.module.startswith("django.db"))
-                    or (node.module == "django" and any(alias.name == "db" for alias in node.names))
-                ):
-                    occurrences.append(
-                        Occurrence(
-                            filename=self.filename,
-                            file_path=self.file_path,
-                            rule_label=self.RULE_LABEL,
-                            rule_id=self.RULE_ID,
-                            line_number=node.lineno,
-                            identifier=None,
-                        )
+            elif node.lineno not in type_checking_lines and (
+                (node.module and node.module.startswith("django.db"))
+                or (node.module == "django" and any(alias.name == "db" for alias in node.names))
+            ):
+                occurrences.append(
+                    Occurrence(
+                        filename=self.filename,
+                        file_path=self.file_path,
+                        rule_label=self.RULE_LABEL,
+                        rule_id=self.RULE_ID,
+                        line_number=node.lineno,
+                        identifier=None,
                     )
+                )
 
         return occurrences
