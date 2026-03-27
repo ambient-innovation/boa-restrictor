@@ -1,5 +1,8 @@
 # Changelog
 
+**1.13.1** (2026-03-27)
+  * Performance improvements for rules `DBR002`, `DBR005`, `DBR006`, and `DBR007`
+
 **1.13.0** (2026-02-27)
   * Added new rule `DBR007` to require `max_length` for Django model `CharField`
 
