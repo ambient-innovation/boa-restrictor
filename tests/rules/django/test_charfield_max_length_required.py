@@ -107,3 +107,53 @@ def test_charfield_outside_class_not_detected():
     occurrences = CharFieldMaxLengthRequiredRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 0
+
+
+def test_annotated_charfield_without_max_length_found():
+    source_tree = ast.parse("""class MyModel(models.Model):
+    name: str = models.CharField()""")
+
+    occurrences = CharFieldMaxLengthRequiredRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0].line_number == 2  # noqa: PLR2004
+
+
+def test_annotated_charfield_with_valid_max_length_ok():
+    source_tree = ast.parse("""class MyModel(models.Model):
+    name: str = models.CharField(max_length=255)""")
+
+    occurrences = CharFieldMaxLengthRequiredRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 0
+
+
+def test_annotated_charfield_with_max_length_none_found():
+    source_tree = ast.parse("""class MyModel(models.Model):
+    name: str = models.CharField(max_length=None)""")
+
+    occurrences = CharFieldMaxLengthRequiredRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0].line_number == 2  # noqa: PLR2004
+
+
+def test_bare_annotation_without_value_not_detected():
+    source_tree = ast.parse("""class MyModel(models.Model):
+    name: str""")
+
+    occurrences = CharFieldMaxLengthRequiredRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 0
+
+
+def test_method_in_model_class_not_detected():
+    source_tree = ast.parse("""class MyModel(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name""")
+
+    occurrences = CharFieldMaxLengthRequiredRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 0
