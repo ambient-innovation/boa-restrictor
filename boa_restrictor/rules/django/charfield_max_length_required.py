@@ -62,18 +62,22 @@ class CharFieldMaxLengthRequiredRule(Rule):
 
         for node in ast.walk(self.source_tree):
             if isinstance(node, ast.ClassDef) and self._is_django_model(node):
-                for stmt in ast.walk(node):
-                    if isinstance(stmt, ast.Call) and self._is_charfield_call(stmt):
-                        if not self._has_valid_max_length(stmt):
-                            occurrences.append(
-                                Occurrence(
-                                    filename=self.filename,
-                                    file_path=self.file_path,
-                                    rule_label=self.RULE_LABEL,
-                                    rule_id=self.RULE_ID,
-                                    line_number=stmt.lineno,
-                                    identifier=None,
-                                )
+                for stmt in node.body:
+                    if (
+                        isinstance(stmt, ast.Assign)
+                        and isinstance(stmt.value, ast.Call)
+                        and self._is_charfield_call(stmt.value)
+                        and not self._has_valid_max_length(stmt.value)
+                    ):
+                        occurrences.append(
+                            Occurrence(
+                                filename=self.filename,
+                                file_path=self.file_path,
+                                rule_label=self.RULE_LABEL,
+                                rule_id=self.RULE_ID,
+                                line_number=stmt.value.lineno,
+                                identifier=None,
                             )
+                        )
 
         return occurrences
