@@ -1,5 +1,8 @@
 # Changelog
 
+**1.13.2** (2026-03-30)
+  * Maintenance updates via ambient-package-update
+
 **1.13.1** (2026-03-27)
   * Performance improvements for rules `DBR002`, `DBR005`, `DBR006`, and `DBR007`
 

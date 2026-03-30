@@ -50,6 +50,7 @@ dev = [
    'sphinx-rtd-theme~=3.0',
    'm2r2~=0.3',
    'uv~=0.9',
+   'keyring~=25.7',
    'ambient-package-update',
 ]
 
@@ -271,3 +272,6 @@ source = [
 
 [tool.hatch.version]
 path = "boa_restrictor/__init__.py"
+
+[tool.uv]
+keyring-provider = "subprocess"
