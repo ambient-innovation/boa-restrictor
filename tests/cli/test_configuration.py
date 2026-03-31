@@ -1,68 +1,55 @@
-import os
-import re
-import sys
 import warnings
+from unittest import mock
 
 import pytest
 
+from boa_restrictor.cli.configuration import is_rule_excluded, is_rule_excluded_per_file, load_configuration
 from boa_restrictor.exceptions.configuration import TomlParsingError
 from boa_restrictor.rules import AssertRaisesProhibitedRule, AsteriskRequiredRule
 
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
-from unittest import mock
 
-from boa_restrictor.cli.configuration import is_rule_excluded, is_rule_excluded_per_file, load_configuration
+@mock.patch("builtins.open", mock.mock_open(read_data=b'[tool."boa-restrictor"]\nexclude = ["PBR001"]\n'))
+def test_load_configuration_exclusion_rules():
+    data = load_configuration(file_path="pyproject.toml")
 
-
-@mock.patch.object(tomllib, "load", return_value={"tool": {"boa-restrictor": {"exclude": ["PBR001"]}}})
-def test_load_configuration_exclusion_rules(mocked_load):
-    data = load_configuration(file_path=os.path.abspath(sys.argv[0]))
-
-    mocked_load.assert_called_once()
     assert data == {"exclude": ["PBR001"]}
 
 
-@mock.patch.object(tomllib, "load", return_value={"tool": {"boa-restrictor": {"enable_django_rules": False}}})
-def test_load_configuration_enable_django_rules_set(mocked_load):
-    data = load_configuration(file_path=os.path.abspath(sys.argv[0]))
+@mock.patch("builtins.open", mock.mock_open(read_data=b'[tool."boa-restrictor"]\nenable_django_rules = false\n'))
+def test_load_configuration_enable_django_rules_set():
+    data = load_configuration(file_path="pyproject.toml")
 
-    mocked_load.assert_called_once()
     assert data == {"enable_django_rules": False}
 
 
-@mock.patch.object(
-    tomllib, "load", return_value={"tool": {"boa-restrictor": {"per-file-excludes": {"*/test/*": ["PBR001"]}}}}
+@mock.patch(
+    "builtins.open",
+    mock.mock_open(
+        read_data=b'[tool."boa-restrictor"."per-file-excludes"]\n"*/test/*" = ["PBR001"]\n',
+    ),
 )
-def test_load_configuration_per_file_excludes(mocked_load):
-    data = load_configuration(file_path=os.path.abspath(sys.argv[0]))
+def test_load_configuration_per_file_excludes():
+    data = load_configuration(file_path="pyproject.toml")
 
-    mocked_load.assert_called_once()
     assert data == {"per-file-excludes": {"*/test/*": ["PBR001"]}}
 
 
-@mock.patch.object(tomllib, "load")
-def test_load_configuration_invalid_file(mocked_load):
+def test_load_configuration_invalid_file():
     data = load_configuration(file_path="invalid_file.toml")
 
-    mocked_load.assert_not_called()
     assert data == {}
 
 
-@mock.patch.object(tomllib, "load", side_effect=tomllib.TOMLDecodeError)
-def test_load_configuration_invalid_toml(mocked_load):
-    filename = os.path.abspath(sys.argv[0])
-    with pytest.raises(TomlParsingError, match=rf'TOML file "{re.escape(filename)}" contains syntax errors.'):
-        load_configuration(file_path=filename)
+@mock.patch("builtins.open", mock.mock_open(read_data=b"invalid toml content ==="))
+def test_load_configuration_invalid_toml():
+    with pytest.raises(TomlParsingError, match=r"contains syntax errors\."):
+        load_configuration(file_path="pyproject.toml")
 
 
-@mock.patch.object(tomllib, "load", return_value={"tool": {"other_linter": True}})
-def test_load_configuration_key_missing(mocked_load):
-    data = load_configuration(file_path=os.path.abspath(sys.argv[0]))
+@mock.patch("builtins.open", mock.mock_open(read_data=b"[tool.other_linter]\nvalue = true\n"))
+def test_load_configuration_key_missing():
+    data = load_configuration(file_path="pyproject.toml")
 
-    mocked_load.assert_called_once()
     assert data == {}
 
 

@@ -1,10 +1,11 @@
 import argparse
-import ast
 import os
 import sys
 from io import StringIO
 from pathlib import Path
 from unittest import mock
+
+import pytest
 
 from boa_restrictor.cli.main import main
 from boa_restrictor.common.rule import Rule
@@ -126,13 +127,12 @@ def test_main_noqa_comments_called():
                 mocked_get_noqa_comments.assert_called_once()
 
 
-@mock.patch.object(ast, "parse", side_effect=SyntaxError)
 @mock.patch("boa_restrictor.cli.main.load_configuration", return_value={})
-@mock.patch("builtins.open", mock.mock_open(read_data="# test file"))
+@mock.patch("builtins.open", mock.mock_open(read_data="((("))
 def test_main_invalid_syntax(*args):
     # With syntax error in parsing, the function should raise the SyntaxError
     # since exception handling was removed in the revert
-    try:
+    with pytest.raises(SyntaxError):
         main(
             argv=(
                 os.path.abspath(sys.argv[0]),
@@ -140,11 +140,6 @@ def test_main_invalid_syntax(*args):
                 "pyproject.toml",
             )
         )
-        # If no exception was raised, this test should fail
-        raise AssertionError
-    except SyntaxError:
-        # This is expected behavior after the revert
-        pass
 
 
 def test_main_occurrences_are_written_to_cli():
