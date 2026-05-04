@@ -11,6 +11,7 @@ from boa_restrictor.cli.main import main
 from boa_restrictor.common.rule import Rule
 from boa_restrictor.projections.occurrence import Occurrence
 from boa_restrictor.rules import BOA_RESTRICTOR_RULES, DJANGO_BOA_RULES, AsteriskRequiredRule
+from tests.fixtures.custom_rule_module import SampleCustomRule
 
 
 @mock.patch.object(argparse.ArgumentParser, "parse_args")
@@ -224,3 +225,91 @@ def test_main_per_file_exclusion_skips_rule(mocked_run_check, mocked_is_excluded
     mocked_is_excluded.assert_called()
     # Verify that the rule check was NOT called for the excluded rule
     mocked_run_check.assert_not_called()
+
+
+CUSTOM_RULE_PATH = "tests.fixtures.custom_rule_module.SampleCustomRule"
+
+
+@mock.patch(
+    "boa_restrictor.cli.main.load_configuration",
+    return_value={"custom_rules": [CUSTOM_RULE_PATH]},
+)
+@mock.patch("builtins.open", mock.mock_open(read_data="# test file"))
+def test_main_custom_rule_is_executed(*args):
+    with mock.patch.object(SampleCustomRule, "run_check", return_value=[]) as mocked_check:
+        main(
+            argv=(
+                os.path.abspath(sys.argv[0]),
+                "--config",
+                "pyproject.toml",
+            )
+        )
+
+    mocked_check.assert_called_once()
+
+
+@mock.patch(
+    "boa_restrictor.cli.main.load_configuration",
+    return_value={"custom_rules": [CUSTOM_RULE_PATH], "exclude": ["TST001"]},
+)
+@mock.patch("builtins.open", mock.mock_open(read_data="# test file"))
+def test_main_custom_rule_can_be_excluded_globally(*args):
+    with mock.patch.object(SampleCustomRule, "run_check") as mocked_check:
+        main(
+            argv=(
+                os.path.abspath(sys.argv[0]),
+                "--config",
+                "pyproject.toml",
+            )
+        )
+
+    mocked_check.assert_not_called()
+
+
+@mock.patch(
+    "boa_restrictor.cli.main.load_configuration",
+    return_value={
+        "custom_rules": [CUSTOM_RULE_PATH],
+        "per-file-excludes": {"*.py": ["TST001"]},
+    },
+)
+@mock.patch("builtins.open", mock.mock_open(read_data="# test file"))
+def test_main_custom_rule_can_be_excluded_per_file(*args):
+    with mock.patch.object(SampleCustomRule, "run_check") as mocked_check:
+        main(
+            argv=(
+                "test_file.py",
+                "--config",
+                "pyproject.toml",
+            )
+        )
+
+    mocked_check.assert_not_called()
+
+
+@mock.patch(
+    "boa_restrictor.cli.main.load_configuration",
+    return_value={"custom_rules": [CUSTOM_RULE_PATH]},
+)
+@mock.patch("builtins.open", mock.mock_open(read_data="def thing():\n    pass  # noqa: TST001\n"))
+def test_main_custom_rule_honors_noqa_on_line(*args):
+    fake_occurrence = Occurrence(
+        rule_id="TST001",
+        rule_label="Sample custom rule for tests.",
+        filename="thing.py",
+        file_path=Path("thing.py"),
+        identifier="thing",
+        line_number=2,
+    )
+    with mock.patch.object(SampleCustomRule, "run_check", return_value=[fake_occurrence]):
+        with mock.patch("sys.stdout", new=StringIO()) as mock_stdout:
+            main(
+                argv=(
+                    "thing.py",
+                    "--config",
+                    "pyproject.toml",
+                )
+            )
+
+    # The noqa: TST001 on line 2 should suppress the occurrence
+    assert "TST001" not in mock_stdout.getvalue()

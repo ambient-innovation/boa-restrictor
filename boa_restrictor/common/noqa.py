@@ -2,26 +2,22 @@ import re
 import tokenize
 from io import StringIO
 
-from boa_restrictor.common.rule import DJANGO_LINTING_RULE_PREFIX, PYTHON_LINTING_RULE_PREFIX
+# Matches any "# noqa: <CODE>" comment regardless of rule prefix. The per-rule filter
+# (rule_class.RULE_ID in comment_string) in main.py decides which comments apply to which rule,
+# so this pattern stays permissive to support custom (project-defined) rule IDs.
+_NOQA_PATTERN = re.compile(r"^#\snoqa:\s*\S")
 
 
 def get_noqa_comments(*, source_code: str) -> list[tuple[int, str]]:
     """
-    Walk the target code and detect all lines having a "# noqa" comment with "our" prefix.
+    Walk the target code and detect all lines having a "# noqa: <CODE>" comment.
     """
     noqa_statements = []
 
     tokens = tokenize.generate_tokens(StringIO(source_code).readline)
-    patterns = [
-        re.compile(r"^#\snoqa:\s*.*?" + PYTHON_LINTING_RULE_PREFIX + r"\d{3}"),
-        re.compile(r"^#\snoqa:\s*.*?" + DJANGO_LINTING_RULE_PREFIX + r"\d{3}"),
-    ]
-
     for token in tokens:
         token_type, token_string, start, _, _ = token
-
-        for pattern in patterns:
-            if token_type == tokenize.COMMENT and pattern.search(token_string):
-                noqa_statements.append((start[0], token_string.strip()))
+        if token_type == tokenize.COMMENT and _NOQA_PATTERN.search(token_string):
+            noqa_statements.append((start[0], token_string.strip()))
 
     return noqa_statements

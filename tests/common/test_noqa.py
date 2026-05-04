@@ -29,3 +29,22 @@ def test_get_noqa_comments_no_noqa_comment():
     result = get_noqa_comments(source_code=source_code)
 
     assert len(result) == 0
+
+
+def test_get_noqa_comments_has_custom_rule_noqa():
+    """Custom (project-defined) rule IDs should be picked up too."""
+    source_code = """x = 7  # noqa: TST001"""
+
+    result = get_noqa_comments(source_code=source_code)
+
+    assert len(result) == 1
+    assert result[0] == (1, "# noqa: TST001")
+
+
+def test_get_noqa_comments_ignores_bare_noqa_keyword():
+    """A # noqa with no code following should not be collected (we do not support a global noqa)."""
+    source_code = """x = 7  # noqa"""
+
+    result = get_noqa_comments(source_code=source_code)
+
+    assert len(result) == 0

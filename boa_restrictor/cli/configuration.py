@@ -33,15 +33,18 @@ def load_configuration(*, file_path: Path | str = "pyproject.toml") -> dict:
         return {}
 
 
-def is_rule_excluded(*, rule_class: type[Rule], excluded_rules: list) -> bool:
+def is_rule_excluded(*, rule_class: type[Rule], excluded_rules: list, active_rule_ids: set[str] | None = None) -> bool:
     """
     Check if the given rule is in the exclusion list.
+
+    `active_rule_ids` is the set of all known rule IDs (built-in + any project-level custom rules).
+    If omitted, only built-in rules are considered valid.
     """
-    # Generate list of valid rules (filtering Django rules happens one level above)
-    valid_rules = [rule_class.RULE_ID for rule_class in get_rules(use_django_rules=True)]
+    if active_rule_ids is None:
+        active_rule_ids = {rule_class.RULE_ID for rule_class in get_rules(use_django_rules=True)}
 
     # Check if the given rule is valid
-    for invalid_configured_rule in [rule_id for rule_id in excluded_rules if rule_id not in valid_rules]:
+    for invalid_configured_rule in [rule_id for rule_id in excluded_rules if rule_id not in active_rule_ids]:
         warnings.warn(
             f'Boa Restrictor: Invalid rule "{invalid_configured_rule}" in configuration detected.',
             category=UserWarning,
@@ -54,7 +57,11 @@ def is_rule_excluded(*, rule_class: type[Rule], excluded_rules: list) -> bool:
 
 
 def is_rule_excluded_per_file(
-    *, filename: str, rule_class: type[Rule], per_file_excluded_rules: dict[str, list]
+    *,
+    filename: str,
+    rule_class: type[Rule],
+    per_file_excluded_rules: dict[str, list],
+    active_rule_ids: set[str] | None = None,
 ) -> bool:
     """
     Check if the given rule is in the per-file-exclusion list.
@@ -64,6 +71,10 @@ def is_rule_excluded_per_file(
         # If the filename matches the pattern...
         if re.search(fnmatch.translate(file_path_pattern), filename):
             # Skip linters, which have been excluded for this file path pattern
-            if is_rule_excluded(rule_class=rule_class, excluded_rules=per_file_excluded_rules[file_path_pattern]):
+            if is_rule_excluded(
+                rule_class=rule_class,
+                excluded_rules=per_file_excluded_rules[file_path_pattern],
+                active_rule_ids=active_rule_ids,
+            ):
                 return True
     return False

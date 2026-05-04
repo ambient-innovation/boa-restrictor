@@ -1,0 +1,72 @@
+from boa_restrictor.common.rule import Rule
+from boa_restrictor.projections.occurrence import Occurrence
+
+
+class SampleCustomRule(Rule):
+    RULE_ID = "TST001"
+    RULE_LABEL = "Sample custom rule for tests."
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
+class AnotherCustomRule(Rule):
+    RULE_ID = "TST002"
+    RULE_LABEL = "Another sample rule."
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
+class RuleWithoutRuleId(Rule):
+    RULE_LABEL = "Forgot the RULE_ID."
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
+class RuleWithoutRuleLabel(Rule):
+    RULE_ID = "TST003"
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
+class RuleWithReservedPrefix(Rule):
+    RULE_ID = "PBR999"
+    RULE_LABEL = "Pretends to be a built-in."
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
+class RuleWithReservedDjangoPrefix(Rule):
+    RULE_ID = "DBR999"
+    RULE_LABEL = "Pretends to be a built-in Django rule."
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
+class RuleCollidingWithBuiltin(Rule):
+    RULE_ID = "PBR001"
+    RULE_LABEL = "Collides with a real built-in ID."
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
+class RuleClashingWithSample(Rule):
+    RULE_ID = "TST001"
+    RULE_LABEL = "Collides with SampleCustomRule."
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
+class NotARuleSubclass:
+    RULE_ID = "TST998"
+    RULE_LABEL = "Not a Rule subclass."
+
+
+not_a_class = "I am a string, not a class."
