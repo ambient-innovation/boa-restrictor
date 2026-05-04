@@ -36,11 +36,14 @@ class InvalidCustomRulePathError(CustomRuleImportError):
 
 class CustomRuleModuleImportFailedError(CustomRuleImportError):
     def __init__(self, *, module_path: str, dotted_path: str, original: BaseException):
-        super().__init__(
-            f'Could not import module "{module_path}" for custom rule "{dotted_path}": {original}. '
-            f"Make sure your project is on the Python path "
-            f"(see boa-restrictor docs on running with custom rules under pre-commit)."
-        )
+        if isinstance(original, SyntaxError):
+            hint = "Fix the syntax error in your rule module."
+        else:
+            hint = (
+                "Make sure your project is on the Python path "
+                "(see boa-restrictor docs on running with custom rules under pre-commit)."
+            )
+        super().__init__(f'Could not import module "{module_path}" for custom rule "{dotted_path}": {original}. {hint}')
 
 
 class CustomRuleAttributeMissingError(CustomRuleImportError):
@@ -81,13 +84,14 @@ class CustomRuleReservedPrefixError(CustomRuleValidationError):
 
 
 class DuplicateRuleIdError(CustomRuleValidationError):
-    def __init__(self, *, clashes: list[tuple[str, type, type]]):
+    def __init__(self, *, clashes: dict[str, list[type]]):
         """
-        `clashes` is a list of (rule_id, first_class, second_class) for every detected duplicate.
+        `clashes` maps each clashing RULE_ID to the list of classes sharing that ID.
+        Grouped by ID so triple-clashes show as one line listing all offenders rather than
+        N-1 pairwise lines.
         """
         lines = [
-            f'  - "{rule_id}": "{first.__module__}.{first.__qualname__}" '
-            f'and "{second.__module__}.{second.__qualname__}"'
-            for rule_id, first, second in clashes
+            f'  - "{rule_id}": ' + ", ".join(f'"{c.__module__}.{c.__qualname__}"' for c in classes)
+            for rule_id, classes in clashes.items()
         ]
         super().__init__("Duplicate RULE_IDs detected:\n" + "\n".join(lines))

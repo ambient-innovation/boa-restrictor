@@ -16,6 +16,7 @@ from tests.fixtures.custom_rule_module import (
     RuleClashingWithSample,
     RuleCollidingWithBuiltin,
     SampleCustomRule,
+    ThirdRuleClashingWithSample,
 )
 
 FIXTURE_MODULE = "tests.fixtures.custom_rule_module"
@@ -124,6 +125,24 @@ def test_load_custom_rules_module_raises_non_import_error():
     assert "simulated module-import-time failure" in str(exc_info.value.__cause__)
 
 
+def test_load_custom_rules_syntax_error_message_is_specific(tmp_path):
+    """A SyntaxError in the user's rule module should produce a syntax-specific hint
+    rather than the generic "Make sure your project is on the Python path" message."""
+    broken_module = tmp_path / "broken_rule.py"
+    broken_module.write_text("def thing(:\n    pass\n")  # invalid syntax
+
+    with pytest.raises(CustomRuleImportError) as exc_info:
+        load_custom_rules(
+            paths=["broken_rule.SomeRule"],
+            anchor_dir=tmp_path,
+        )
+
+    message = str(exc_info.value)
+    assert "Fix the syntax error" in message
+    assert "Python path" not in message
+    assert isinstance(exc_info.value.__cause__, SyntaxError)
+
+
 def test_load_custom_rules_attr_not_found():
     with pytest.raises(CustomRuleImportError, match=r"has no attribute"):
         load_custom_rules(
@@ -224,3 +243,21 @@ def test_validate_unique_rule_ids_reports_all_clashes_at_once():
     assert "SampleCustomRule" in message
     assert "RuleCollidingWithBuiltin" in message
     assert "RuleClashingWithSample" in message
+
+
+def test_validate_unique_rule_ids_groups_triple_clash_on_one_line():
+    """A triple-clash should report all three offenders under one rule-ID heading,
+    not as three pairwise comparisons."""
+    with pytest.raises(DuplicateRuleIdError) as exc_info:
+        validate_unique_rule_ids(
+            rules=(SampleCustomRule, RuleClashingWithSample, ThirdRuleClashingWithSample),
+        )
+
+    message = str(exc_info.value)
+    # Exactly one line per clashing RULE_ID
+    clash_lines = [line for line in message.splitlines() if line.strip().startswith("-")]
+    assert len(clash_lines) == 1
+    # All three offenders named on that single line
+    assert "SampleCustomRule" in clash_lines[0]
+    assert "RuleClashingWithSample" in clash_lines[0]
+    assert "ThirdRuleClashingWithSample" in clash_lines[0]

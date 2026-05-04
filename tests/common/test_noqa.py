@@ -76,9 +76,38 @@ def test_get_noqa_comments_codes_are_exact_not_substrings():
 
 
 def test_get_noqa_comments_separator_only_input_yields_no_codes():
-    """A noqa with only commas/whitespace after the colon should not register as a directive."""
+    """A noqa with only commas after the colon should not register as a directive."""
     source_code = """x = 7  # noqa: ,,,"""
 
     result = get_noqa_comments(source_code=source_code)
 
     assert len(result) == 0
+
+
+def test_get_noqa_comments_whitespace_only_after_colon_yields_no_codes():
+    """A noqa with only whitespace after the colon must not match (no codes to silence)."""
+    source_code = "x = 7  # noqa:    "
+
+    result = get_noqa_comments(source_code=source_code)
+
+    assert len(result) == 0
+
+
+def test_get_noqa_comments_ignores_prose_tokens_after_codes():
+    """Prose tokens in the noqa payload (not matching the rule-code shape) must be ignored."""
+    source_code = """x = 7  # noqa: PBR001 explanation here"""
+
+    result = get_noqa_comments(source_code=source_code)
+
+    assert len(result) == 1
+    assert result[0] == (1, {"PBR001"})
+
+
+def test_get_noqa_comments_ignores_inline_second_hash():
+    """A second '#' (e.g. trailing comment) must not become a phantom code."""
+    source_code = """x = 7  # noqa: PBR001 # leftover note"""
+
+    result = get_noqa_comments(source_code=source_code)
+
+    assert len(result) == 1
+    assert result[0] == (1, {"PBR001"})

@@ -91,16 +91,13 @@ def _import_custom_rule(*, dotted_path: str) -> type[Rule]:
 def validate_unique_rule_ids(*, rules: tuple[type[Rule], ...]) -> None:
     """
     Ensure no two rules share a RULE_ID, naming all offenders if any clash.
-    Collects every duplicate before raising so users see the full picture in one go.
+    Collects every duplicate before raising so users see the full picture in one go,
+    grouped by rule ID (a triple-clash reports as one line with three classes).
     """
-    seen: dict[str, type[Rule]] = {}
-    clashes: list[tuple[str, type[Rule], type[Rule]]] = []
+    by_id: dict[str, list[type[Rule]]] = {}
     for rule in rules:
-        existing = seen.get(rule.RULE_ID)
-        if existing is not None:
-            clashes.append((rule.RULE_ID, existing, rule))
-        else:
-            seen[rule.RULE_ID] = rule
+        by_id.setdefault(rule.RULE_ID, []).append(rule)
 
+    clashes = {rule_id: classes for rule_id, classes in by_id.items() if len(classes) > 1}
     if clashes:
         raise DuplicateRuleIdError(clashes=clashes)

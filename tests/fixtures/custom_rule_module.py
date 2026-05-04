@@ -64,6 +64,14 @@ class RuleClashingWithSample(Rule):
         return []
 
 
+class ThirdRuleClashingWithSample(Rule):
+    RULE_ID = "TST001"
+    RULE_LABEL = "Third rule clashing on TST001."
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
 class NotARuleSubclass:
     RULE_ID = "TST998"
     RULE_LABEL = "Not a Rule subclass."
