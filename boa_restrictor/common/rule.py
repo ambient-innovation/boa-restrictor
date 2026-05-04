@@ -6,6 +6,10 @@ from boa_restrictor.projections.occurrence import Occurrence
 PYTHON_LINTING_RULE_PREFIX = "PBR"
 DJANGO_LINTING_RULE_PREFIX = "DBR"
 
+# RULE_ID prefixes reserved for built-in rules. Custom (project-defined) rules must use
+# a different prefix.
+RESERVED_RULE_ID_PREFIXES = (PYTHON_LINTING_RULE_PREFIX, DJANGO_LINTING_RULE_PREFIX)
+
 
 class Rule:
     RULE_ID: str

@@ -8,7 +8,14 @@ class CustomRuleConfigurationError(CustomRuleError):
 
 class CustomRulesNotAListError(CustomRuleConfigurationError):
     def __init__(self):
-        super().__init__('Configuration value "custom_rules" must be a list of dotted import paths (strings).')
+        super().__init__('Configuration value "custom_rules" must be a list.')
+
+
+class CustomRulePathNotAStringError(CustomRuleConfigurationError):
+    def __init__(self, value):
+        super().__init__(
+            f"Each entry in custom_rules must be a string (dotted import path); got {type(value).__name__}: {value!r}."
+        )
 
 
 class DuplicateCustomRulePathError(CustomRuleConfigurationError):
@@ -73,10 +80,14 @@ class CustomRuleReservedPrefixError(CustomRuleValidationError):
         )
 
 
-class DuplicateRuleIdError(CustomRuleError):
-    def __init__(self, *, rule_id: str, first: type, second: type):
-        super().__init__(
-            f'Duplicate RULE_ID "{rule_id}" used by '
-            f'"{first.__module__}.{first.__qualname__}" and '
-            f'"{second.__module__}.{second.__qualname__}".'
-        )
+class DuplicateRuleIdError(CustomRuleValidationError):
+    def __init__(self, *, clashes: list[tuple[str, type, type]]):
+        """
+        `clashes` is a list of (rule_id, first_class, second_class) for every detected duplicate.
+        """
+        lines = [
+            f'  - "{rule_id}": "{first.__module__}.{first.__qualname__}" '
+            f'and "{second.__module__}.{second.__qualname__}"'
+            for rule_id, first, second in clashes
+        ]
+        super().__init__("Duplicate RULE_IDs detected:\n" + "\n".join(lines))

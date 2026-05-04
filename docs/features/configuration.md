@@ -147,6 +147,13 @@ pre-commit's hermetic environment and installs your package into the hook's venv
         additional_dependencies: [".", "boa-restrictor"]
 ```
 
+### Trust model
+
+Listing a path under `custom_rules` causes boa-restrictor to **import and execute** the named
+module at lint time. Only point this at code you trust. If you run boa-restrictor against
+contributors' branches in CI (e.g. PRs from forks), assume that whoever can edit `pyproject.toml`
+can run arbitrary code in your CI environment.
+
 ### Common gotcha: Django imports at module top-level
 
 boa-restrictor does not bootstrap Django before importing your custom rule modules. If your rule

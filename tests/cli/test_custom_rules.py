@@ -76,13 +76,16 @@ def test_load_custom_rules_anchor_not_duplicated(tmp_path):
 
 
 def test_load_custom_rules_paths_must_be_list():
-    with pytest.raises(CustomRuleConfigurationError, match="must be a list"):
+    with pytest.raises(CustomRuleConfigurationError, match=r"must be a list"):
         load_custom_rules(paths="myproject.MyRule", anchor_dir=Path.cwd())
 
 
 def test_load_custom_rules_paths_must_contain_strings():
-    with pytest.raises(CustomRuleConfigurationError, match="must be a list"):
+    with pytest.raises(CustomRuleConfigurationError, match=r"must be a string") as exc_info:
         load_custom_rules(paths=[123], anchor_dir=Path.cwd())
+
+    # The offending value should be cited so users can find their typo
+    assert "123" in str(exc_info.value)
 
 
 def test_load_custom_rules_duplicate_path():
@@ -104,6 +107,21 @@ def test_load_custom_rules_bad_path_no_dot():
 def test_load_custom_rules_module_not_found():
     with pytest.raises(CustomRuleImportError, match=r"Could not import module"):
         load_custom_rules(paths=["nonexistent_pkg.SomeRule"], anchor_dir=Path.cwd())
+
+
+def test_load_custom_rules_module_raises_non_import_error():
+    """A custom rule module that raises e.g. RuntimeError (or Django's ImproperlyConfigured)
+    at import time should still be re-framed as a CustomRuleImportError so users get an
+    actionable message instead of a raw traceback."""
+    with pytest.raises(CustomRuleImportError, match=r"Could not import module") as exc_info:
+        load_custom_rules(
+            paths=["tests.fixtures.raises_at_import.Anything"],
+            anchor_dir=Path.cwd(),
+        )
+
+    # The original RuntimeError should chain via __cause__
+    assert isinstance(exc_info.value.__cause__, RuntimeError)
+    assert "simulated module-import-time failure" in str(exc_info.value.__cause__)
 
 
 def test_load_custom_rules_attr_not_found():
@@ -184,3 +202,25 @@ def test_validate_unique_rule_ids_duplicate_against_builtin():
     assert "PBR001" in message
     assert "AsteriskRequiredRule" in message
     assert "RuleCollidingWithBuiltin" in message
+
+
+def test_validate_unique_rule_ids_reports_all_clashes_at_once():
+    """A single error should list every duplicate so users do not have to fix-and-rerun repeatedly."""
+    with pytest.raises(DuplicateRuleIdError) as exc_info:
+        validate_unique_rule_ids(
+            rules=(
+                AsteriskRequiredRule,  # PBR001
+                SampleCustomRule,  # TST001
+                RuleCollidingWithBuiltin,  # PBR001 clash
+                RuleClashingWithSample,  # TST001 clash
+            )
+        )
+
+    message = str(exc_info.value)
+    # Both clashes must appear in the same error message
+    assert "PBR001" in message
+    assert "TST001" in message
+    assert "AsteriskRequiredRule" in message
+    assert "SampleCustomRule" in message
+    assert "RuleCollidingWithBuiltin" in message
+    assert "RuleClashingWithSample" in message

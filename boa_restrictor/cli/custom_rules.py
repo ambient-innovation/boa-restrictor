@@ -2,7 +2,7 @@ import importlib
 import sys
 from pathlib import Path
 
-from boa_restrictor.common.rule import DJANGO_LINTING_RULE_PREFIX, PYTHON_LINTING_RULE_PREFIX, Rule
+from boa_restrictor.common.rule import RESERVED_RULE_ID_PREFIXES, Rule
 from boa_restrictor.exceptions.custom_rules import (
     CustomRuleAttributeMissingError,
     CustomRuleMissingRuleIdError,
@@ -10,14 +10,13 @@ from boa_restrictor.exceptions.custom_rules import (
     CustomRuleModuleImportFailedError,
     CustomRuleNotAClassError,
     CustomRuleNotARuleSubclassError,
+    CustomRulePathNotAStringError,
     CustomRuleReservedPrefixError,
     CustomRulesNotAListError,
     DuplicateCustomRulePathError,
     DuplicateRuleIdError,
     InvalidCustomRulePathError,
 )
-
-RESERVED_RULE_ID_PREFIXES = (PYTHON_LINTING_RULE_PREFIX, DJANGO_LINTING_RULE_PREFIX)
 
 
 def load_custom_rules(*, paths, anchor_dir: Path) -> tuple[type[Rule], ...]:
@@ -27,8 +26,11 @@ def load_custom_rules(*, paths, anchor_dir: Path) -> tuple[type[Rule], ...]:
     `anchor_dir` is prepended to sys.path so the user's project modules become importable
     when boa-restrictor runs as an installed console script.
     """
-    if not isinstance(paths, list) or not all(isinstance(item, str) for item in paths):
+    if not isinstance(paths, list):
         raise CustomRulesNotAListError
+    for item in paths:
+        if not isinstance(item, str):
+            raise CustomRulePathNotAStringError(item)
 
     if not paths:
         return ()
@@ -56,7 +58,7 @@ def _import_custom_rule(*, dotted_path: str) -> type[Rule]:
 
     try:
         module = importlib.import_module(module_path)
-    except ImportError as e:
+    except Exception as e:
         raise CustomRuleModuleImportFailedError(module_path=module_path, dotted_path=dotted_path, original=e) from e
 
     try:
@@ -88,11 +90,17 @@ def _import_custom_rule(*, dotted_path: str) -> type[Rule]:
 
 def validate_unique_rule_ids(*, rules: tuple[type[Rule], ...]) -> None:
     """
-    Ensure no two rules share a RULE_ID, naming both offenders if they do.
+    Ensure no two rules share a RULE_ID, naming all offenders if any clash.
+    Collects every duplicate before raising so users see the full picture in one go.
     """
     seen: dict[str, type[Rule]] = {}
+    clashes: list[tuple[str, type[Rule], type[Rule]]] = []
     for rule in rules:
         existing = seen.get(rule.RULE_ID)
         if existing is not None:
-            raise DuplicateRuleIdError(rule_id=rule.RULE_ID, first=existing, second=rule)
-        seen[rule.RULE_ID] = rule
+            clashes.append((rule.RULE_ID, existing, rule))
+        else:
+            seen[rule.RULE_ID] = rule
+
+    if clashes:
+        raise DuplicateRuleIdError(clashes=clashes)

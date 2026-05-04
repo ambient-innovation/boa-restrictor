@@ -3,6 +3,7 @@
 **1.14.0** (2026-05-04)
 * Added support for project-specific (custom) rules via the `custom_rules` setting in `pyproject.toml`
 * Generalised `# noqa: <CODE>` detection to recognise custom rule IDs (no longer limited to `PBR`/`DBR` prefixes)
+* Fixed a bug where `# noqa` codes were matched as substrings (`# noqa: PBR0011` could mute `PBR001`); codes are now matched exactly
 
 **1.13.3** (2026-03-30)
 * Maintenance via ambient-package-update

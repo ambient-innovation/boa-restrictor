@@ -313,3 +313,66 @@ def test_main_custom_rule_honors_noqa_on_line(*args):
 
     # The noqa: TST001 on line 2 should suppress the occurrence
     assert "TST001" not in mock_stdout.getvalue()
+
+
+@mock.patch(
+    "boa_restrictor.cli.main.load_configuration",
+    return_value={"custom_rules": [CUSTOM_RULE_PATH]},
+)
+@mock.patch(
+    "builtins.open",
+    mock.mock_open(read_data="def thing():\n    pass  # noqa: TST0011\n"),
+)
+def test_main_custom_rule_noqa_uses_exact_match_not_substring(*args):
+    """Regression: # noqa: TST0011 must NOT suppress rule TST001 (substring false positive)."""
+    fake_occurrence = Occurrence(
+        rule_id="TST001",
+        rule_label="Sample custom rule for tests.",
+        filename="thing.py",
+        file_path=Path("thing.py"),
+        identifier="thing",
+        line_number=2,
+    )
+    with mock.patch.object(SampleCustomRule, "run_check", return_value=[fake_occurrence]):
+        with mock.patch("sys.stdout", new=StringIO()) as mock_stdout:
+            main(
+                argv=(
+                    "thing.py",
+                    "--config",
+                    "pyproject.toml",
+                )
+            )
+
+    # The TST0011 noqa is unrelated; TST001 must still surface.
+    assert "TST001" in mock_stdout.getvalue()
+
+
+@mock.patch(
+    "boa_restrictor.cli.main.load_configuration",
+    return_value={"custom_rules": [CUSTOM_RULE_PATH]},
+)
+@mock.patch("builtins.open", mock.mock_open(read_data="x = 1\n"))
+def test_main_custom_rule_violation_appears_in_stdout(*args):
+    """End-to-end: a custom rule's Occurrence reaches the CLI output."""
+    fake_occurrence = Occurrence(
+        rule_id="TST001",
+        rule_label="Sample custom rule for tests.",
+        filename="thing.py",
+        file_path=Path("thing.py"),
+        identifier="thing",
+        line_number=1,
+    )
+    with mock.patch.object(SampleCustomRule, "run_check", return_value=[fake_occurrence]):
+        with mock.patch("sys.stdout", new=StringIO()) as mock_stdout:
+            result = main(
+                argv=(
+                    "thing.py",
+                    "--config",
+                    "pyproject.toml",
+                )
+            )
+
+    output = mock_stdout.getvalue()
+    assert "TST001" in output
+    assert "Sample custom rule for tests." in output
+    assert result is True
