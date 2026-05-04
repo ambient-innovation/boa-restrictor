@@ -111,3 +111,42 @@ def test_get_noqa_comments_ignores_inline_second_hash():
 
     assert len(result) == 1
     assert result[0] == (1, {"PBR001"})
+
+
+def test_get_noqa_comments_directive_after_another_pragma():
+    """Combined inline pragmas like `# type: ignore # noqa: PBR001` must still register."""
+    source_code = """x = 7  # type: ignore  # noqa: PBR001"""
+
+    result = get_noqa_comments(source_code=source_code)
+
+    assert len(result) == 1
+    assert result[0] == (1, {"PBR001"})
+
+
+def test_get_noqa_comments_uppercase_noqa_directive():
+    """Ruff/flake8 accept '# NOQA:' (uppercase). We should too."""
+    source_code = """x = 7  # NOQA: PBR001"""
+
+    result = get_noqa_comments(source_code=source_code)
+
+    assert len(result) == 1
+    assert result[0] == (1, {"PBR001"})
+
+
+def test_get_noqa_comments_no_space_around_directive():
+    """Tolerate '#noqa:' without a space and no space before the colon."""
+    source_code = """x = 7  #noqa:PBR001"""
+
+    result = get_noqa_comments(source_code=source_code)
+
+    assert len(result) == 1
+    assert result[0] == (1, {"PBR001"})
+
+
+def test_get_noqa_comments_codes_outside_directive_are_ignored():
+    """A code-shaped token in a comment without a noqa directive must NOT be treated as a code."""
+    source_code = """x = 7  # see ticket PBR001 for details"""
+
+    result = get_noqa_comments(source_code=source_code)
+
+    assert len(result) == 0

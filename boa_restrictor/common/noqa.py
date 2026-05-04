@@ -2,8 +2,10 @@ import re
 import tokenize
 from io import StringIO
 
-# Matches a noqa directive comment; requires at least one non-whitespace char after the colon.
-_NOQA_PATTERN = re.compile(r"^#\snoqa:\s*\S")
+# Matches a noqa directive anywhere within a comment token, so a noqa following another
+# inline pragma still registers. Case-insensitive (accepts uppercase NOQA) and tolerant
+# of missing whitespace around the leading hash and the colon.
+_NOQA_PATTERN = re.compile(r"#\s*noqa\s*:", re.IGNORECASE)
 # Rule code pattern: 1+ uppercase letters followed by 1+ digits (e.g. PBR001, DBR007, TST0011, F401).
 # Anything in the noqa payload that doesn't match this is ignored (prose, stray punctuation, ...).
 _CODE_PATTERN = re.compile(r"\b[A-Z]+\d+\b")
@@ -26,10 +28,9 @@ def get_noqa_comments(*, source_code: str) -> list[tuple[int, set[str]]]:
         token_type, token_string, start, _, _ = token
         if token_type != tokenize.COMMENT:
             continue
-        stripped = token_string.strip()
-        if not _NOQA_PATTERN.match(stripped):
+        if not _NOQA_PATTERN.search(token_string):
             continue
-        codes = set(_CODE_PATTERN.findall(stripped))
+        codes = set(_CODE_PATTERN.findall(token_string))
         if codes:
             noqa_statements.append((start[0], codes))
 

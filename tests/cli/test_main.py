@@ -9,6 +9,7 @@ import pytest
 
 from boa_restrictor.cli.main import main
 from boa_restrictor.common.rule import Rule
+from boa_restrictor.exceptions.custom_rules import DuplicateRuleIdError
 from boa_restrictor.projections.occurrence import Occurrence
 from boa_restrictor.rules import BOA_RESTRICTOR_RULES, DJANGO_BOA_RULES, AsteriskRequiredRule
 from tests.fixtures.custom_rule_module import SampleCustomRule
@@ -345,6 +346,53 @@ def test_main_custom_rule_noqa_uses_exact_match_not_substring(*args):
 
     # The TST0011 noqa is unrelated; TST001 must still surface.
     assert "TST001" in mock_stdout.getvalue()
+
+
+@mock.patch(
+    "boa_restrictor.cli.main.load_configuration",
+    return_value={
+        "custom_rules": [
+            CUSTOM_RULE_PATH,
+            "tests.fixtures.custom_rule_module.RuleClashingWithSample",
+        ],
+    },
+)
+def test_main_aborts_on_duplicate_rule_ids_before_reading_files(*args):
+    """A RULE_ID clash among loaded rules must abort main() before any file is opened."""
+    with mock.patch("builtins.open") as mocked_open:
+        with pytest.raises(DuplicateRuleIdError):
+            main(
+                argv=(
+                    "thing.py",
+                    "--config",
+                    "pyproject.toml",
+                )
+            )
+
+    # The mocked file open must never have been called — validation aborts first.
+    mocked_open.assert_not_called()
+
+
+@mock.patch(
+    "boa_restrictor.cli.main.load_configuration",
+    return_value={"custom_rules": [CUSTOM_RULE_PATH]},
+)
+@mock.patch("builtins.open", mock.mock_open(read_data="x = 1\n"))
+def test_main_propagates_exception_raised_in_custom_rule_check(*args):
+    """Documented contract: an exception inside check() halts the run (no per-file swallow)."""
+
+    class CustomRuleBoomError(RuntimeError):
+        pass
+
+    with mock.patch.object(SampleCustomRule, "run_check", side_effect=CustomRuleBoomError("kaboom")):
+        with pytest.raises(CustomRuleBoomError, match="kaboom"):
+            main(
+                argv=(
+                    "thing.py",
+                    "--config",
+                    "pyproject.toml",
+                )
+            )
 
 
 @mock.patch(
