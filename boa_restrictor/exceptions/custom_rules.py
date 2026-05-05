@@ -91,6 +91,15 @@ class CustomRuleInvalidRuleLabelTypeError(CustomRuleValidationError):
         )
 
 
+class CustomRuleInvalidRuleIdShapeError(CustomRuleValidationError):
+    def __init__(self, *, dotted_path: str, rule_id: str):
+        super().__init__(
+            f'Custom rule "{dotted_path}" has malformed RULE_ID "{rule_id}". '
+            "RULE_IDs must be one or more uppercase ASCII letters followed by one or more digits "
+            '(e.g. "TST001"). Lowercase or punctuated IDs cannot be silenced via "# noqa:".'
+        )
+
+
 class CustomRuleReservedPrefixError(CustomRuleValidationError):
     def __init__(self, *, dotted_path: str, prefix: str, reserved_prefixes: tuple[str, ...]):
         super().__init__(

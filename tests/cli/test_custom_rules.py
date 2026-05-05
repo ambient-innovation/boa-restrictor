@@ -76,6 +76,26 @@ def test_load_custom_rules_anchor_not_duplicated(tmp_path):
     assert len(sys.path) == sys_path_len_before
 
 
+def test_load_custom_rules_anchor_canonicalised_for_dedup(tmp_path):
+    """Non-canonical anchors (containing '..') must dedup against the resolved form,
+    so repeated invocations don't accumulate duplicate sys.path entries."""
+    sub = tmp_path / "sub"
+    sub.mkdir()
+    canonical = str(tmp_path.resolve())
+    sys.path.insert(0, canonical)
+    sys_path_len_before = len(sys.path)
+
+    # Pass a non-canonical form pointing at the same directory
+    non_canonical = sub / ".."
+    load_custom_rules(
+        paths=[f"{FIXTURE_MODULE}.SampleCustomRule"],
+        anchor_dir=non_canonical,
+    )
+
+    assert len(sys.path) == sys_path_len_before
+    assert canonical in sys.path
+
+
 def test_load_custom_rules_paths_must_be_list():
     with pytest.raises(CustomRuleConfigurationError, match=r"must be a list"):
         load_custom_rules(paths="myproject.MyRule", anchor_dir=Path.cwd())
@@ -197,6 +217,25 @@ def test_load_custom_rules_non_string_rule_label():
     with pytest.raises(CustomRuleValidationError, match=r"non-string RULE_LABEL"):
         load_custom_rules(
             paths=[f"{FIXTURE_MODULE}.RuleWithNonStringRuleLabel"],
+            anchor_dir=Path.cwd(),
+        )
+
+
+def test_load_custom_rules_lowercase_rule_id_rejected():
+    """Lowercase RULE_IDs cannot be silenced via # noqa: (the noqa parser accepts only
+    uppercase), so reject them at load time rather than letting them load and silently
+    misbehave."""
+    with pytest.raises(CustomRuleValidationError, match=r"malformed RULE_ID"):
+        load_custom_rules(
+            paths=[f"{FIXTURE_MODULE}.RuleWithLowercaseRuleId"],
+            anchor_dir=Path.cwd(),
+        )
+
+
+def test_load_custom_rules_punctuated_rule_id_rejected():
+    with pytest.raises(CustomRuleValidationError, match=r"malformed RULE_ID"):
+        load_custom_rules(
+            paths=[f"{FIXTURE_MODULE}.RuleWithPunctuatedRuleId"],
             anchor_dir=Path.cwd(),
         )
 

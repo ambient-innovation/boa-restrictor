@@ -2,6 +2,8 @@ import re
 import tokenize
 from io import StringIO
 
+from boa_restrictor.exceptions.syntax_errors import BoaRestrictorParsingError
+
 # Matches a noqa directive anywhere within a comment token, so a noqa following another
 # inline pragma still registers. Case-insensitive (accepts uppercase NOQA) and tolerant
 # of missing whitespace around the leading hash and the colon.
@@ -11,7 +13,7 @@ _NOQA_PATTERN = re.compile(r"#\s*noqa\s*:", re.IGNORECASE)
 _CODE_PATTERN = re.compile(r"\b[A-Z]+\d+\b")
 
 
-def get_noqa_comments(*, source_code: str) -> list[tuple[int, set[str]]]:
+def get_noqa_comments(*, source_code: str, filename: str = "<unknown>") -> list[tuple[int, set[str]]]:
     """
     Walk the target code and collect all "# noqa: <CODE[, ...]>" comments,
     returning each as (line_number, set_of_exact_rule_ids).
@@ -28,16 +30,19 @@ def get_noqa_comments(*, source_code: str) -> list[tuple[int, set[str]]]:
     noqa_statements = []
 
     tokens = tokenize.generate_tokens(StringIO(source_code).readline)
-    for token in tokens:
-        token_type, token_string, start, _, _ = token
-        if token_type != tokenize.COMMENT:
-            continue
-        match = _NOQA_PATTERN.search(token_string)
-        if not match:
-            continue
-        payload = token_string[match.end() :].split("#", 1)[0]
-        codes = set(_CODE_PATTERN.findall(payload))
-        if codes:
-            noqa_statements.append((start[0], codes))
+    try:
+        for token in tokens:
+            token_type, token_string, start, _, _ = token
+            if token_type != tokenize.COMMENT:
+                continue
+            match = _NOQA_PATTERN.search(token_string)
+            if not match:
+                continue
+            payload = token_string[match.end() :].split("#", 1)[0]
+            codes = set(_CODE_PATTERN.findall(payload))
+            if codes:
+                noqa_statements.append((start[0], codes))
+    except tokenize.TokenError as e:
+        raise BoaRestrictorParsingError(filename=filename) from e
 
     return noqa_statements

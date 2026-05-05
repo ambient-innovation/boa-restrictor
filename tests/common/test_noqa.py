@@ -1,4 +1,7 @@
+import pytest
+
 from boa_restrictor.common.noqa import get_noqa_comments
+from boa_restrictor.exceptions.syntax_errors import BoaRestrictorParsingError
 
 
 def test_get_noqa_comments_has_pbr_noqa():
@@ -180,3 +183,14 @@ def test_get_noqa_comments_codes_in_other_pragma_are_ignored():
 
     assert len(result) == 1
     assert result[0] == (1, {"PBR002"})
+
+
+def test_get_noqa_comments_tokenize_error_is_reframed():
+    """A TokenizeError (e.g. unterminated triple-quoted string) must surface as the
+    user-friendly BoaRestrictorParsingError, not a raw tokenize crash."""
+    source_code = 'x = """unterminated\n'
+
+    with pytest.raises(BoaRestrictorParsingError) as exc_info:
+        get_noqa_comments(source_code=source_code, filename="broken.py")
+
+    assert "broken.py" in str(exc_info.value)

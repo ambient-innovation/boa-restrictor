@@ -53,7 +53,7 @@ def main(argv: Sequence[str] | None = None):
         source_tree = parse_source_code_or_fail(filename=filename, source_code=source_code)
 
         # Fetch all ignored line comments
-        noqa_tokens = get_noqa_comments(source_code=source_code)
+        noqa_tokens = get_noqa_comments(source_code=source_code, filename=filename)
 
         # Iterate over all linters...
         for rule_class in enabled_rules:

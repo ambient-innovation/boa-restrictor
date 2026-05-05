@@ -1,10 +1,12 @@
 import importlib
+import re
 import sys
 from pathlib import Path
 
 from boa_restrictor.common.rule import RESERVED_RULE_ID_PREFIXES, Rule
 from boa_restrictor.exceptions.custom_rules import (
     CustomRuleAttributeMissingError,
+    CustomRuleInvalidRuleIdShapeError,
     CustomRuleInvalidRuleIdTypeError,
     CustomRuleInvalidRuleLabelTypeError,
     CustomRuleMissingRuleIdError,
@@ -20,13 +22,22 @@ from boa_restrictor.exceptions.custom_rules import (
     InvalidCustomRulePathError,
 )
 
+# Mirrors the noqa parser's _CODE_PATTERN: a RULE_ID that doesn't match this shape
+# can never be silenced via "# noqa:", so reject it at load time.
+_RULE_ID_SHAPE = re.compile(r"^[A-Z]+\d+$")
+
 
 def load_custom_rules(*, paths, anchor_dir: Path) -> tuple[type[Rule], ...]:
     """
     Import custom rule classes from a list of dotted paths (e.g. "myproject.linting.MyRule").
 
-    `anchor_dir` is prepended to sys.path so the user's project modules become importable
-    when boa-restrictor runs as an installed console script.
+    `anchor_dir` is prepended to sys.path (insert at position 0) so the user's project modules
+    become importable when boa-restrictor runs as an installed console script. Inserting at the
+    front means project-local modules win over identically-named installed packages — that's
+    the intended behaviour, since the user is linting their own project.
+
+    The anchor is canonicalised with `Path.resolve()` so non-canonical inputs (e.g. paths
+    containing "..") don't accumulate as duplicate sys.path entries on repeated invocations.
     """
     if not isinstance(paths, list):
         raise CustomRulesNotAListError
@@ -37,7 +48,7 @@ def load_custom_rules(*, paths, anchor_dir: Path) -> tuple[type[Rule], ...]:
     if not paths:
         return ()
 
-    anchor_str = str(anchor_dir)
+    anchor_str = str(anchor_dir.resolve())
     if anchor_str not in sys.path:
         sys.path.insert(0, anchor_str)
 
@@ -87,6 +98,8 @@ def _validate_rule_class(*, rule_attr, dotted_path: str) -> None:
         raise CustomRuleMissingRuleLabelError(dotted_path)
     if not isinstance(rule_attr.RULE_LABEL, str):
         raise CustomRuleInvalidRuleLabelTypeError(dotted_path=dotted_path, value=rule_attr.RULE_LABEL)
+    if not _RULE_ID_SHAPE.match(rule_attr.RULE_ID):
+        raise CustomRuleInvalidRuleIdShapeError(dotted_path=dotted_path, rule_id=rule_attr.RULE_ID)
 
     for prefix in RESERVED_RULE_ID_PREFIXES:
         if rule_attr.RULE_ID.startswith(prefix):

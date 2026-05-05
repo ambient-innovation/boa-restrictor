@@ -93,4 +93,20 @@ class RuleWithNonStringRuleLabel(Rule):
         return []
 
 
+class RuleWithLowercaseRuleId(Rule):
+    RULE_ID = "tst001"
+    RULE_LABEL = "Lowercase RULE_ID — would never be silenceable via # noqa:."
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
+class RuleWithPunctuatedRuleId(Rule):
+    RULE_ID = "MY-001"
+    RULE_LABEL = "Hyphenated RULE_ID — not allowed."
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
 not_a_class = "I am a string, not a class."
