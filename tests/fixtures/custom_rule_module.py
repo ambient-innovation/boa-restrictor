@@ -109,4 +109,28 @@ class RuleWithPunctuatedRuleId(Rule):
         return []
 
 
+class RuleWithLettersOnlyRuleId(Rule):
+    RULE_ID = "TST"
+    RULE_LABEL = "Letters-only RULE_ID — missing required digits."
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
+class RuleWithDigitsOnlyRuleId(Rule):
+    RULE_ID = "001"
+    RULE_LABEL = "Digits-only RULE_ID — missing required letters."
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
+class RuleWithTrailingLettersRuleId(Rule):
+    RULE_ID = "TST001A"
+    RULE_LABEL = "Trailing letters after digits — not allowed."
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
 not_a_class = "I am a string, not a class."

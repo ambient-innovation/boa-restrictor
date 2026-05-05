@@ -240,6 +240,33 @@ def test_load_custom_rules_punctuated_rule_id_rejected():
         )
 
 
+def test_load_custom_rules_letters_only_rule_id_rejected():
+    """RULE_ID without any digits violates ^[A-Z]+\\d+$ and must be rejected."""
+    with pytest.raises(CustomRuleValidationError, match=r"malformed RULE_ID"):
+        load_custom_rules(
+            paths=[f"{FIXTURE_MODULE}.RuleWithLettersOnlyRuleId"],
+            anchor_dir=Path.cwd(),
+        )
+
+
+def test_load_custom_rules_digits_only_rule_id_rejected():
+    """RULE_ID without any letters violates ^[A-Z]+\\d+$ and must be rejected."""
+    with pytest.raises(CustomRuleValidationError, match=r"malformed RULE_ID"):
+        load_custom_rules(
+            paths=[f"{FIXTURE_MODULE}.RuleWithDigitsOnlyRuleId"],
+            anchor_dir=Path.cwd(),
+        )
+
+
+def test_load_custom_rules_trailing_letters_rule_id_rejected():
+    """A letter after the digit run violates ^[A-Z]+\\d+$ and must be rejected."""
+    with pytest.raises(CustomRuleValidationError, match=r"malformed RULE_ID"):
+        load_custom_rules(
+            paths=[f"{FIXTURE_MODULE}.RuleWithTrailingLettersRuleId"],
+            anchor_dir=Path.cwd(),
+        )
+
+
 def test_load_custom_rules_reserved_python_prefix():
     with pytest.raises(CustomRuleValidationError, match=r'reserved RULE_ID prefix "PBR"'):
         load_custom_rules(
