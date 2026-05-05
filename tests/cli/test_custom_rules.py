@@ -183,6 +183,24 @@ def test_load_custom_rules_missing_rule_label():
         )
 
 
+def test_load_custom_rules_non_string_rule_id():
+    """A non-string RULE_ID must raise a clean validation error rather than an AttributeError
+    on the downstream str.startswith() check."""
+    with pytest.raises(CustomRuleValidationError, match=r"non-string RULE_ID"):
+        load_custom_rules(
+            paths=[f"{FIXTURE_MODULE}.RuleWithNonStringRuleId"],
+            anchor_dir=Path.cwd(),
+        )
+
+
+def test_load_custom_rules_non_string_rule_label():
+    with pytest.raises(CustomRuleValidationError, match=r"non-string RULE_LABEL"):
+        load_custom_rules(
+            paths=[f"{FIXTURE_MODULE}.RuleWithNonStringRuleLabel"],
+            anchor_dir=Path.cwd(),
+        )
+
+
 def test_load_custom_rules_reserved_python_prefix():
     with pytest.raises(CustomRuleValidationError, match=r'reserved RULE_ID prefix "PBR"'):
         load_custom_rules(

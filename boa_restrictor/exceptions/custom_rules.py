@@ -75,6 +75,22 @@ class CustomRuleMissingRuleLabelError(CustomRuleValidationError):
         super().__init__(f'Custom rule "{dotted_path}" does not set RULE_LABEL.')
 
 
+class CustomRuleInvalidRuleIdTypeError(CustomRuleValidationError):
+    def __init__(self, *, dotted_path: str, value):
+        super().__init__(
+            f'Custom rule "{dotted_path}" has a non-string RULE_ID '
+            f"(got {type(value).__name__}: {value!r}). RULE_ID must be a string."
+        )
+
+
+class CustomRuleInvalidRuleLabelTypeError(CustomRuleValidationError):
+    def __init__(self, *, dotted_path: str, value):
+        super().__init__(
+            f'Custom rule "{dotted_path}" has a non-string RULE_LABEL '
+            f"(got {type(value).__name__}: {value!r}). RULE_LABEL must be a string."
+        )
+
+
 class CustomRuleReservedPrefixError(CustomRuleValidationError):
     def __init__(self, *, dotted_path: str, prefix: str, reserved_prefixes: tuple[str, ...]):
         super().__init__(

@@ -5,6 +5,8 @@ from pathlib import Path
 from boa_restrictor.common.rule import RESERVED_RULE_ID_PREFIXES, Rule
 from boa_restrictor.exceptions.custom_rules import (
     CustomRuleAttributeMissingError,
+    CustomRuleInvalidRuleIdTypeError,
+    CustomRuleInvalidRuleLabelTypeError,
     CustomRuleMissingRuleIdError,
     CustomRuleMissingRuleLabelError,
     CustomRuleModuleImportFailedError,
@@ -68,14 +70,23 @@ def _import_custom_rule(*, dotted_path: str) -> type[Rule]:
             module_path=module_path, attr_name=attr_name, dotted_path=dotted_path
         ) from e
 
+    _validate_rule_class(rule_attr=rule_attr, dotted_path=dotted_path)
+    return rule_attr
+
+
+def _validate_rule_class(*, rule_attr, dotted_path: str) -> None:
     if not isinstance(rule_attr, type):
         raise CustomRuleNotAClassError(dotted_path)
     if not issubclass(rule_attr, Rule):
         raise CustomRuleNotARuleSubclassError(dotted_path)
     if not getattr(rule_attr, "RULE_ID", None):
         raise CustomRuleMissingRuleIdError(dotted_path)
+    if not isinstance(rule_attr.RULE_ID, str):
+        raise CustomRuleInvalidRuleIdTypeError(dotted_path=dotted_path, value=rule_attr.RULE_ID)
     if not getattr(rule_attr, "RULE_LABEL", None):
         raise CustomRuleMissingRuleLabelError(dotted_path)
+    if not isinstance(rule_attr.RULE_LABEL, str):
+        raise CustomRuleInvalidRuleLabelTypeError(dotted_path=dotted_path, value=rule_attr.RULE_LABEL)
 
     for prefix in RESERVED_RULE_ID_PREFIXES:
         if rule_attr.RULE_ID.startswith(prefix):
@@ -84,8 +95,6 @@ def _import_custom_rule(*, dotted_path: str) -> type[Rule]:
                 prefix=prefix,
                 reserved_prefixes=RESERVED_RULE_ID_PREFIXES,
             )
-
-    return rule_attr
 
 
 def validate_unique_rule_ids(*, rules: tuple[type[Rule], ...]) -> None:

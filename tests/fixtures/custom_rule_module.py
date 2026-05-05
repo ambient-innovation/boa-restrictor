@@ -77,4 +77,20 @@ class NotARuleSubclass:
     RULE_LABEL = "Not a Rule subclass."
 
 
+class RuleWithNonStringRuleId(Rule):
+    RULE_ID = 123
+    RULE_LABEL = "RULE_ID is not a string."
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
+class RuleWithNonStringRuleLabel(Rule):
+    RULE_ID = "TST900"
+    RULE_LABEL = 42
+
+    def check(self) -> list[Occurrence]:
+        return []
+
+
 not_a_class = "I am a string, not a class."

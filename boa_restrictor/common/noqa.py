@@ -20,6 +20,10 @@ def get_noqa_comments(*, source_code: str) -> list[tuple[int, set[str]]]:
       - "# noqa: TST0011" does NOT suppress rule TST001 (substring guard).
       - "# noqa: PBR001 explanation here" yields just {"PBR001"} — prose tokens
         are ignored because they don't match the rule-code shape.
+
+    Only the payload after "# noqa:" (and before any subsequent "#") contributes
+    codes, so code-shaped tokens elsewhere in the comment do not silently widen
+    the suppression.
     """
     noqa_statements = []
 
@@ -28,9 +32,11 @@ def get_noqa_comments(*, source_code: str) -> list[tuple[int, set[str]]]:
         token_type, token_string, start, _, _ = token
         if token_type != tokenize.COMMENT:
             continue
-        if not _NOQA_PATTERN.search(token_string):
+        match = _NOQA_PATTERN.search(token_string)
+        if not match:
             continue
-        codes = set(_CODE_PATTERN.findall(token_string))
+        payload = token_string[match.end() :].split("#", 1)[0]
+        codes = set(_CODE_PATTERN.findall(payload))
         if codes:
             noqa_statements.append((start[0], codes))
 

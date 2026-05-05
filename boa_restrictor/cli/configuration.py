@@ -43,14 +43,14 @@ def is_rule_excluded(*, rule_class: type[Rule], excluded_rules: list, active_rul
     if active_rule_ids is None:
         active_rule_ids = {rule_class.RULE_ID for rule_class in get_rules(use_django_rules=True)}
 
-    # Check if the given rule is valid
+    # Warn for any invalid IDs in the exclusion list, but still honour the valid ones.
+    # An early return here would mean a single typo silently disabled all exclusions.
     for invalid_configured_rule in [rule_id for rule_id in excluded_rules if rule_id not in active_rule_ids]:
         warnings.warn(
             f'Boa Restrictor: Invalid rule "{invalid_configured_rule}" in configuration detected.',
             category=UserWarning,
             stacklevel=2,
         )
-        return False
 
     # Check if the given rule is in the exclusion list
     return rule_class.RULE_ID in excluded_rules

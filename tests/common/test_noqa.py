@@ -150,3 +150,33 @@ def test_get_noqa_comments_codes_outside_directive_are_ignored():
     result = get_noqa_comments(source_code=source_code)
 
     assert len(result) == 0
+
+
+def test_get_noqa_comments_codes_before_directive_are_ignored():
+    """Code-shaped tokens in prose BEFORE the noqa directive must not be silenced."""
+    source_code = """x = 7  # fixes PBR001 ticket  # noqa: PBR002"""
+
+    result = get_noqa_comments(source_code=source_code)
+
+    assert len(result) == 1
+    assert result[0] == (1, {"PBR002"})
+
+
+def test_get_noqa_comments_codes_in_leftover_note_are_ignored():
+    """Code-shaped tokens in a trailing note after a second '#' must not be silenced."""
+    source_code = """x = 7  # noqa: PBR001  # also see PBR777"""
+
+    result = get_noqa_comments(source_code=source_code)
+
+    assert len(result) == 1
+    assert result[0] == (1, {"PBR001"})
+
+
+def test_get_noqa_comments_codes_in_other_pragma_are_ignored():
+    """Code-shaped tokens inside another inline pragma before noqa must not be silenced."""
+    source_code = """x = 7  # type: ignore[PBR999]  # noqa: PBR002"""
+
+    result = get_noqa_comments(source_code=source_code)
+
+    assert len(result) == 1
+    assert result[0] == (1, {"PBR002"})

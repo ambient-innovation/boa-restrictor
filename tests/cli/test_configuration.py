@@ -71,6 +71,13 @@ def test_is_rule_excluded_invalid_rule(mocked_warn):
     mocked_warn.assert_called_once()
 
 
+@mock.patch.object(warnings, "warn")
+def test_is_rule_excluded_invalid_rule_does_not_disable_other_exclusions(mocked_warn):
+    """A typo in the exclusion list must warn but still honour the remaining valid IDs."""
+    assert is_rule_excluded(rule_class=AsteriskRequiredRule, excluded_rules=["TYPO123", "PBR001"]) is True
+    mocked_warn.assert_called_once()
+
+
 def test_is_rule_excluded_per_file_is_excluded():
     assert (
         is_rule_excluded_per_file(
