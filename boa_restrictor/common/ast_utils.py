@@ -1,13 +1,10 @@
 import ast
 
 
-def node_name(node, *, unwrap_call: bool = False) -> str | None:
+def node_name(node) -> str | None:
     """
     Returns the bare name of an AST node: the id of an "ast.Name" or the attr of an "ast.Attribute".
-    With unwrap_call=True a call such as "@dataclass(...)" is first unwrapped to its callee.
     """
-    if unwrap_call and isinstance(node, ast.Call):
-        node = node.func
     if isinstance(node, ast.Name):
         return node.id
     if isinstance(node, ast.Attribute):

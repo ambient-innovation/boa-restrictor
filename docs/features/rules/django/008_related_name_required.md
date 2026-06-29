@@ -1,4 +1,4 @@
-# Relational model fields must declare an explicit "related_name" (DBR012)
+# Relational model fields must declare an explicit "related_name" (DBR008)
 
 This rule ensures that relational model fields (`ForeignKey`, `OneToOneField`, `ManyToManyField`) declare an
 explicit `related_name`.
@@ -14,7 +14,7 @@ resolved through inheritance as far as the current file allows — abstract base
 defined in the **same file** are honoured (including `class Meta(Parent.Meta)` and multi-level chains).
 
 Because the linter processes one file at a time, a `default_related_name` inherited from a base defined in
-**another file** cannot be seen and the relation will still be flagged. Silence those with `# noqa: DBR012`.
+**another file** cannot be seen and the relation will still be flagged. Silence those with `# noqa: DBR008`.
 
 Files inside a `migrations/` directory are exempt, since they are generated.
 

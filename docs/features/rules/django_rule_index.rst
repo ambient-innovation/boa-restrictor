@@ -12,8 +12,4 @@ Django rules
    django/005_avoid_django_db_imports_in_api.md
    django/006_avoid_tuple_based_model_choices.md
    django/007_charfield_max_length_required.md
-   django/008_avoid_django_db_imports_in_services.md
-   django/009_avoid_django_db_imports_in_tasks.md
-   django/010_avoid_django_db_imports_in_forms.md
-   django/011_no_objects_create_in_tests.md
-   django/012_related_name_required.md
+   django/008_related_name_required.md

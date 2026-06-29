@@ -21,10 +21,10 @@ class RelatedNameRequiredRule(Rule):
     "Meta" is resolved through inheritance as far as the current file allows -- i.e. abstract base models and
     base "Meta" classes defined in the same file are honoured. A "default_related_name" inherited from a base
     defined in another file cannot be seen (the linter processes one file at a time) and must be silenced with
-    "# noqa: DBR012" if needed.
+    "# noqa: DBR008" if needed.
     """
 
-    RULE_ID = f"{DJANGO_LINTING_RULE_PREFIX}012"
+    RULE_ID = f"{DJANGO_LINTING_RULE_PREFIX}008"
     RULE_LABEL = 'Relational model fields must declare an explicit "related_name".'
 
     def check(self) -> list[Occurrence]:

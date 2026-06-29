@@ -15,4 +15,3 @@ Python rules
    python/008_no_loops_in_unittests.md
    python/009_no_inline_imports_in_tests.md
    python/010_mandatory_test_assertion.md
-   python/011_service_class_naming.md

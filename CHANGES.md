@@ -1,15 +1,10 @@
 # Changelog
 
 **1.15.0** (2026-06-29)
-* Added rule `DBR008` prohibiting `django.db` imports in the service layer
-* Added rule `DBR009` prohibiting `django.db` imports in the task layer
-* Added rule `DBR010` prohibiting `django.db` imports in the form layer
-* Added rule `DBR011` prohibiting `<Model>.objects.create()` in tests (use a model factory instead)
-* Added rule `DBR012` requiring an explicit `related_name` on `ForeignKey`/`OneToOneField`/`ManyToManyField`
+* Added rule `DBR008` requiring an explicit `related_name` on `ForeignKey`/`OneToOneField`/`ManyToManyField`
   (models that set `Meta.default_related_name` are exempt)
 * Added rule `PBR009` prohibiting local/inline imports in test files
 * Added rule `PBR010` requiring at least one assertion per test
-* Added rule `PBR011` requiring service-layer classes to be named with a `Service` suffix
 * Extracted the shared `django.db` import detection and layer/test file matching into reusable helpers in
   `boa_restrictor.common`
 * Fixed `PBR008` to also detect loops in `async def` test functions
