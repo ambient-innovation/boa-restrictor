@@ -18,6 +18,7 @@ from boa_restrictor.rules.python.no_inline_imports_in_tests import NoInlineImpor
 from boa_restrictor.rules.python.no_loops_in_tests import NoLoopsInTestsRule
 from boa_restrictor.rules.python.no_type_hints_in_variable_names import AvoidTypeHintsInVariableNamesAsSuffix
 from boa_restrictor.rules.python.return_type_hints import ReturnStatementRequiresTypeHintRule
+from boa_restrictor.rules.python.service_class_naming import ServiceClassNameRule
 from boa_restrictor.rules.python.service_class_only_one_public import ServiceClassHasOnlyOnePublicMethodRule
 
 BOA_RESTRICTOR_RULES = (
@@ -31,6 +32,7 @@ BOA_RESTRICTOR_RULES = (
     NoLoopsInTestsRule,
     NoInlineImportInTestsRule,
     MandatoryTestAssertionRule,
+    ServiceClassNameRule,
 )
 
 DJANGO_BOA_RULES = (
