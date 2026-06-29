@@ -13,3 +13,4 @@ Django rules
    django/006_avoid_tuple_based_model_choices.md
    django/007_charfield_max_length_required.md
    django/008_avoid_django_db_imports_in_services.md
+   django/009_avoid_django_db_imports_in_tasks.md

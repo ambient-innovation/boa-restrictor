@@ -3,6 +3,7 @@ from boa_restrictor.rules.django.charfield_max_length_required import CharFieldM
 from boa_restrictor.rules.django.no_assert_booleans_in_tests import ProhibitAssertBooleanInTests
 from boa_restrictor.rules.django.no_db_in_api import NoDjangoDbImportInApiRule
 from boa_restrictor.rules.django.no_db_in_services import NoDjangoDbImportInServicesRule
+from boa_restrictor.rules.django.no_db_in_tasks import NoDjangoDbImportInTasksRule
 from boa_restrictor.rules.django.no_db_in_views import NoDjangoDbImportInViewsRule
 from boa_restrictor.rules.django.prohibit_assert_raises import AssertRaisesProhibitedRule
 from boa_restrictor.rules.django.prohibit_datetime_now import ProhibitDatetimeNow
@@ -35,6 +36,7 @@ DJANGO_BOA_RULES = (
     AvoidTupleBasedModelChoices,
     CharFieldMaxLengthRequiredRule,
     NoDjangoDbImportInServicesRule,
+    NoDjangoDbImportInTasksRule,
 )
 
 
