@@ -258,6 +258,94 @@ class Book(CommonInfo):
     assert occurrences == [_occurrence(line_number=8, identifier="ForeignKey")]
 
 
+def test_meta_subclassing_standalone_base_meta_by_name_is_ok():
+    # "class Meta(BaseMeta)" referencing a standalone Meta base by its bare name inherits its options.
+    source_tree = ast.parse(
+        """class BaseMeta:
+    default_related_name = "books"
+
+
+class Book(models.Model):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta(BaseMeta):
+        ordering = ("id",)"""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_meta_extending_base_meta_without_default_related_name_still_flags():
+    # "class Meta(Other.Meta)" where the parent Meta has no default_related_name does not exempt the model.
+    source_tree = ast.parse(
+        """class Other(models.Model):
+    class Meta:
+        ordering = ("id",)
+
+
+class Book(models.Model):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta(Other.Meta):
+        ordering = ("id",)"""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=7, identifier="ForeignKey")]
+
+
+def test_meta_with_non_assignment_statement_still_flags():
+    # A Meta body statement that is neither an assignment nor an annotated assignment is skipped harmlessly.
+    source_tree = ast.parse(
+        """class Book(models.Model):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        pass"""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=2, identifier="ForeignKey")]
+
+
+def test_meta_subclassing_standalone_base_meta_without_default_related_name_still_flags():
+    # A standalone base Meta that does not set default_related_name does not exempt the model.
+    source_tree = ast.parse(
+        """class BaseMeta:
+    ordering = ("id",)
+
+
+class Book(models.Model):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta(BaseMeta):
+        pass"""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=6, identifier="ForeignKey")]
+
+
+def test_meta_subclassing_base_meta_from_other_file_cannot_be_resolved_and_flags():
+    # The base Meta lives in another module, so the linter cannot see its options and (conservatively) flags.
+    source_tree = ast.parse(
+        """class Book(models.Model):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta(ImportedBaseMeta):
+        pass"""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=2, identifier="ForeignKey")]
+
+
 def test_field_declared_on_base_model_is_flagged_on_the_base():
     # A relation field is checked where it is declared (the base), not re-checked on subclasses.
     source_tree = ast.parse(
