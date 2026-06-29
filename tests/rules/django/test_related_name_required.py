@@ -103,6 +103,192 @@ def test_kwargs_spread_is_ignored():
     assert occurrences == []
 
 
+def test_meta_default_related_name_is_ok():
+    source_tree = ast.parse(
+        """class Book(models.Model):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        default_related_name = "books\""""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_meta_default_related_name_as_annotated_assignment_is_ok():
+    source_tree = ast.parse(
+        """class Book(models.Model):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        default_related_name: str = "books\""""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_meta_default_related_name_exempts_only_its_own_model():
+    source_tree = ast.parse(
+        """class Book(models.Model):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        default_related_name = "books"
+
+
+class Review(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)"""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=9, identifier="ForeignKey")]
+
+
+def test_meta_without_default_related_name_still_flags():
+    source_tree = ast.parse(
+        """class Book(models.Model):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ("id",)"""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=2, identifier="ForeignKey")]
+
+
+def test_default_related_name_inherited_from_abstract_base_in_same_file_is_ok():
+    source_tree = ast.parse(
+        """class CommonInfo(models.Model):
+    class Meta:
+        abstract = True
+        default_related_name = "books"
+
+
+class Book(CommonInfo):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)"""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_default_related_name_inherited_transitively_is_ok():
+    source_tree = ast.parse(
+        """class Base(models.Model):
+    class Meta:
+        abstract = True
+        default_related_name = "books"
+
+
+class Intermediate(Base):
+    pass
+
+
+class Book(Intermediate):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)"""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_meta_subclassing_base_meta_with_default_related_name_is_ok():
+    source_tree = ast.parse(
+        """class CommonInfo(models.Model):
+    class Meta:
+        abstract = True
+        default_related_name = "books"
+
+
+class Book(CommonInfo):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta(CommonInfo.Meta):
+        ordering = ("id",)"""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_own_meta_not_extending_base_meta_does_not_inherit_default_related_name():
+    source_tree = ast.parse(
+        """class CommonInfo(models.Model):
+    class Meta:
+        abstract = True
+        default_related_name = "books"
+
+
+class Book(CommonInfo):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ("id",)"""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=8, identifier="ForeignKey")]
+
+
+def test_base_without_default_related_name_still_flags():
+    source_tree = ast.parse(
+        """class CommonInfo(models.Model):
+    class Meta:
+        abstract = True
+        ordering = ("id",)
+
+
+class Book(CommonInfo):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)"""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=8, identifier="ForeignKey")]
+
+
+def test_field_declared_on_base_model_is_flagged_on_the_base():
+    # A relation field is checked where it is declared (the base), not re-checked on subclasses.
+    source_tree = ast.parse(
+        """class CommonInfo(models.Model):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
+
+
+class Book(CommonInfo):
+    title = models.CharField(max_length=100)"""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=2, identifier="ForeignKey")]
+
+
+def test_inheritance_from_base_in_other_file_cannot_be_resolved_and_flags():
+    # The base lives in another module, so the linter cannot see its Meta and (conservatively) flags.
+    source_tree = ast.parse(
+        """class Book(TimeStampedModel):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)"""
+    )
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=2, identifier="ForeignKey")]
+
+
 def test_migration_file_is_ignored():
     source_tree = ast.parse("""author = models.ForeignKey(Author, on_delete=models.CASCADE)""")
 

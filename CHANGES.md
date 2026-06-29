@@ -6,6 +6,7 @@
 * Added rule `DBR010` prohibiting `django.db` imports in the form layer
 * Added rule `DBR011` prohibiting `<Model>.objects.create()` in tests (use `model_bakery` instead)
 * Added rule `DBR012` requiring an explicit `related_name` on `ForeignKey`/`OneToOneField`/`ManyToManyField`
+  (models that set `Meta.default_related_name` are exempt)
 * Added rule `PBR009` prohibiting local/inline imports in test files
 * Added rule `PBR010` requiring at least one assertion per test
 * Added rule `PBR011` requiring service-layer classes to be named with a `Service` suffix
