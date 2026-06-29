@@ -38,3 +38,13 @@ class Rule:
 
     def check(self) -> list[Occurrence]:
         raise NotImplementedError
+
+    def _build_occurrence(self, *, line_number: int, identifier: str | None = None) -> Occurrence:
+        return Occurrence(
+            filename=self.filename,
+            file_path=self.file_path,
+            rule_label=self.RULE_LABEL,
+            rule_id=self.RULE_ID,
+            line_number=line_number,
+            identifier=identifier,
+        )

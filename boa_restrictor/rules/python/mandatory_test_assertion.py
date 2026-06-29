@@ -26,16 +26,7 @@ class MandatoryTestAssertionRule(Rule):
         for node in ast.walk(self.source_tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test"):
                 if not self._contains_assertion(node):
-                    occurrences.append(
-                        Occurrence(
-                            filename=self.filename,
-                            file_path=self.file_path,
-                            rule_label=self.RULE_LABEL,
-                            rule_id=self.RULE_ID,
-                            line_number=node.lineno,
-                            identifier=node.name,
-                        )
-                    )
+                    occurrences.append(self._build_occurrence(line_number=node.lineno, identifier=node.name))
 
         return occurrences
 
@@ -48,19 +39,19 @@ class MandatoryTestAssertionRule(Rule):
 
             if isinstance(node, ast.Call):
                 func = node.func
-                # Any assert-prefixed method call, e.g. self.assertEqual or self.assertRaises
-                if isinstance(func, ast.Attribute) and func.attr.startswith("assert"):
-                    return True
+                if isinstance(func, ast.Attribute):
+                    # Any assert-prefixed method call (e.g. self.assertEqual), or a pytest assertion helper
+                    # used as a context manager (see PYTEST_ASSERTION_HELPERS).
+                    if func.attr.startswith("assert"):
+                        return True
+                    if (
+                        isinstance(func.value, ast.Name)
+                        and func.value.id == "pytest"
+                        and func.attr in PYTEST_ASSERTION_HELPERS
+                    ):
+                        return True
                 # Directly imported assert-prefixed helper, e.g. assertQuerySetEqual
-                if isinstance(func, ast.Name) and func.id.startswith("assert"):
-                    return True
-                # pytest assertion helpers, used as context managers (see PYTEST_ASSERTION_HELPERS)
-                if (
-                    isinstance(func, ast.Attribute)
-                    and isinstance(func.value, ast.Name)
-                    and func.value.id == "pytest"
-                    and func.attr in PYTEST_ASSERTION_HELPERS
-                ):
+                elif isinstance(func, ast.Name) and func.id.startswith("assert"):
                     return True
 
         return False

@@ -29,14 +29,5 @@ class NoInlineImportInTestsRule(Rule):
 
         for child in ast.iter_child_nodes(node):
             if inside_function and isinstance(child, (ast.Import, ast.ImportFrom)):
-                occurrences.append(
-                    Occurrence(
-                        filename=self.filename,
-                        file_path=self.file_path,
-                        rule_label=self.RULE_LABEL,
-                        rule_id=self.RULE_ID,
-                        line_number=child.lineno,
-                        identifier=None,
-                    )
-                )
+                occurrences.append(self._build_occurrence(line_number=child.lineno))
             self._collect(child, in_function=inside_function, occurrences=occurrences)

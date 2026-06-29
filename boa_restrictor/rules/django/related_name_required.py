@@ -1,5 +1,6 @@
 import ast
 
+from boa_restrictor.common.ast_utils import node_name
 from boa_restrictor.common.rule import DJANGO_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
 
@@ -28,7 +29,7 @@ class RelatedNameRequiredRule(Rule):
             if not isinstance(node, ast.Call):
                 continue
 
-            field_name = self._node_name(node.func)
+            field_name = node_name(node.func)
             if field_name not in RELATION_FIELDS:
                 continue
 
@@ -39,23 +40,6 @@ class RelatedNameRequiredRule(Rule):
             if "related_name" in keyword_names:
                 continue
 
-            occurrences.append(
-                Occurrence(
-                    filename=self.filename,
-                    file_path=self.file_path,
-                    rule_label=self.RULE_LABEL,
-                    rule_id=self.RULE_ID,
-                    line_number=node.lineno,
-                    identifier=field_name,
-                )
-            )
+            occurrences.append(self._build_occurrence(line_number=node.lineno, identifier=field_name))
 
         return occurrences
-
-    @staticmethod
-    def _node_name(node) -> str | None:
-        if isinstance(node, ast.Name):
-            return node.id
-        if isinstance(node, ast.Attribute):
-            return node.attr
-        return None

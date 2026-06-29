@@ -67,6 +67,24 @@ def test_many_to_many_field_without_related_name_is_detected():
     assert occurrences == [_occurrence(line_number=2, identifier="ManyToManyField")]
 
 
+def test_directly_imported_field_without_related_name_is_detected():
+    source_tree = ast.parse("""class Book(models.Model):
+    author = ForeignKey(Author, on_delete=CASCADE)""")
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=2, identifier="ForeignKey")]
+
+
+def test_call_with_non_name_callable_is_ignored():
+    source_tree = ast.parse("""class Book(models.Model):
+    author = field_factory()(Author)""")
+
+    occurrences = RelatedNameRequiredRule.run_check(file_path=MODELS_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
 def test_non_relational_field_is_ok():
     source_tree = ast.parse("""class Book(models.Model):
     title = models.CharField(max_length=100)""")

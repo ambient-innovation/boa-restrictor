@@ -1,5 +1,6 @@
 import ast
 
+from boa_restrictor.common.ast_utils import node_name
 from boa_restrictor.common.file_detection import is_layer_file
 from boa_restrictor.common.rule import PYTHON_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
@@ -50,34 +51,14 @@ class ServiceClassNameRule(Rule):
             if self._is_excluded(node):
                 continue
 
-            occurrences.append(
-                Occurrence(
-                    filename=self.filename,
-                    file_path=self.file_path,
-                    rule_label=self.RULE_LABEL,
-                    rule_id=self.RULE_ID,
-                    line_number=node.lineno,
-                    identifier=node.name,
-                )
-            )
+            occurrences.append(self._build_occurrence(line_number=node.lineno, identifier=node.name))
 
         return occurrences
 
-    @classmethod
-    def _is_excluded(cls, node: ast.ClassDef) -> bool:
+    @staticmethod
+    def _is_excluded(node: ast.ClassDef) -> bool:
         if node.name.endswith(("Error", "Exception")):
             return True
-        if any(cls._node_name(decorator) in EXCLUDED_DECORATOR_NAMES for decorator in node.decorator_list):
+        if any(node_name(decorator, unwrap_call=True) in EXCLUDED_DECORATOR_NAMES for decorator in node.decorator_list):
             return True
-        return any(cls._node_name(base) in EXCLUDED_BASE_NAMES for base in node.bases)
-
-    @staticmethod
-    def _node_name(node) -> str | None:
-        # Unwrap "@decorator(...)" to the decorator itself.
-        if isinstance(node, ast.Call):
-            node = node.func
-        if isinstance(node, ast.Name):
-            return node.id
-        if isinstance(node, ast.Attribute):
-            return node.attr
-        return None
+        return any(node_name(base) in EXCLUDED_BASE_NAMES for base in node.bases)

@@ -32,15 +32,6 @@ class NoObjectsCreateInTestsRule(Rule):
                 and isinstance(func.value, ast.Attribute)
                 and func.value.attr == "objects"
             ):
-                occurrences.append(
-                    Occurrence(
-                        filename=self.filename,
-                        file_path=self.file_path,
-                        rule_label=self.RULE_LABEL,
-                        rule_id=self.RULE_ID,
-                        line_number=node.lineno,
-                        identifier=None,
-                    )
-                )
+                occurrences.append(self._build_occurrence(line_number=node.lineno))
 
         return occurrences
