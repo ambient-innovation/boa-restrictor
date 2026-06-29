@@ -1,6 +1,6 @@
 import ast
-from pathlib import Path
 
+from boa_restrictor.common.file_detection import is_test_file
 from boa_restrictor.common.rule import PYTHON_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
 
@@ -16,32 +16,15 @@ class NoLoopsInTestsRule(Rule):
     def check(self) -> list[Occurrence]:
         occurrences = []
 
-        if not self._is_test_file(self.file_path):
+        if not is_test_file(self.file_path):
             return occurrences
 
         for node in ast.walk(self.source_tree):
-            if isinstance(node, ast.FunctionDef) and node.name.startswith("test"):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test"):
                 if self._contains_loop_or_comprehension(node):
-                    occurrences.append(
-                        Occurrence(
-                            rule_id=self.RULE_ID,
-                            rule_label=self.RULE_LABEL,
-                            filename=self.filename,
-                            file_path=self.file_path,
-                            identifier=node.name,
-                            line_number=node.lineno,
-                        )
-                    )
+                    occurrences.append(self._build_occurrence(line_number=node.lineno, identifier=node.name))
 
         return occurrences
-
-    @staticmethod
-    def _is_test_file(filepath: Path) -> bool:
-        return (
-            any(part == "tests" for part in filepath.parts)
-            and filepath.name.startswith("test_")
-            and filepath.name.endswith(".py")
-        )
 
     def _contains_loop_or_comprehension(self, node) -> bool:
         for child in ast.iter_child_nodes(node):

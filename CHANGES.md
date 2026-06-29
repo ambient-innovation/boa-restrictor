@@ -1,5 +1,14 @@
 # Changelog
 
+**1.15.0** (2026-06-29)
+* Added rule `DBR008` requiring an explicit `related_name` on `ForeignKey`/`OneToOneField`/`ManyToManyField`
+  (models that set `Meta.default_related_name` are exempt)
+* Added rule `PBR009` prohibiting local/inline imports in test files
+* Added rule `PBR010` requiring at least one assertion per test
+* Extracted the shared `django.db` import detection and layer/test file matching into reusable helpers in
+  `boa_restrictor.common`
+* Fixed `PBR008` to also detect loops in `async def` test functions
+
 **1.14.1** (2026-05-05)
 * Documented that custom rule prefixes need to be added to ruff's `[tool.ruff.lint].external` setting
 

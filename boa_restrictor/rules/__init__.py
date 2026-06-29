@@ -5,10 +5,13 @@ from boa_restrictor.rules.django.no_db_in_api import NoDjangoDbImportInApiRule
 from boa_restrictor.rules.django.no_db_in_views import NoDjangoDbImportInViewsRule
 from boa_restrictor.rules.django.prohibit_assert_raises import AssertRaisesProhibitedRule
 from boa_restrictor.rules.django.prohibit_datetime_now import ProhibitDatetimeNow
+from boa_restrictor.rules.django.related_name_required import RelatedNameRequiredRule
 from boa_restrictor.rules.python.abstract_class_inherits_from_abc import AbstractClassesInheritFromAbcRule
 from boa_restrictor.rules.python.asterisk_required import AsteriskRequiredRule
 from boa_restrictor.rules.python.dataclass_kw_only import DataclassWithKwargsOnlyRule
 from boa_restrictor.rules.python.global_import_datetime import GlobalImportDatetimeRule
+from boa_restrictor.rules.python.mandatory_test_assertion import MandatoryTestAssertionRule
+from boa_restrictor.rules.python.no_inline_imports_in_tests import NoInlineImportInTestsRule
 from boa_restrictor.rules.python.no_loops_in_tests import NoLoopsInTestsRule
 from boa_restrictor.rules.python.no_type_hints_in_variable_names import AvoidTypeHintsInVariableNamesAsSuffix
 from boa_restrictor.rules.python.return_type_hints import ReturnStatementRequiresTypeHintRule
@@ -23,6 +26,8 @@ BOA_RESTRICTOR_RULES = (
     AbstractClassesInheritFromAbcRule,
     AvoidTypeHintsInVariableNamesAsSuffix,
     NoLoopsInTestsRule,
+    NoInlineImportInTestsRule,
+    MandatoryTestAssertionRule,
 )
 
 DJANGO_BOA_RULES = (
@@ -33,6 +38,7 @@ DJANGO_BOA_RULES = (
     NoDjangoDbImportInApiRule,
     AvoidTupleBasedModelChoices,
     CharFieldMaxLengthRequiredRule,
+    RelatedNameRequiredRule,
 )
 
 
