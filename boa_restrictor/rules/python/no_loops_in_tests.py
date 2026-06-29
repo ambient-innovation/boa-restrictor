@@ -1,6 +1,7 @@
 import ast
 from pathlib import Path
 
+from boa_restrictor.common.file_detection import is_test_file
 from boa_restrictor.common.rule import PYTHON_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
 
@@ -37,11 +38,7 @@ class NoLoopsInTestsRule(Rule):
 
     @staticmethod
     def _is_test_file(filepath: Path) -> bool:
-        return (
-            any(part == "tests" for part in filepath.parts)
-            and filepath.name.startswith("test_")
-            and filepath.name.endswith(".py")
-        )
+        return is_test_file(filepath)
 
     def _contains_loop_or_comprehension(self, node) -> bool:
         for child in ast.iter_child_nodes(node):
