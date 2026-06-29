@@ -84,6 +84,88 @@ def test_inline_import_in_non_test_file_is_ok():
     assert occurrences == []
 
 
+def test_inline_type_checking_import_in_function_is_ok():
+    source_tree = ast.parse("""def test_something():
+    if TYPE_CHECKING:
+        from os import path
+    assert path""")
+
+    occurrences = NoInlineImportInTestsRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_inline_qualified_type_checking_import_in_function_is_ok():
+    source_tree = ast.parse("""def test_something():
+    if typing.TYPE_CHECKING:
+        from os import path
+    assert path""")
+
+    occurrences = NoInlineImportInTestsRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_module_level_type_checking_import_is_ok():
+    source_tree = ast.parse("""if TYPE_CHECKING:
+    from os import path
+
+
+def test_something():
+    assert path""")
+
+    occurrences = NoInlineImportInTestsRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_import_in_else_branch_of_type_checking_guard_is_detected():
+    source_tree = ast.parse("""def test_something():
+    if TYPE_CHECKING:
+        from os import path
+    else:
+        import os
+    assert os and path""")
+
+    occurrences = NoInlineImportInTestsRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=5)]
+
+
+def test_import_in_else_branch_at_module_level_is_ok():
+    source_tree = ast.parse("""if TYPE_CHECKING:
+    from os import path
+else:
+    import os
+""")
+
+    occurrences = NoInlineImportInTestsRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_inline_import_in_compound_guard_is_detected():
+    source_tree = ast.parse("""def test_something():
+    if a == b:
+        import os
+    assert os""")
+
+    occurrences = NoInlineImportInTestsRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=3)]
+
+
+def test_inline_import_in_non_type_checking_guard_is_detected():
+    source_tree = ast.parse("""def test_something():
+    if some_condition:
+        import os
+    assert os""")
+
+    occurrences = NoInlineImportInTestsRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=3)]
+
+
 def test_multiple_inline_imports_are_detected():
     source_tree = ast.parse("""def test_something():
     import os

@@ -8,10 +8,18 @@ The following are recognised as assertions:
 
 - a bare `assert ...` statement,
 - any call to an `assert*` method or function (e.g. `self.assertEqual(...)`, `self.assertRaises(...)`),
-- `pytest.raises(...)`, `pytest.warns(...)` and `pytest.deprecated_call(...)`.
+- `pytest.raises(...)`, `pytest.warns(...)` and `pytest.deprecated_call(...)`,
+- a call to `fail` (e.g. `self.fail(...)`, `pytest.fail(...)`): such a test can still fail — for example
+  on the wrong branch of a `try`/`except` — and therefore does protect against regressions.
 
 If you assert through a custom helper that the rule cannot recognise statically, silence the individual
 finding with `# noqa: PBR010`.
+
+## Known limitation
+
+The rule analyses one function at a time and does not follow calls. If a test delegates its assertions to
+a called helper method (e.g. `self._assert_state()`), the rule cannot see them and will flag the test.
+Either inline the assertion or suppress the finding with `# noqa: PBR010`.
 
 *Wrong:*
 
