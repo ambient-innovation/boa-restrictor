@@ -1,6 +1,7 @@
 import ast
 
 from boa_restrictor.common.ast_utils import node_name
+from boa_restrictor.common.file_detection import is_layer_file
 from boa_restrictor.common.rule import DJANGO_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
 
@@ -22,7 +23,7 @@ class RelatedNameRequiredRule(Rule):
         occurrences = []
 
         # Migrations are generated and out of the developer's hands, so they are exempt.
-        if "migrations" in self.file_path.parts:
+        if is_layer_file(self.file_path, layer="migrations"):
             return occurrences
 
         for node in ast.walk(self.source_tree):

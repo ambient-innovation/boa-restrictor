@@ -77,6 +77,28 @@ def test_directly_imported_assert_helper_is_ok():
     assert occurrences == []
 
 
+def test_directly_imported_pytest_raises_is_ok():
+    source_tree = ast.parse("""def test_something():
+    with raises(ValueError):
+        do_something()""")
+
+    occurrences = MandatoryTestAssertionRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_assertion_only_in_nested_helper_is_detected():
+    source_tree = ast.parse("""def test_something():
+    def _unused():
+        assert True
+
+    do_something()""")
+
+    occurrences = MandatoryTestAssertionRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=1, identifier="test_something")]
+
+
 def test_missing_assertion_is_detected():
     source_tree = ast.parse("""def test_something():
     result = do_something()

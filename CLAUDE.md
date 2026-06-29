@@ -40,7 +40,7 @@ All linting rules inherit from the base `Rule` class and follow this pattern:
 ### Testing
 ```bash
 # Run all tests
-pytest --ds settings tests
+pytest tests
 
 # Run tests with coverage
 coverage run -m pytest tests

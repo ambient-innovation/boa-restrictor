@@ -20,7 +20,7 @@ class NoLoopsInTestsRule(Rule):
             return occurrences
 
         for node in ast.walk(self.source_tree):
-            if isinstance(node, ast.FunctionDef) and node.name.startswith("test"):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test"):
                 if self._contains_loop_or_comprehension(node):
                     occurrences.append(self._build_occurrence(line_number=node.lineno, identifier=node.name))
 
