@@ -1,5 +1,11 @@
 # Changelog
 
+**1.15.1** (2026-06-29)
+* `PBR010` now recognises `self.fail()` / `pytest.fail()` as assertions; documented the helper-delegation
+  limitation
+* `PBR009` no longer flags imports guarded by `if TYPE_CHECKING:`; they are never executed at runtime and impose
+  no runtime dependency
+
 **1.15.0** (2026-06-29)
 * Added rule `DBR008` requiring an explicit `related_name` on `ForeignKey`/`OneToOneField`/`ManyToManyField`
   (models that set `Meta.default_related_name` are exempt)

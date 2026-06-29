@@ -24,3 +24,14 @@ from myapp.services import MyService
 def test_something():
     assert MyService().process() is True
 ```
+
+Imports guarded by `if TYPE_CHECKING:` are exempt. They are never executed at runtime and exist solely for
+annotations, so they impose no runtime dependency:
+
+```python
+def test_something():
+    if TYPE_CHECKING:
+        from myapp.services import MyService
+
+    ...
+```

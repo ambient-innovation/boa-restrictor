@@ -87,6 +87,77 @@ def test_directly_imported_pytest_raises_is_ok():
     assert occurrences == []
 
 
+def test_self_fail_is_ok():
+    source_tree = ast.parse("""class MyTestCase(TestCase):
+    def test_something(self):
+        self.fail("should not get here")""")
+
+    occurrences = MandatoryTestAssertionRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_self_fail_in_except_branch_is_ok():
+    source_tree = ast.parse("""class MyTestCase(TestCase):
+    def test_something(self):
+        try:
+            do_something()
+        except ValueError:
+            self.fail("should not raise")""")
+
+    occurrences = MandatoryTestAssertionRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_pytest_fail_is_ok():
+    source_tree = ast.parse("""def test_something():
+    pytest.fail("should not get here")""")
+
+    occurrences = MandatoryTestAssertionRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_directly_imported_fail_is_ok():
+    source_tree = ast.parse("""def test_something():
+    fail("should not get here")""")
+
+    occurrences = MandatoryTestAssertionRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_cls_fail_is_ok():
+    source_tree = ast.parse("""class MyTestCase(TestCase):
+    @classmethod
+    def test_something(cls):
+        cls.fail("should not get here")""")
+
+    occurrences = MandatoryTestAssertionRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_plain_call_without_assert_or_fail_is_detected():
+    source_tree = ast.parse("""def test_something():
+    service.process()""")
+
+    occurrences = MandatoryTestAssertionRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=1, identifier="test_something")]
+
+
+def test_typoed_assert_method_is_detected():
+    source_tree = ast.parse("""class MyTestCase(TestCase):
+    def test_something(self):
+        self.asser_called_once_with(1)""")
+
+    occurrences = MandatoryTestAssertionRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == [_occurrence(line_number=2, identifier="test_something")]
+
+
 def test_assertion_only_in_nested_helper_is_detected():
     source_tree = ast.parse("""def test_something():
     def _unused():
