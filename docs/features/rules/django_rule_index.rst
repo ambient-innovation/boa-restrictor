@@ -14,3 +14,4 @@ Django rules
    django/007_charfield_max_length_required.md
    django/008_avoid_django_db_imports_in_services.md
    django/009_avoid_django_db_imports_in_tasks.md
+   django/010_avoid_django_db_imports_in_forms.md
