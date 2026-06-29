@@ -14,3 +14,4 @@ Python rules
    python/007_variable_names_no_type_hinting.md
    python/008_no_loops_in_unittests.md
    python/009_no_inline_imports_in_tests.md
+   python/010_mandatory_test_assertion.md
