@@ -9,6 +9,7 @@ from boa_restrictor.rules.django.no_db_in_views import NoDjangoDbImportInViewsRu
 from boa_restrictor.rules.django.no_objects_create_in_tests import NoObjectsCreateInTestsRule
 from boa_restrictor.rules.django.prohibit_assert_raises import AssertRaisesProhibitedRule
 from boa_restrictor.rules.django.prohibit_datetime_now import ProhibitDatetimeNow
+from boa_restrictor.rules.django.related_name_required import RelatedNameRequiredRule
 from boa_restrictor.rules.python.abstract_class_inherits_from_abc import AbstractClassesInheritFromAbcRule
 from boa_restrictor.rules.python.asterisk_required import AsteriskRequiredRule
 from boa_restrictor.rules.python.dataclass_kw_only import DataclassWithKwargsOnlyRule
@@ -47,6 +48,7 @@ DJANGO_BOA_RULES = (
     NoDjangoDbImportInTasksRule,
     NoDjangoDbImportInFormsRule,
     NoObjectsCreateInTestsRule,
+    RelatedNameRequiredRule,
 )
 
 
