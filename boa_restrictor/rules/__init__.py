@@ -6,6 +6,7 @@ from boa_restrictor.rules.django.no_db_in_forms import NoDjangoDbImportInFormsRu
 from boa_restrictor.rules.django.no_db_in_services import NoDjangoDbImportInServicesRule
 from boa_restrictor.rules.django.no_db_in_tasks import NoDjangoDbImportInTasksRule
 from boa_restrictor.rules.django.no_db_in_views import NoDjangoDbImportInViewsRule
+from boa_restrictor.rules.django.no_objects_create_in_tests import NoObjectsCreateInTestsRule
 from boa_restrictor.rules.django.prohibit_assert_raises import AssertRaisesProhibitedRule
 from boa_restrictor.rules.django.prohibit_datetime_now import ProhibitDatetimeNow
 from boa_restrictor.rules.python.abstract_class_inherits_from_abc import AbstractClassesInheritFromAbcRule
@@ -41,6 +42,7 @@ DJANGO_BOA_RULES = (
     NoDjangoDbImportInServicesRule,
     NoDjangoDbImportInTasksRule,
     NoDjangoDbImportInFormsRule,
+    NoObjectsCreateInTestsRule,
 )
 
 
