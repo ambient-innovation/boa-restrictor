@@ -7,12 +7,12 @@ from boa_restrictor.projections.occurrence import Occurrence
 
 class NoObjectsCreateInTestsRule(Rule):
     """
-    Prohibits creating model instances via "<Model>.objects.create()" in test files. Use model_bakery instead,
-    so test data setup stays concise and required fields are populated automatically.
+    Prohibits creating model instances via "<Model>.objects.create()" in test files. Use a model factory
+    instead, so test data setup stays concise and required fields are populated automatically.
     """
 
     RULE_ID = f"{DJANGO_LINTING_RULE_PREFIX}011"
-    RULE_LABEL = 'Do not use "<Model>.objects.create()" in tests. Use model_bakery instead.'
+    RULE_LABEL = 'Do not use "<Model>.objects.create()" in tests. Use a model factory instead.'
 
     def check(self) -> list[Occurrence]:
         occurrences = []

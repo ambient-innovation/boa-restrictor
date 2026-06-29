@@ -1,11 +1,13 @@
 # Prohibit "<Model>.objects.create()" in tests (DBR011)
 
-This rule prohibits creating model instances via `<Model>.objects.create()` in test files. Use
-[model_bakery](https://model-bakery.readthedocs.io/) instead.
+This rule prohibits creating model instances via `<Model>.objects.create()` in test files. Use a model
+factory instead.
 
 `objects.create()` forces you to spell out every required field by hand, which makes test setup verbose and
-brittle: adding a new required field to the model breaks every test that creates it. `model_bakery` fills in
+brittle: adding a new required field to the model breaks every test that creates it. A model factory fills in
 the required fields automatically, so the test only states the values it actually cares about.
+
+The example below uses [model_bakery](https://model-bakery.readthedocs.io/), but any factory library works.
 
 *Wrong:*
 
