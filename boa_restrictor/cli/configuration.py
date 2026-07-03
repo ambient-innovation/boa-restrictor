@@ -1,6 +1,6 @@
 import fnmatch
 import re
-import tomllib  # pragma: no cover
+import tomllib
 import warnings
 from pathlib import Path
 
