@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-boa-restrictor is a custom Python and Django linter developed by Ambient Digital. It provides a collection of linting rules that enforce code quality and style guidelines specific to Python and Django projects.
+boa-restrictor is a custom Python and Django linter developed by Beyonder Deutschland. It provides a collection of linting rules that enforce code quality and style guidelines specific to Python and Django projects.
 
 ## Architecture
 
