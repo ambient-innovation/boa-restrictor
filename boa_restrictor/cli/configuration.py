@@ -1,14 +1,12 @@
 import fnmatch
 import re
-import sys
+import tomllib  # pragma: no cover
 import warnings
+from pathlib import Path
 
 from boa_restrictor.common.rule import Rule
 from boa_restrictor.exceptions.configuration import TomlParsingError
 from boa_restrictor.rules import get_rules
-
-import tomllib  # pragma: no cover
-from pathlib import Path
 
 
 def load_configuration(*, file_path: Path | str = "pyproject.toml") -> dict:
