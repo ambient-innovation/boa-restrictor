@@ -1,5 +1,6 @@
 import ast
 
+from boa_restrictor.common.ast_utils import is_test_function
 from boa_restrictor.common.file_detection import is_test_file
 from boa_restrictor.common.rule import PYTHON_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
@@ -20,7 +21,7 @@ class NoLoopsInTestsRule(Rule):
             return occurrences
 
         for node in ast.walk(self.source_tree):
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test"):
+            if is_test_function(node):
                 if self._contains_loop_or_comprehension(node):
                     occurrences.append(self._build_occurrence(line_number=node.lineno, identifier=node.name))
 

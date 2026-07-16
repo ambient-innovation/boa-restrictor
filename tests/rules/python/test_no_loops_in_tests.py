@@ -197,6 +197,17 @@ def test_unittest_loop_is_detected_from_non_test_case_class():
     )
 
 
+def test_loops_ok_in_pytest_fixture():
+    source_tree = ast.parse("""@pytest.fixture
+def test_client():
+    for i in list:
+        pass""")
+
+    occurrences = NoLoopsInTestsRule.run_check(file_path=Path("/path/to/tests/test_file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 0
+
+
 def test_loops_ok_in_non_test_dir():
     source_tree = ast.parse("""def test_something():
     while i < 0:

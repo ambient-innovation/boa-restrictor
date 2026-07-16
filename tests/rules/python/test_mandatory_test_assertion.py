@@ -207,6 +207,46 @@ def test_non_test_function_is_ignored():
     assert occurrences == []
 
 
+def test_pytest_fixture_without_assertion_is_ignored():
+    source_tree = ast.parse("""@pytest.fixture
+def test_client():
+    return Client()""")
+
+    occurrences = MandatoryTestAssertionRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_parametrized_pytest_fixture_without_assertion_is_ignored():
+    source_tree = ast.parse("""@pytest.fixture(scope="module")
+def test_client():
+    return Client()""")
+
+    occurrences = MandatoryTestAssertionRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_directly_imported_fixture_without_assertion_is_ignored():
+    source_tree = ast.parse("""@fixture
+def test_data():
+    return {}""")
+
+    occurrences = MandatoryTestAssertionRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_async_pytest_fixture_without_assertion_is_ignored():
+    source_tree = ast.parse("""@pytest.fixture
+async def test_thing():
+    return object()""")
+
+    occurrences = MandatoryTestAssertionRule.run_check(file_path=TEST_FILE_PATH, source_tree=source_tree)
+
+    assert occurrences == []
+
+
 def test_missing_assertion_in_non_test_file_is_ok():
     source_tree = ast.parse("""def test_something():
     do_something()""")
