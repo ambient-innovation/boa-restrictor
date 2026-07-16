@@ -1,5 +1,8 @@
 # Changelog
 
+**1.16.2** (2026-07-16)
+  * Fixed `PBR010` and `PBR008` incorrectly flagging `@pytest.fixture` functions named `test_*` as tests (#78)
+
 **1.16.1** (2026-07-03)
   * Updated company and maintainer information to "Beyonder Deutschland"
 

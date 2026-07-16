@@ -15,6 +15,10 @@ The following are recognised as assertions:
 If you assert through a custom helper that the rule cannot recognise statically, silence the individual
 finding with `# noqa: PBR010`.
 
+Functions decorated with `@pytest.fixture` (including parametrized forms such as
+`@pytest.fixture(scope="module")` and the directly-imported `@fixture`) are not treated as tests, even when
+their name starts with `test`, so they are never required to contain an assertion.
+
 ## Known limitation
 
 The rule analyses one function at a time and does not follow calls. If a test delegates its assertions to
