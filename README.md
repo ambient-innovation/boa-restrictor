@@ -17,7 +17,7 @@ Add the following to your .pre-commit-config.yaml file:
 
 ```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.16.2
+    rev: v1.17.0
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]
