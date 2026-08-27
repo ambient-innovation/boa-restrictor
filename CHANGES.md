@@ -1,7 +1,9 @@
 # Changelog
 
-**1.16.3** (2026-08-27)
-  * Maintenance updates via ambient-package-update
+**1.17.0** (2026-08-27)
+  * Added support for Django 6.1
+  * **Breaking change:** Dropped support for Django 4.2, whose extended support ended in April 2026
+  * Updated the linting and CI setup to the current ambient-package-update template
 
 **1.16.2** (2026-07-16)
   * Fixed `PBR010` and `PBR008` incorrectly flagging `@pytest.fixture` functions named `test_*` as tests (#78)
