@@ -5,6 +5,7 @@ from boa_restrictor.rules.django.no_db_in_api import NoDjangoDbImportInApiRule
 from boa_restrictor.rules.django.no_db_in_views import NoDjangoDbImportInViewsRule
 from boa_restrictor.rules.django.prohibit_assert_raises import AssertRaisesProhibitedRule
 from boa_restrictor.rules.django.prohibit_datetime_now import ProhibitDatetimeNow
+from boa_restrictor.rules.django.prohibit_float_field import ProhibitFloatFieldRule
 from boa_restrictor.rules.django.related_name_required import RelatedNameRequiredRule
 from boa_restrictor.rules.python.abstract_class_inherits_from_abc import AbstractClassesInheritFromAbcRule
 from boa_restrictor.rules.python.asterisk_required import AsteriskRequiredRule
@@ -39,6 +40,7 @@ DJANGO_BOA_RULES = (
     AvoidTupleBasedModelChoices,
     CharFieldMaxLengthRequiredRule,
     RelatedNameRequiredRule,
+    ProhibitFloatFieldRule,
 )
 
 
