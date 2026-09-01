@@ -204,3 +204,9 @@ def test_is_any_model_field_call_bare_name_needs_import():
 
     assert is_any_model_field_call(node) is False
     assert is_any_model_field_call(node, field_aliases={"CharField": "CharField"}) is True
+
+
+def test_is_any_model_field_call_with_non_name_callable():
+    node = _call_node("""get_field_class()()""")
+
+    assert is_any_model_field_call(node) is False
