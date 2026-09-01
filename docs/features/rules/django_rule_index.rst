@@ -13,3 +13,4 @@ Django rules
    django/006_avoid_tuple_based_model_choices.md
    django/007_charfield_max_length_required.md
    django/008_related_name_required.md
+   django/009_prohibit_float_field.md
