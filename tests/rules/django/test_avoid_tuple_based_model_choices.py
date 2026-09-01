@@ -130,3 +130,53 @@ def test_invalid_tuple_structure_not_detected():
     occurrences = AvoidTupleBasedModelChoices.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
 
     assert len(occurrences) == 0
+
+
+def test_tuple_based_choices_in_model_with_unresolvable_base_found():
+    """
+    The base class lives in another file, so it cannot be resolved. The declared model field identifies
+    the class as a model, which drops the "name must end in CHOICES" requirement.
+    """
+    source_tree = ast.parse("""class Invoice(CommonInfo):
+    STATUS = (("a", "Active"), ("i", "Inactive"))
+    reference = models.CharField(max_length=10)""")
+
+    occurrences = AvoidTupleBasedModelChoices.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0].line_number == 2  # noqa: PLR2004
+
+
+def test_tuple_based_choices_with_aliased_models_module_found():
+    source_tree = ast.parse("""from django.db import models as db_models
+
+
+class Invoice(CommonInfo):
+    STATUS = (("a", "Active"), ("i", "Inactive"))
+    reference = db_models.CharField(max_length=10)""")
+
+    occurrences = AvoidTupleBasedModelChoices.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0].line_number == 5  # noqa: PLR2004
+
+
+def test_tuple_in_plain_class_without_choices_name_not_detected():
+    """A class declaring no model fields is not a model, so an ordinary tuple of pairs stays untouched."""
+    source_tree = ast.parse("""class Config:
+    STATUS = (("a", "Active"), ("i", "Inactive"))""")
+
+    occurrences = AvoidTupleBasedModelChoices.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_tuple_in_serializer_without_choices_name_not_detected():
+    """Serializer fields are not model fields, so the class does not read as a model."""
+    source_tree = ast.parse("""class MySerializer(serializers.Serializer):
+    STATUS = (("a", "Active"), ("i", "Inactive"))
+    name = serializers.CharField()""")
+
+    occurrences = AvoidTupleBasedModelChoices.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert occurrences == []

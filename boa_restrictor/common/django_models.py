@@ -17,6 +17,11 @@ MODELS_MODULE_NAME = "models"
 OUTPUT_FIELD_KEYWORD = "output_field"
 GENERATED_FIELD = "GeneratedField"
 
+MODEL_CLASS_NAME = "Model"
+# Every Django model field class ends in "Field", which is what identifies a class as a model when its
+# base cannot be resolved.
+MODEL_FIELD_SUFFIX = "Field"
+
 
 def find_model_field_aliases(source_tree: ast.AST) -> dict[str, str]:
     """
@@ -101,3 +106,50 @@ def is_model_field_call(
         return (field_aliases or {}).get(node.func.id) in field_names
 
     return False
+
+
+def is_any_model_field_call(
+    node: ast.Call,
+    *,
+    field_aliases: dict[str, str] | None = None,
+    module_aliases: frozenset[str] = MODEL_FIELD_QUALIFIERS,
+) -> bool:
+    """
+    Returns whether the given call instantiates any Django model field, without naming it up front.
+    Recognition works off the "Field" suffix that every model field class carries.
+    """
+    if isinstance(node.func, ast.Attribute):
+        return node.func.attr.endswith(MODEL_FIELD_SUFFIX) and node_name(node.func.value) in module_aliases
+
+    if isinstance(node.func, ast.Name):
+        field_name = (field_aliases or {}).get(node.func.id)
+        return bool(field_name) and field_name.endswith(MODEL_FIELD_SUFFIX)
+
+    return False
+
+
+def is_django_model_class(
+    class_node: ast.ClassDef,
+    *,
+    field_aliases: dict[str, str] | None = None,
+    module_aliases: frozenset[str] = MODEL_FIELD_QUALIFIERS,
+) -> bool:
+    """
+    Returns whether the given class is a Django model.
+
+    A base spelled "models.Model" or "Model" settles it. Otherwise a declared model field does: a base
+    inherited from a project class in another file cannot be resolved one file at a time, but a class
+    holding a "models.CharField(...)" is a model whatever it inherits from.
+    """
+    for base in class_node.bases:
+        if node_name(base) != MODEL_CLASS_NAME:
+            continue
+        if isinstance(base, ast.Name) or node_name(base.value) in module_aliases:
+            return True
+
+    return any(
+        is_any_model_field_call(node, field_aliases=field_aliases, module_aliases=module_aliases)
+        for statement in class_node.body
+        for node in ast.walk(statement)
+        if isinstance(node, ast.Call)
+    )

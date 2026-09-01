@@ -58,3 +58,14 @@ class Task(models.Model):
 - **Type safety**: IDEs can provide autocompletion and type checking
 - **Extensibility**: Easy to add methods to choice classes for additional functionality
 - **Consistency**: Follows Django's modern best practices (Django 3.0+)
+
+## Scope
+
+Inside a model, every tuple-of-pairs assignment is reported. Elsewhere only one whose name ends in
+`CHOICES` is, because a tuple of pairs is an ordinary data structure outside that context.
+
+A class counts as a model when a base is spelled `models.Model` (or `Model`, or an aliased models module),
+or when it declares at least one Django model field. The second signal is what covers a model inheriting
+from a project base class defined in another file, since the linter sees one file at a time. A model
+declaring no fields at all cannot be identified this way; name the tuple `*_CHOICES` there, or use
+`# noqa: DBR006`.

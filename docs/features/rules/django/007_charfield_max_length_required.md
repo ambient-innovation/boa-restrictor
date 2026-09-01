@@ -38,3 +38,18 @@ class MyModel(models.Model):
 - `TextField` renders as `<textarea>` — a multi-line field
 - A `CharField` without `max_length` gives users an `<input>` that accepts unlimited text, which is confusing
 - If the field truly has no length constraint, `TextField` is the appropriate choice
+
+## Scope
+
+A field is recognised from the call expression, so a model inheriting from a project base class defined in
+another file is covered. Recognised spellings: `models.CharField(...)`, `django.db.models.CharField(...)`,
+an aliased models module (`from django.db import models as db_models`) and a bare `CharField(...)` imported
+from `django.db.models`.
+
+Left alone:
+
+- Serializer and form fields (`serializers.CharField`, `forms.CharField`), and any bare `CharField(...)`
+  that was not imported from `django.db.models`
+- The `output_field` of an annotation, aggregate, `Cast` or `ExpressionWrapper` — it types a query
+  expression rather than a column, where `max_length` has no meaning
+- A call whose keyword arguments include a `**kwargs` spread, which may carry `max_length`

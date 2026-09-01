@@ -5,6 +5,8 @@ from boa_restrictor.common.django_models import (
     find_declared_field_calls,
     find_model_field_aliases,
     find_model_module_aliases,
+    is_any_model_field_call,
+    is_django_model_class,
     is_model_field_call,
 )
 
@@ -146,3 +148,59 @@ def test_find_declared_field_calls_yields_generated_field_output_field():
     calls = list(find_declared_field_calls(source_tree))
 
     assert sorted(node_name(call.func) for call in calls) == ["FloatField", "GeneratedField"]
+
+
+def test_is_django_model_class_direct_base():
+    class_node = ast.parse("""class M(models.Model):
+    pass""").body[0]
+
+    assert is_django_model_class(class_node) is True
+
+
+def test_is_django_model_class_bare_model_base():
+    class_node = ast.parse("""class M(Model):
+    pass""").body[0]
+
+    assert is_django_model_class(class_node) is True
+
+
+def test_is_django_model_class_aliased_module_base():
+    class_node = ast.parse("""class M(db_models.Model):
+    pass""").body[0]
+
+    assert is_django_model_class(class_node) is False
+    assert is_django_model_class(class_node, module_aliases=frozenset({"models", "db_models"})) is True
+
+
+def test_is_django_model_class_recognised_by_declared_fields():
+    class_node = ast.parse("""class Invoice(CommonInfo):
+    reference = models.CharField(max_length=10)""").body[0]
+
+    assert is_django_model_class(class_node) is True
+
+
+def test_is_django_model_class_without_bases_or_fields():
+    class_node = ast.parse("""class Config:
+    STATUS = (("a", "A"),)""").body[0]
+
+    assert is_django_model_class(class_node) is False
+
+
+def test_is_django_model_class_ignores_serializer_fields():
+    class_node = ast.parse("""class S(serializers.Serializer):
+    name = serializers.CharField()""").body[0]
+
+    assert is_django_model_class(class_node) is False
+
+
+def test_is_any_model_field_call_matches_any_field_suffix():
+    assert is_any_model_field_call(_call_node("""models.DecimalField(max_digits=5)""")) is True
+    assert is_any_model_field_call(_call_node("""models.Manager()""")) is False
+    assert is_any_model_field_call(_call_node("""serializers.CharField()""")) is False
+
+
+def test_is_any_model_field_call_bare_name_needs_import():
+    node = _call_node("""CharField()""")
+
+    assert is_any_model_field_call(node) is False
+    assert is_any_model_field_call(node, field_aliases={"CharField": "CharField"}) is True
