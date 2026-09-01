@@ -160,3 +160,89 @@ def test_no_float_field_ok():
     occurrences = ProhibitFloatFieldRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
 
     assert occurrences == []
+
+
+def test_annotation_output_field_ok():
+    """The "output_field" of an annotation types a query expression, not a column."""
+    source_tree = ast.parse("""queryset = queryset.annotate(average=Avg("price", output_field=models.FloatField()))""")
+
+    occurrences = ProhibitFloatFieldRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_expression_wrapper_output_field_ok():
+    source_tree = ast.parse("""ratio = ExpressionWrapper(F("wins") / F("games"), output_field=models.FloatField())""")
+
+    occurrences = ProhibitFloatFieldRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_cast_output_field_ok():
+    source_tree = ast.parse("""amount = Cast("amount", output_field=models.FloatField())""")
+
+    occurrences = ProhibitFloatFieldRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_output_field_class_attribute_ok():
+    """A custom aggregate or database function declares its return type, not a column."""
+    source_tree = ast.parse("""class Variance(Aggregate):
+    output_field = models.FloatField()""")
+
+    occurrences = ProhibitFloatFieldRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_generated_field_output_field_found():
+    """A "GeneratedField" persists a real column, so its "output_field" does decide a column type."""
+    source_tree = ast.parse("""class MyModel(models.Model):
+    total = models.GeneratedField(
+        expression=F("net") * F("rate"), output_field=models.FloatField(), db_persist=True
+    )""")
+
+    occurrences = ProhibitFloatFieldRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    # The occurrence lands on the line holding "models.FloatField(", which is where a noqa must sit.
+    assert occurrences[0].line_number == 3  # noqa: PLR2004
+
+
+def test_aliased_models_module_found():
+    source_tree = ast.parse("""from django.db import models as db_models
+
+
+class MyModel(db_models.Model):
+    amount = db_models.FloatField()""")
+
+    occurrences = ProhibitFloatFieldRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0].line_number == 5  # noqa: PLR2004
+
+
+def test_aliased_models_module_import_found():
+    source_tree = ast.parse("""import django.db.models as m
+
+
+class MyModel(m.Model):
+    amount = m.FloatField()""")
+
+    occurrences = ProhibitFloatFieldRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0].line_number == 5  # noqa: PLR2004
+
+
+def test_float_field_returned_from_method_ok():
+    """A field instance handed back by a factory is not a declaration."""
+    source_tree = ast.parse("""class FieldFactory:
+    def build(self):
+        return models.FloatField()""")
+
+    occurrences = ProhibitFloatFieldRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert occurrences == []

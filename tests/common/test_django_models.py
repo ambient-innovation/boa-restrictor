@@ -1,6 +1,12 @@
 import ast
 
-from boa_restrictor.common.django_models import find_model_field_aliases, is_model_field_call
+from boa_restrictor.common.ast_utils import node_name
+from boa_restrictor.common.django_models import (
+    find_declared_field_calls,
+    find_model_field_aliases,
+    find_model_module_aliases,
+    is_model_field_call,
+)
 
 FIELD_NAMES = frozenset({"FloatField", "CharField"})
 
@@ -74,3 +80,69 @@ def test_non_name_callable_is_not_model_field():
     node = _call_node("""get_field_class()()""")
 
     assert is_model_field_call(node, field_names=FIELD_NAMES) is False
+
+
+def test_find_model_module_aliases_defaults_to_models():
+    source_tree = ast.parse("""from django.db import models""")
+
+    assert find_model_module_aliases(source_tree) == frozenset({"models"})
+
+
+def test_find_model_module_aliases_honours_from_import_asname():
+    source_tree = ast.parse("""from django.db import models as db_models""")
+
+    assert find_model_module_aliases(source_tree) == frozenset({"models", "db_models"})
+
+
+def test_find_model_module_aliases_honours_import_asname():
+    source_tree = ast.parse("""import django.db.models as m""")
+
+    assert find_model_module_aliases(source_tree) == frozenset({"models", "m"})
+
+
+def test_find_model_module_aliases_ignores_unrelated_modules():
+    source_tree = ast.parse("""from rest_framework import serializers as models_like""")
+
+    assert find_model_module_aliases(source_tree) == frozenset({"models"})
+
+
+def test_aliased_module_qualifier_is_model_field():
+    node = _call_node("""db_models.FloatField()""")
+
+    assert is_model_field_call(node, field_names=FIELD_NAMES) is False
+    assert is_model_field_call(node, field_names=FIELD_NAMES, module_aliases=frozenset({"models", "db_models"})) is True
+
+
+def test_find_declared_field_calls_yields_assigned_calls():
+    source_tree = ast.parse("""class MyModel(models.Model):
+    amount = models.FloatField()
+    name: models.CharField = models.CharField(max_length=10)""")
+
+    calls = list(find_declared_field_calls(source_tree))
+
+    assert [node_name(call.func) for call in calls] == ["FloatField", "CharField"]
+
+
+def test_find_declared_field_calls_skips_output_field_attribute():
+    source_tree = ast.parse("""class Variance(Aggregate):
+    output_field = models.FloatField()""")
+
+    assert list(find_declared_field_calls(source_tree)) == []
+
+
+def test_find_declared_field_calls_skips_nested_keyword_calls():
+    source_tree = ast.parse("""average = Avg("price", output_field=models.FloatField())""")
+
+    calls = list(find_declared_field_calls(source_tree))
+
+    assert [node_name(call.func) for call in calls] == ["Avg"]
+
+
+def test_find_declared_field_calls_yields_generated_field_output_field():
+    source_tree = ast.parse(
+        """total = models.GeneratedField(expression=F("a"), output_field=models.FloatField(), db_persist=True)"""
+    )
+
+    calls = list(find_declared_field_calls(source_tree))
+
+    assert sorted(node_name(call.func) for call in calls) == ["FloatField", "GeneratedField"]

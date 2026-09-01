@@ -65,8 +65,44 @@ class Measurement(models.Model):
 
 ## Scope
 
-The rule looks at model fields only, recognising `models.FloatField(...)`,
-`django.db.models.FloatField(...)` and a bare `FloatField(...)` imported from `django.db.models`.
-Serializer and form fields (`serializers.FloatField`, `forms.FloatField`) are left alone: emitting a
-`float` over a `DecimalField` column is the normal JSON boundary. Plain `float` type annotations are out of
-scope for the same reason.
+The rule reports declarations of actual database columns. It recognises `models.FloatField(...)`,
+`django.db.models.FloatField(...)`, an aliased models module (`from django.db import models as db_models`)
+and a bare `FloatField(...)` imported from `django.db.models`.
+
+Left alone:
+
+- Serializer and form fields (`serializers.FloatField`, `forms.FloatField`) — emitting a `float` over a
+  `DecimalField` column is the normal JSON boundary
+- The `output_field` of an annotation, aggregate, `Cast` or `ExpressionWrapper`, and the `output_field`
+  class attribute of a custom aggregate or database function — these type a query expression, not a column,
+  and `DecimalField` is not a substitute there
+- Plain `float` type annotations, which carry no persistence semantics
+
+The one `output_field` that *is* reported belongs to `models.GeneratedField`: it decides the type of a real
+generated column.
+
+```python
+from django.db import models
+from django.db.models import Avg
+from django.db.models.functions import Cast
+
+
+class Report(models.Model):
+    # Reported: this creates a float column
+    score = models.FloatField()
+
+    # Reported: a generated column is still a column
+    weighted = models.GeneratedField(
+        expression=models.F("score") * 2,
+        output_field=models.FloatField(),
+        db_persist=True,
+    )
+
+
+def averages(queryset):
+    # Not reported: output_field types the annotation, no column involved
+    return queryset.annotate(
+        average=Avg("score", output_field=models.FloatField()),
+        as_float=Cast("score", output_field=models.FloatField()),
+    )
+```

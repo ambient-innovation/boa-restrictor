@@ -1,11 +1,15 @@
-import ast
-
-from boa_restrictor.common.django_models import find_model_field_aliases, is_model_field_call
+from boa_restrictor.common.django_models import (
+    find_declared_field_calls,
+    find_model_field_aliases,
+    find_model_module_aliases,
+    is_model_field_call,
+)
 from boa_restrictor.common.file_detection import is_layer_file
 from boa_restrictor.common.rule import DJANGO_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
 
 FLOAT_FIELD = "FloatField"
+FLOAT_FIELDS = frozenset({FLOAT_FIELD})
 
 
 class ProhibitFloatFieldRule(Rule):
@@ -19,7 +23,9 @@ class ProhibitFloatFieldRule(Rule):
     and belongs behind a "# noqa: DBR009". Making that float a deliberate choice instead of a default is
     the point of the rule.
 
-    Migrations are exempt: they are generated and out of the developer's hands.
+    Only declarations of actual columns count. A "FloatField" typing a query expression -- the
+    "output_field" of an annotation, aggregate or "Cast" -- creates no column and is left alone.
+    Migrations are exempt as well: they are generated and out of the developer's hands.
     """
 
     RULE_ID = f"{DJANGO_LINTING_RULE_PREFIX}009"
@@ -30,10 +36,14 @@ class ProhibitFloatFieldRule(Rule):
             return []
 
         field_aliases = find_model_field_aliases(self.source_tree)
+        module_aliases = find_model_module_aliases(self.source_tree)
 
-        return [
+        occurrences = [
             self._build_occurrence(line_number=node.lineno, identifier=FLOAT_FIELD)
-            for node in ast.walk(self.source_tree)
-            if isinstance(node, ast.Call)
-            and is_model_field_call(node, field_names=frozenset({FLOAT_FIELD}), field_aliases=field_aliases)
+            for node in find_declared_field_calls(self.source_tree)
+            if is_model_field_call(
+                node, field_names=FLOAT_FIELDS, field_aliases=field_aliases, module_aliases=module_aliases
+            )
         ]
+
+        return sorted(occurrences, key=lambda occurrence: occurrence.line_number)
