@@ -33,13 +33,17 @@ class CharFieldMaxLengthRequiredRule(Rule):
         """
         Check if the Call node has a max_length keyword with a non-None value.
         """
+        has_spread = False
+
         for keyword in node.keywords:
-            # A "**kwargs" spread (arg is None) could carry max_length; don't flag what we can't see.
-            if keyword.arg is None:
-                return True
             if keyword.arg == MAX_LENGTH_KEYWORD:
                 return not (isinstance(keyword.value, ast.Constant) and keyword.value.value is None)
-        return False
+            # A "**kwargs" spread carries no argument name of its own.
+            if keyword.arg is None:
+                has_spread = True
+
+        # A spread could carry max_length; don't flag what we can't see.
+        return has_spread
 
     def check(self) -> list[Occurrence]:
         field_aliases = find_model_field_aliases(self.source_tree)

@@ -3,6 +3,7 @@
 **1.18.0** (2026-09-01)
   * Added `DBR009`, prohibiting `FloatField` on Django models in favour of `DecimalField` (#81)
   * Fixed `DBR006` and `DBR007` missing models that inherit from a base class defined in another file, and `DBR007` flagging a `CharField` that was never imported from `django.db.models` (#83)
+  * `DBR006` now skips migrations, since they are generated and out of the developer's hands (#83)
 
 **1.17.0** (2026-08-27)
   * Added support for Django 6.1

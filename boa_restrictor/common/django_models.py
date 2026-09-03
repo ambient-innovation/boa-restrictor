@@ -18,9 +18,17 @@ OUTPUT_FIELD_KEYWORD = "output_field"
 GENERATED_FIELD = "GeneratedField"
 
 MODEL_CLASS_NAME = "Model"
-# Every Django model field class ends in "Field", which is what identifies a class as a model when its
-# base cannot be resolved.
+# Every Django model field class ends in "Field", bar the relation fields spelled without that suffix.
+# Together they identify a class as a model when its base cannot be resolved.
 MODEL_FIELD_SUFFIX = "Field"
+SUFFIXLESS_MODEL_FIELDS = frozenset({"ForeignKey", "ForeignObject"})
+
+
+def _is_model_field_name(name: str) -> bool:
+    """
+    Returns whether the given class name is that of a Django model field.
+    """
+    return name.endswith(MODEL_FIELD_SUFFIX) or name in SUFFIXLESS_MODEL_FIELDS
 
 
 def find_model_field_aliases(source_tree: ast.AST) -> dict[str, str]:
@@ -116,14 +124,15 @@ def is_any_model_field_call(
 ) -> bool:
     """
     Returns whether the given call instantiates any Django model field, without naming it up front.
-    Recognition works off the "Field" suffix that every model field class carries.
+    Recognition works off the "Field" suffix that model field classes carry, plus the relation fields
+    spelled without it.
     """
     if isinstance(node.func, ast.Attribute):
-        return node.func.attr.endswith(MODEL_FIELD_SUFFIX) and node_name(node.func.value) in module_aliases
+        return _is_model_field_name(node.func.attr) and node_name(node.func.value) in module_aliases
 
     if isinstance(node.func, ast.Name):
         field_name = (field_aliases or {}).get(node.func.id)
-        return bool(field_name) and field_name.endswith(MODEL_FIELD_SUFFIX)
+        return bool(field_name) and _is_model_field_name(field_name)
 
     return False
 
@@ -139,7 +148,10 @@ def is_django_model_class(
 
     A base spelled "models.Model" or "Model" settles it. Otherwise a declared model field does: a base
     inherited from a project class in another file cannot be resolved one file at a time, but a class
-    holding a "models.CharField(...)" is a model whatever it inherits from.
+    assigning a "models.CharField(...)" in its body is a model whatever it inherits from.
+
+    Only such a direct assignment counts. A field call further down -- inside a method, a nested class or
+    an element of a list literal -- declares no column on this class and says nothing about what it is.
     """
     for base in class_node.bases:
         if node_name(base) != MODEL_CLASS_NAME:
@@ -148,8 +160,8 @@ def is_django_model_class(
             return True
 
     return any(
-        is_any_model_field_call(node, field_aliases=field_aliases, module_aliases=module_aliases)
+        isinstance(statement.value, ast.Call)
+        and is_any_model_field_call(statement.value, field_aliases=field_aliases, module_aliases=module_aliases)
         for statement in class_node.body
-        for node in ast.walk(statement)
-        if isinstance(node, ast.Call)
+        if isinstance(statement, (ast.Assign, ast.AnnAssign))
     )

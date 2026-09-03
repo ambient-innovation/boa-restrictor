@@ -180,3 +180,48 @@ def test_tuple_in_serializer_without_choices_name_not_detected():
     occurrences = AvoidTupleBasedModelChoices.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
 
     assert occurrences == []
+
+
+def test_migration_file_is_ignored():
+    source_tree = ast.parse("""class Migration(migrations.Migration):
+    dependencies = (
+        ('app', '0001_initial'),
+        ('other', '0002_x'),
+    )
+    operations = [migrations.AddField(field=models.CharField(max_length=10))]""")
+
+    occurrences = AvoidTupleBasedModelChoices.run_check(
+        file_path=Path("/path/to/app/migrations/0002_auto.py"), source_tree=source_tree
+    )
+
+    assert occurrences == []
+
+
+def test_tuple_in_non_model_class_with_field_call_in_method_ok():
+    """A field call inside a method declares no column, so the class is no model."""
+    source_tree = ast.parse("""class FieldFactory:
+    DEFAULTS = (
+        ('a', 'A'),
+        ('b', 'B'),
+    )
+
+    def build(self):
+        return models.CharField(max_length=10)""")
+
+    occurrences = AvoidTupleBasedModelChoices.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_tuple_based_choices_in_model_with_only_relation_fields_found():
+    source_tree = ast.parse("""class Membership(CommonInfo):
+    STATUS = (
+        ('a', 'A'),
+        ('b', 'B'),
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)""")
+
+    occurrences = AvoidTupleBasedModelChoices.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0].line_number == 2  # noqa: PLR2004
