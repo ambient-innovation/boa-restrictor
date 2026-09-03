@@ -41,7 +41,7 @@ class MyModel(models.Model):
     assert occurrences[0] == Occurrence(
         filename="file.py",
         file_path=Path("/path/to/file.py"),
-        line_number=2,
+        line_number=1,
         rule_id=AvoidTupleBasedModelChoices.RULE_ID,
         rule_label=AvoidTupleBasedModelChoices.RULE_LABEL,
         identifier=None,
@@ -225,3 +225,44 @@ def test_tuple_based_choices_in_model_with_only_relation_fields_found():
 
     assert len(occurrences) == 1
     assert occurrences[0].line_number == 2  # noqa: PLR2004
+
+
+def test_tuple_in_query_expression_class_ok():
+    """An "output_field" types a query expression, so a "Func" subclass is no model."""
+    source_tree = ast.parse("""class ConcatName(models.Func):
+    output_field = models.CharField()
+    LOOKUP = (
+        ('a', 1),
+        ('b', 2),
+    )""")
+
+    occurrences = AvoidTupleBasedModelChoices.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_line_number_anchors_on_the_assignment_inside_a_model():
+    """Both passes anchor on the assignment, so a "# noqa: DBR006" always belongs on that line."""
+    source_tree = ast.parse("""class Invoice(CommonInfo):
+    reference = models.CharField(max_length=1)
+    STATUS_CHOICES = (
+        ('a', 'A'),
+        ('b', 'B'),
+    )""")
+
+    occurrences = AvoidTupleBasedModelChoices.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0].line_number == 3  # noqa: PLR2004
+
+
+def test_line_number_anchors_on_the_assignment_outside_a_model():
+    source_tree = ast.parse("""STATUS_CHOICES = (
+    ('a', 'A'),
+    ('b', 'B'),
+)""")
+
+    occurrences = AvoidTupleBasedModelChoices.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0].line_number == 1

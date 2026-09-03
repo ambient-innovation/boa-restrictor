@@ -277,3 +277,51 @@ def test_charfield_with_valid_max_length_after_kwargs_spread_ok():
     occurrences = CharFieldMaxLengthRequiredRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
 
     assert occurrences == []
+
+
+def test_migration_file_is_ignored():
+    source_tree = ast.parse("""field = models.CharField()""")
+
+    occurrences = CharFieldMaxLengthRequiredRule.run_check(
+        file_path=Path("/path/to/app/migrations/0002_auto.py"), source_tree=source_tree
+    )
+
+    assert occurrences == []
+
+
+def test_charfield_bound_to_a_module_level_name_found():
+    """
+    Documents accepted scope: recognition works off the call expression, so a "CharField" bound to a name
+    counts wherever it sits. Only an "output_field" target is exempt, not a name later passed as one.
+    """
+    source_tree = ast.parse("""CHAR = models.CharField()
+
+queryset = queryset.annotate(name=Cast("name", output_field=CHAR))""")
+
+    occurrences = CharFieldMaxLengthRequiredRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0].line_number == 1
+
+
+def test_charfield_bound_to_a_local_name_found():
+    """Documents accepted scope: a local binding is reported the same way a class attribute is."""
+    source_tree = ast.parse("""def build_field():
+    field = models.CharField()
+    return field""")
+
+    occurrences = CharFieldMaxLengthRequiredRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0].line_number == 2  # noqa: PLR2004
+
+
+def test_charfield_with_positional_max_length_found():
+    """Documents accepted scope: only a keyword "max_length" is recognised."""
+    source_tree = ast.parse("""class MyModel(models.Model):
+    name = models.CharField("Name", None, False, 100)""")
+
+    occurrences = CharFieldMaxLengthRequiredRule.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0].line_number == 2  # noqa: PLR2004

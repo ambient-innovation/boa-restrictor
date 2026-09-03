@@ -67,22 +67,37 @@ def find_model_module_aliases(source_tree: ast.AST) -> frozenset[str]:
     return frozenset(aliases)
 
 
+def find_bound_field_call(statement: ast.stmt) -> ast.Call | None:
+    """
+    Returns the call the given statement binds to a name ("amount = models.FloatField()"), or None when it
+    binds none.
+
+    An assignment to "output_field" binds none: it types a query expression rather than a column. The
+    common shapes are the "output_field" of an annotation, aggregate, "Cast" or "ExpressionWrapper", and
+    the "output_field" class attribute of a custom aggregate or database function.
+    """
+    if not isinstance(statement, (ast.Assign, ast.AnnAssign)):
+        return None
+
+    targets = statement.targets if isinstance(statement, ast.Assign) else [statement.target]
+    if any(node_name(target) == OUTPUT_FIELD_KEYWORD for target in targets):
+        return None
+
+    return statement.value if isinstance(statement.value, ast.Call) else None
+
+
 def find_declared_field_calls(source_tree: ast.AST) -> Iterator[ast.Call]:
     """
     Yields every call that declares a database column: one bound to a name ("amount = models.FloatField()")
     and the "output_field" of a "GeneratedField", which types a generated column.
 
-    A field call reached any other way describes the type of a query expression, not a column. The common
-    shapes are the "output_field" of an annotation, aggregate, "Cast" or "ExpressionWrapper", and the
-    "output_field" class attribute of a custom aggregate or database function.
+    A field call reached any other way describes the type of a query expression, not a column.
     """
     for node in ast.walk(source_tree):
         if isinstance(node, (ast.Assign, ast.AnnAssign)):
-            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
-            if any(node_name(target) == OUTPUT_FIELD_KEYWORD for target in targets):
-                continue
-            if isinstance(node.value, ast.Call):
-                yield node.value
+            bound_call = find_bound_field_call(node)
+            if bound_call is not None:
+                yield bound_call
         elif isinstance(node, ast.Call) and node_name(node.func) == GENERATED_FIELD:
             for keyword in node.keywords:
                 if keyword.arg == OUTPUT_FIELD_KEYWORD and isinstance(keyword.value, ast.Call):
@@ -151,7 +166,8 @@ def is_django_model_class(
     assigning a "models.CharField(...)" in its body is a model whatever it inherits from.
 
     Only such a direct assignment counts. A field call further down -- inside a method, a nested class or
-    an element of a list literal -- declares no column on this class and says nothing about what it is.
+    an element of a list literal -- declares no column on this class and says nothing about what it is, and
+    neither does an "output_field", which types a query expression.
     """
     for base in class_node.bases:
         if node_name(base) != MODEL_CLASS_NAME:
@@ -159,9 +175,10 @@ def is_django_model_class(
         if isinstance(base, ast.Name) or node_name(base.value) in module_aliases:
             return True
 
+    bound_calls = (find_bound_field_call(statement) for statement in class_node.body)
+
     return any(
-        isinstance(statement.value, ast.Call)
-        and is_any_model_field_call(statement.value, field_aliases=field_aliases, module_aliases=module_aliases)
-        for statement in class_node.body
-        if isinstance(statement, (ast.Assign, ast.AnnAssign))
+        bound_call is not None
+        and is_any_model_field_call(bound_call, field_aliases=field_aliases, module_aliases=module_aliases)
+        for bound_call in bound_calls
     )

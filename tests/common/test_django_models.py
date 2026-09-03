@@ -2,6 +2,7 @@ import ast
 
 from boa_restrictor.common.ast_utils import node_name
 from boa_restrictor.common.django_models import (
+    find_bound_field_call,
     find_declared_field_calls,
     find_model_field_aliases,
     find_model_module_aliases,
@@ -265,3 +266,41 @@ def test_is_any_model_field_call_suffixless_relation_field_as_bare_name():
 
     assert is_any_model_field_call(node) is False
     assert is_any_model_field_call(node, field_aliases={"ForeignKey": "ForeignKey"}) is True
+
+
+def test_is_django_model_class_ignores_output_field_declaration():
+    """An "output_field" types a query expression, so it makes its class no model."""
+    class_node = ast.parse("""class ConcatName(models.Func):
+    output_field = models.CharField()""").body[0]
+
+    assert is_django_model_class(class_node) is False
+
+
+def test_find_bound_field_call_returns_assigned_call():
+    statement = ast.parse("""amount = models.FloatField()""").body[0]
+
+    assert find_bound_field_call(statement) is statement.value
+
+
+def test_find_bound_field_call_returns_annotated_assigned_call():
+    statement = ast.parse("""amount: FloatField = models.FloatField()""").body[0]
+
+    assert find_bound_field_call(statement) is statement.value
+
+
+def test_find_bound_field_call_without_output_field_target():
+    statement = ast.parse("""output_field = models.CharField()""").body[0]
+
+    assert find_bound_field_call(statement) is None
+
+
+def test_find_bound_field_call_without_call_value():
+    statement = ast.parse("""STATUS = (("a", "A"),)""").body[0]
+
+    assert find_bound_field_call(statement) is None
+
+
+def test_find_bound_field_call_with_non_assignment():
+    statement = ast.parse("""models.CharField()""").body[0]
+
+    assert find_bound_field_call(statement) is None

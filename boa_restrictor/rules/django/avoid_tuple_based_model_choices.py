@@ -20,6 +20,9 @@ class AvoidTupleBasedModelChoices(Rule):
     when it declares model fields, so a base class defined in another file does not hide it.
 
     Migrations are exempt: they are generated and out of the developer's hands.
+
+    A violation is always reported on the line the assignment starts on, so a "# noqa: DBR006" belongs
+    there whether or not the class could be identified as a model.
     """
 
     # Constant for tuple-based choice validation
@@ -89,8 +92,6 @@ class AvoidTupleBasedModelChoices(Rule):
                 if self._is_tuple_based_choices(node.value):
                     for target in node.targets:
                         if isinstance(target, ast.Name) and self._is_choices_variable_name(target.id):
-                            # Report the line number of the first tuple element for better user experience
-                            line_number = node.value.elts[0].lineno if node.value.elts else node.lineno
-                            occurrences.append(self._create_occurrence(line_number))
+                            occurrences.append(self._create_occurrence(node.lineno))
 
         return occurrences

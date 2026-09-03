@@ -6,6 +6,7 @@ from boa_restrictor.common.django_models import (
     find_model_module_aliases,
     is_model_field_call,
 )
+from boa_restrictor.common.file_detection import is_layer_file
 from boa_restrictor.common.rule import DJANGO_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
 
@@ -23,6 +24,8 @@ class CharFieldMaxLengthRequiredRule(Rule):
     a "CharField(...)" imported from "django.db.models" -- so a model inheriting from a base class defined
     in another file is covered too. Only declarations count: a "CharField" typing a query expression
     creates no column.
+
+    Migrations are exempt: they are generated and out of the developer's hands.
     """
 
     RULE_ID = f"{DJANGO_LINTING_RULE_PREFIX}007"
@@ -46,6 +49,9 @@ class CharFieldMaxLengthRequiredRule(Rule):
         return has_spread
 
     def check(self) -> list[Occurrence]:
+        if is_layer_file(self.file_path, layer="migrations"):
+            return []
+
         field_aliases = find_model_field_aliases(self.source_tree)
         module_aliases = find_model_module_aliases(self.source_tree)
 

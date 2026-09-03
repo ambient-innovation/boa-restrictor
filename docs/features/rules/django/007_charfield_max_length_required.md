@@ -52,4 +52,10 @@ Left alone:
   that was not imported from `django.db.models`
 - The `output_field` of an annotation, aggregate, `Cast` or `ExpressionWrapper` — it types a query
   expression rather than a column, where `max_length` has no meaning
-- A call whose keyword arguments include a `**kwargs` spread, which may carry `max_length`
+- A call whose keyword arguments include a `**kwargs` spread and no explicit `max_length`, since the
+  spread may carry one
+- Migrations, since they are generated and out of the developer's hands
+
+A `CharField` bound to a name is a declaration wherever it sits, so a module-level or local binding is
+reported like a class attribute. Only an `output_field` target is exempt, not a name that is passed as one
+later on.

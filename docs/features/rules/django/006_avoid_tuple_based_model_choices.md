@@ -71,3 +71,6 @@ model declaring no fields at all cannot be identified this way; name the tuple `
 `# noqa: DBR006`.
 
 Migrations are exempt, since they are generated and out of the developer's hands.
+
+A violation is reported on the line the assignment starts on, so a `# noqa: DBR006` belongs there whether
+or not the surrounding class could be identified as a model.
