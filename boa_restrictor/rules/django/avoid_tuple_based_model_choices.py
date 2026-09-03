@@ -1,5 +1,12 @@
 import ast
 
+from boa_restrictor.common.ast_utils import index_classes_by_name
+from boa_restrictor.common.django_models import (
+    find_model_field_aliases,
+    find_model_module_aliases,
+    is_django_model_class,
+)
+from boa_restrictor.common.file_detection import is_layer_file
 from boa_restrictor.common.rule import DJANGO_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
 
@@ -8,6 +15,16 @@ class AvoidTupleBasedModelChoices(Rule):
     """
     Prohibit the usage of tuple-based choices in model fields.
     Use new class-based choices instead.
+
+    Inside a model every tuple-of-pairs assignment counts; elsewhere only one whose name ends in "CHOICES",
+    since a tuple of pairs is an ordinary data structure outside that context. A class counts as a model
+    when it declares model fields or inherits from a model declared in the same file, so neither an
+    abstract base next door nor one defined in another file hides it.
+
+    Migrations are exempt: they are generated and out of the developer's hands.
+
+    A violation is always reported on the line the assignment starts on, so a "# noqa: DBR006" belongs
+    there whether or not the class could be identified as a model.
     """
 
     # Constant for tuple-based choice validation
@@ -15,24 +32,6 @@ class AvoidTupleBasedModelChoices(Rule):
 
     RULE_ID = f"{DJANGO_LINTING_RULE_PREFIX}006"
     RULE_LABEL = "Avoid using old tuple-based Django model choices. Use class-based choices instead."
-
-    def _is_django_model(self, node: ast.ClassDef) -> bool:
-        """
-        Check if a class inherits from models.Model (directly)
-        """
-        for base in node.bases:
-            # models.Model
-            if (
-                isinstance(base, ast.Attribute)
-                and base.attr == "Model"
-                and isinstance(base.value, ast.Name)
-                and base.value.id == "models"
-            ):
-                return True
-            # or direct Model
-            if isinstance(base, ast.Name) and base.id == "Model":
-                return True
-        return False
 
     def _is_tuple_based_choices(self, value: ast.AST) -> bool:
         """
@@ -69,12 +68,21 @@ class AvoidTupleBasedModelChoices(Rule):
         )
 
     def check(self) -> list[Occurrence]:  # noqa: C901
+        if is_layer_file(self.file_path, layer="migrations"):
+            return []
+
         occurrences: list[Occurrence] = []
+
+        field_aliases = find_model_field_aliases(self.source_tree)
+        module_aliases = find_model_module_aliases(self.source_tree)
+        classes_by_name = index_classes_by_name(self.source_tree)
 
         # First pass: check assignments inside Django model classes
         django_model_assignments: set[int] = set()
         for node in ast.walk(self.source_tree):
-            if isinstance(node, ast.ClassDef) and self._is_django_model(node):
+            if isinstance(node, ast.ClassDef) and is_django_model_class(
+                node, field_aliases=field_aliases, module_aliases=module_aliases, classes_by_name=classes_by_name
+            ):
                 for stmt in node.body:
                     if isinstance(stmt, ast.Assign):
                         django_model_assignments.add(id(stmt))
@@ -85,10 +93,11 @@ class AvoidTupleBasedModelChoices(Rule):
         for node in ast.walk(self.source_tree):
             if isinstance(node, ast.Assign) and id(node) not in django_model_assignments:
                 if self._is_tuple_based_choices(node.value):
-                    for target in node.targets:
-                        if isinstance(target, ast.Name) and self._is_choices_variable_name(target.id):
-                            # Report the line number of the first tuple element for better user experience
-                            line_number = node.value.elts[0].lineno if node.value.elts else node.lineno
-                            occurrences.append(self._create_occurrence(line_number))
+                    # A chained assignment ("X_CHOICES = Y_CHOICES = ...") is one violation, not one per target.
+                    if any(
+                        isinstance(target, ast.Name) and self._is_choices_variable_name(target.id)
+                        for target in node.targets
+                    ):
+                        occurrences.append(self._create_occurrence(node.lineno))
 
-        return occurrences
+        return sorted(occurrences, key=lambda occurrence: occurrence.line_number)

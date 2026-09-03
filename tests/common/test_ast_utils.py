@@ -1,6 +1,6 @@
 import ast
 
-from boa_restrictor.common.ast_utils import is_fixture, is_test_function
+from boa_restrictor.common.ast_utils import index_classes_by_name, is_fixture, is_test_function, resolve_class
 
 
 def _function_node(source: str):
@@ -85,3 +85,56 @@ def test_non_function_node_is_not_fixture():
     node = ast.parse("x = 1").body[0]
 
     assert is_fixture(node) is False
+
+
+def test_index_classes_by_name_covers_nested_classes():
+    source_tree = ast.parse("""class Outer:
+    class Inner:
+        pass
+
+
+class Other:
+    pass""")
+
+    classes_by_name = index_classes_by_name(source_tree)
+
+    assert set(classes_by_name) == {"Outer", "Inner", "Other"}
+
+
+def test_index_classes_by_name_keeps_the_last_definition():
+    source_tree = ast.parse("""class Duplicate:
+    first = 1
+
+
+class Duplicate:
+    second = 2""")
+
+    classes_by_name = index_classes_by_name(source_tree)
+
+    assert classes_by_name["Duplicate"] is source_tree.body[1]
+
+
+def test_resolve_class_finds_a_class_by_bare_name():
+    source_tree = ast.parse("""class CommonInfo:
+    pass
+
+
+class Invoice(CommonInfo):
+    pass""")
+    classes_by_name = index_classes_by_name(source_tree)
+
+    assert resolve_class(source_tree.body[1].bases[0], classes_by_name) is source_tree.body[0]
+
+
+def test_resolve_class_without_a_matching_class():
+    source_tree = ast.parse("""class Invoice(CommonInfo):
+    pass""")
+
+    assert resolve_class(source_tree.body[0].bases[0], {}) is None
+
+
+def test_resolve_class_with_an_unnamed_node():
+    source_tree = ast.parse("""class Invoice(bases[0]):
+    pass""")
+
+    assert resolve_class(source_tree.body[0].bases[0], {}) is None

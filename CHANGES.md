@@ -1,11 +1,17 @@
 # Changelog
 
-**1.18.0** (2026-09-01)
+**1.18.0** (2026-09-03)
+  * **Breaking change:** `DBR006` and `DBR007` now recognise models they previously missed, so a codebase that linted clean can report new violations after upgrading. Both rules under-reported before; the new findings are real (#83)
+  * **Breaking change:** `DBR006` now reports a violation on the line the assignment starts on rather than on the first tuple element, so a `# noqa: DBR006` on the element line has to move up (#83)
   * Added `DBR009`, prohibiting `FloatField` on Django models in favour of `DecimalField` (#81)
+  * Fixed `DBR006` and `DBR007` missing models that inherit from a base class defined in another file, and `DBR007` flagging a `CharField` that was never imported from `django.db.models` (#83)
+  * Fixed `DBR006` missing a model that inherits an abstract base declared in the same file and declares no field of its own (#83)
+  * Fixed `DBR006` reporting occurrences out of line order, and reporting a chained assignment (`X_CHOICES = Y_CHOICES = ...`) twice (#83)
+  * `DBR006` and `DBR007` now skip migrations, since they are generated and out of the developer's hands (#83)
 
 **1.17.0** (2026-08-27)
-  * Added support for Django 6.1
   * **Breaking change:** Dropped support for Django 4.2, whose extended support ended in April 2026
+  * Added support for Django 6.1
   * Updated the linting and CI setup to the current ambient-package-update template
 
 **1.16.2** (2026-07-16)

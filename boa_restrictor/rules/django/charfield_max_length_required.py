@@ -1,85 +1,67 @@
 import ast
 
+from boa_restrictor.common.django_models import (
+    find_declared_field_calls,
+    find_model_field_aliases,
+    find_model_module_aliases,
+    is_model_field_call,
+)
+from boa_restrictor.common.file_detection import is_layer_file
 from boa_restrictor.common.rule import DJANGO_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
+
+CHAR_FIELD = "CharField"
+CHAR_FIELDS = frozenset({CHAR_FIELD})
+MAX_LENGTH_KEYWORD = "max_length"
 
 
 class CharFieldMaxLengthRequiredRule(Rule):
     """
     CharField must have "max_length" set.
     Either set "max_length" or use "TextField" instead.
+
+    A field is recognised from the call expression -- "models.CharField(...)", an aliased models module, or
+    a "CharField(...)" imported from "django.db.models" -- so a model inheriting from a base class defined
+    in another file is covered too. Only declarations count: a "CharField" typing a query expression
+    creates no column.
+
+    Migrations are exempt: they are generated and out of the developer's hands.
     """
 
     RULE_ID = f"{DJANGO_LINTING_RULE_PREFIX}007"
     RULE_LABEL = 'CharField must have "max_length" set. Either set "max_length" or use "TextField" instead.'
 
-    def _is_django_model(self, node: ast.ClassDef) -> bool:
-        """
-        Check if a class inherits from models.Model (directly)
-        """
-        for base in node.bases:
-            # models.Model
-            if (
-                isinstance(base, ast.Attribute)
-                and base.attr == "Model"
-                and isinstance(base.value, ast.Name)
-                and base.value.id == "models"
-            ):
-                return True
-            # or direct Model
-            if isinstance(base, ast.Name) and base.id == "Model":
-                return True
-        return False
-
-    def _is_charfield_call(self, node: ast.Call) -> bool:
-        """
-        Check if a Call node is models.CharField(...) or CharField(...)
-        """
-        if (
-            isinstance(node.func, ast.Attribute)
-            and node.func.attr == "CharField"
-            and isinstance(node.func.value, ast.Name)
-            and node.func.value.id == "models"
-        ):
-            return True
-        if isinstance(node.func, ast.Name) and node.func.id == "CharField":
-            return True
-        return False
-
-    def _has_valid_max_length(self, node: ast.Call) -> bool:
+    @staticmethod
+    def _has_valid_max_length(node: ast.Call) -> bool:
         """
         Check if the Call node has a max_length keyword with a non-None value.
         """
+        has_spread = False
+
         for keyword in node.keywords:
-            if keyword.arg == "max_length":
-                if isinstance(keyword.value, ast.Constant) and keyword.value.value is None:
-                    return False
-                return True
-        return False
+            if keyword.arg == MAX_LENGTH_KEYWORD:
+                return not (isinstance(keyword.value, ast.Constant) and keyword.value.value is None)
+            # A "**kwargs" spread carries no argument name of its own.
+            if keyword.arg is None:
+                has_spread = True
+
+        # A spread could carry max_length; don't flag what we can't see.
+        return has_spread
 
     def check(self) -> list[Occurrence]:
-        occurrences: list[Occurrence] = []
+        if is_layer_file(self.file_path, layer="migrations"):
+            return []
 
-        for node in ast.walk(self.source_tree):
-            if isinstance(node, ast.ClassDef) and self._is_django_model(node):
-                for stmt in node.body:
-                    if isinstance(stmt, ast.Assign):
-                        call_node = stmt.value if isinstance(stmt.value, ast.Call) else None
-                    elif isinstance(stmt, ast.AnnAssign):
-                        call_node = stmt.value if isinstance(stmt.value, ast.Call) else None
-                    else:
-                        call_node = None
+        field_aliases = find_model_field_aliases(self.source_tree)
+        module_aliases = find_model_module_aliases(self.source_tree)
 
-                    if call_node and self._is_charfield_call(call_node) and not self._has_valid_max_length(call_node):
-                        occurrences.append(
-                            Occurrence(
-                                filename=self.filename,
-                                file_path=self.file_path,
-                                rule_label=self.RULE_LABEL,
-                                rule_id=self.RULE_ID,
-                                line_number=call_node.lineno,
-                                identifier=None,
-                            )
-                        )
+        occurrences = [
+            self._build_occurrence(line_number=node.lineno)
+            for node in find_declared_field_calls(self.source_tree)
+            if is_model_field_call(
+                node, field_names=CHAR_FIELDS, field_aliases=field_aliases, module_aliases=module_aliases
+            )
+            and not self._has_valid_max_length(node)
+        ]
 
-        return occurrences
+        return sorted(occurrences, key=lambda occurrence: occurrence.line_number)

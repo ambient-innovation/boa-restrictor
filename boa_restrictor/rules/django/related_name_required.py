@@ -1,7 +1,7 @@
 import ast
 from collections.abc import Iterator
 
-from boa_restrictor.common.ast_utils import node_name
+from boa_restrictor.common.ast_utils import index_classes_by_name, node_name, resolve_class
 from boa_restrictor.common.file_detection import is_layer_file
 from boa_restrictor.common.rule import DJANGO_LINTING_RULE_PREFIX, Rule
 from boa_restrictor.projections.occurrence import Occurrence
@@ -35,7 +35,7 @@ class RelatedNameRequiredRule(Rule):
             return occurrences
 
         # Index every class in the file by name so base classes can be resolved during Meta inheritance.
-        classes_by_name = {node.name: node for node in ast.walk(self.source_tree) if isinstance(node, ast.ClassDef)}
+        classes_by_name = index_classes_by_name(self.source_tree)
 
         for node in ast.walk(self.source_tree):
             if not isinstance(node, ast.ClassDef):
@@ -77,7 +77,7 @@ class RelatedNameRequiredRule(Rule):
 
         # Without its own Meta, an (abstract) base model's Meta is inherited wholesale -- follow the bases.
         for base in model_class.bases:
-            base_class = cls._resolve_class(base, classes_by_name)
+            base_class = resolve_class(base, classes_by_name)
             if base_class is not None and cls._model_provides_default_related_name(base_class, classes_by_name, _seen):
                 return True
         return False
@@ -93,24 +93,19 @@ class RelatedNameRequiredRule(Rule):
         for base in meta_class.bases:
             if isinstance(base, ast.Attribute) and base.attr == "Meta":
                 # "Parent.Meta" -> follow the parent model's effective Meta.
-                parent_class = cls._resolve_class(base.value, classes_by_name)
+                parent_class = resolve_class(base.value, classes_by_name)
                 if parent_class is not None and cls._model_provides_default_related_name(
                     parent_class, classes_by_name, _seen
                 ):
                     return True
             else:
                 # A standalone base Meta class referenced by its bare name.
-                base_meta = cls._resolve_class(base, classes_by_name)
+                base_meta = resolve_class(base, classes_by_name)
                 if base_meta is not None and id(base_meta) not in _seen:
                     _seen.add(id(base_meta))
                     if cls._meta_provides_default_related_name(base_meta, classes_by_name, _seen):
                         return True
         return False
-
-    @staticmethod
-    def _resolve_class(node, classes_by_name: dict[str, ast.ClassDef]) -> ast.ClassDef | None:
-        name = node_name(node)
-        return classes_by_name.get(name) if name is not None else None
 
     @staticmethod
     def _find_meta(class_node: ast.ClassDef) -> ast.ClassDef | None:

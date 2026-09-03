@@ -1,7 +1,7 @@
 import ast
 from collections.abc import Iterator
 
-from boa_restrictor.common.ast_utils import node_name
+from boa_restrictor.common.ast_utils import node_name, resolve_class
 
 # Module under which Django exposes its model fields, both as "models.CharField" and as the fully
 # qualified "django.db.models.CharField". A field reached through any other module ("serializers.CharField",
@@ -16,6 +16,19 @@ MODELS_MODULE_NAME = "models"
 # The one exception is "GeneratedField", whose "output_field" decides the type of a real column.
 OUTPUT_FIELD_KEYWORD = "output_field"
 GENERATED_FIELD = "GeneratedField"
+
+MODEL_CLASS_NAME = "Model"
+# Every Django model field class ends in "Field", bar the relation fields spelled without that suffix.
+# Together they identify a class as a model when its base cannot be resolved.
+MODEL_FIELD_SUFFIX = "Field"
+SUFFIXLESS_MODEL_FIELDS = frozenset({"ForeignKey", "ForeignObject"})
+
+
+def _is_model_field_name(name: str) -> bool:
+    """
+    Returns whether the given class name is that of a Django model field.
+    """
+    return name.endswith(MODEL_FIELD_SUFFIX) or name in SUFFIXLESS_MODEL_FIELDS
 
 
 def find_model_field_aliases(source_tree: ast.AST) -> dict[str, str]:
@@ -54,22 +67,37 @@ def find_model_module_aliases(source_tree: ast.AST) -> frozenset[str]:
     return frozenset(aliases)
 
 
+def find_bound_field_call(statement: ast.stmt) -> ast.Call | None:
+    """
+    Returns the call the given statement binds to a name ("amount = models.FloatField()"), or None when it
+    binds none.
+
+    An assignment to "output_field" binds none: it types a query expression rather than a column. The
+    common shapes are the "output_field" of an annotation, aggregate, "Cast" or "ExpressionWrapper", and
+    the "output_field" class attribute of a custom aggregate or database function.
+    """
+    if not isinstance(statement, (ast.Assign, ast.AnnAssign)):
+        return None
+
+    targets = statement.targets if isinstance(statement, ast.Assign) else [statement.target]
+    if any(node_name(target) == OUTPUT_FIELD_KEYWORD for target in targets):
+        return None
+
+    return statement.value if isinstance(statement.value, ast.Call) else None
+
+
 def find_declared_field_calls(source_tree: ast.AST) -> Iterator[ast.Call]:
     """
     Yields every call that declares a database column: one bound to a name ("amount = models.FloatField()")
     and the "output_field" of a "GeneratedField", which types a generated column.
 
-    A field call reached any other way describes the type of a query expression, not a column. The common
-    shapes are the "output_field" of an annotation, aggregate, "Cast" or "ExpressionWrapper", and the
-    "output_field" class attribute of a custom aggregate or database function.
+    A field call reached any other way describes the type of a query expression, not a column.
     """
     for node in ast.walk(source_tree):
         if isinstance(node, (ast.Assign, ast.AnnAssign)):
-            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
-            if any(node_name(target) == OUTPUT_FIELD_KEYWORD for target in targets):
-                continue
-            if isinstance(node.value, ast.Call):
-                yield node.value
+            bound_call = find_bound_field_call(node)
+            if bound_call is not None:
+                yield bound_call
         elif isinstance(node, ast.Call) and node_name(node.func) == GENERATED_FIELD:
             for keyword in node.keywords:
                 if keyword.arg == OUTPUT_FIELD_KEYWORD and isinstance(keyword.value, ast.Call):
@@ -101,3 +129,81 @@ def is_model_field_call(
         return (field_aliases or {}).get(node.func.id) in field_names
 
     return False
+
+
+def is_any_model_field_call(
+    node: ast.Call,
+    *,
+    field_aliases: dict[str, str] | None = None,
+    module_aliases: frozenset[str] = MODEL_FIELD_QUALIFIERS,
+) -> bool:
+    """
+    Returns whether the given call instantiates any Django model field, without naming it up front.
+    Recognition works off the "Field" suffix that model field classes carry, plus the relation fields
+    spelled without it.
+    """
+    if isinstance(node.func, ast.Attribute):
+        return _is_model_field_name(node.func.attr) and node_name(node.func.value) in module_aliases
+
+    if isinstance(node.func, ast.Name):
+        field_name = (field_aliases or {}).get(node.func.id)
+        return bool(field_name) and _is_model_field_name(field_name)
+
+    return False
+
+
+def is_django_model_class(
+    class_node: ast.ClassDef,
+    *,
+    field_aliases: dict[str, str] | None = None,
+    module_aliases: frozenset[str] = MODEL_FIELD_QUALIFIERS,
+    classes_by_name: dict[str, ast.ClassDef] | None = None,
+    _seen: set[int] | None = None,
+) -> bool:
+    """
+    Returns whether the given class is a Django model.
+
+    A base spelled "models.Model" or "Model" settles it. So does a declared model field, which is what
+    identifies a model inheriting from a base class the linter cannot see: a class assigning a
+    "models.CharField(...)" in its body is a model whatever it inherits from.
+
+    Only such a direct assignment counts. A field call further down -- inside a method, a nested class or
+    an element of a list literal -- declares no column on this class and says nothing about what it is, and
+    neither does an "output_field", which types a query expression.
+
+    Pass "classes_by_name" from "index_classes_by_name" to follow bases declared in the same file, so a
+    model inheriting an abstract base from that file is recognised even when it declares no field itself.
+    A base defined in another file stays unresolvable, since the linter processes one file at a time.
+    """
+    _seen = set() if _seen is None else _seen
+    if id(class_node) in _seen:
+        return False
+    _seen.add(id(class_node))
+
+    for base in class_node.bases:
+        if node_name(base) != MODEL_CLASS_NAME:
+            continue
+        if isinstance(base, ast.Name) or node_name(base.value) in module_aliases:
+            return True
+
+    bound_calls = (find_bound_field_call(statement) for statement in class_node.body)
+    if any(
+        bound_call is not None
+        and is_any_model_field_call(bound_call, field_aliases=field_aliases, module_aliases=module_aliases)
+        for bound_call in bound_calls
+    ):
+        return True
+
+    base_classes = (resolve_class(base, classes_by_name or {}) for base in class_node.bases)
+
+    return any(
+        base_class is not None
+        and is_django_model_class(
+            base_class,
+            field_aliases=field_aliases,
+            module_aliases=module_aliases,
+            classes_by_name=classes_by_name,
+            _seen=_seen,
+        )
+        for base_class in base_classes
+    )
