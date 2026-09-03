@@ -1,7 +1,7 @@
 import ast
 from collections.abc import Iterator
 
-from boa_restrictor.common.ast_utils import node_name
+from boa_restrictor.common.ast_utils import node_name, resolve_class
 
 # Module under which Django exposes its model fields, both as "models.CharField" and as the fully
 # qualified "django.db.models.CharField". A field reached through any other module ("serializers.CharField",
@@ -157,18 +157,29 @@ def is_django_model_class(
     *,
     field_aliases: dict[str, str] | None = None,
     module_aliases: frozenset[str] = MODEL_FIELD_QUALIFIERS,
+    classes_by_name: dict[str, ast.ClassDef] | None = None,
+    _seen: set[int] | None = None,
 ) -> bool:
     """
     Returns whether the given class is a Django model.
 
-    A base spelled "models.Model" or "Model" settles it. Otherwise a declared model field does: a base
-    inherited from a project class in another file cannot be resolved one file at a time, but a class
-    assigning a "models.CharField(...)" in its body is a model whatever it inherits from.
+    A base spelled "models.Model" or "Model" settles it. So does a declared model field, which is what
+    identifies a model inheriting from a base class the linter cannot see: a class assigning a
+    "models.CharField(...)" in its body is a model whatever it inherits from.
 
     Only such a direct assignment counts. A field call further down -- inside a method, a nested class or
     an element of a list literal -- declares no column on this class and says nothing about what it is, and
     neither does an "output_field", which types a query expression.
+
+    Pass "classes_by_name" from "index_classes_by_name" to follow bases declared in the same file, so a
+    model inheriting an abstract base from that file is recognised even when it declares no field itself.
+    A base defined in another file stays unresolvable, since the linter processes one file at a time.
     """
+    _seen = set() if _seen is None else _seen
+    if id(class_node) in _seen:
+        return False
+    _seen.add(id(class_node))
+
     for base in class_node.bases:
         if node_name(base) != MODEL_CLASS_NAME:
             continue
@@ -176,9 +187,23 @@ def is_django_model_class(
             return True
 
     bound_calls = (find_bound_field_call(statement) for statement in class_node.body)
-
-    return any(
+    if any(
         bound_call is not None
         and is_any_model_field_call(bound_call, field_aliases=field_aliases, module_aliases=module_aliases)
         for bound_call in bound_calls
+    ):
+        return True
+
+    base_classes = (resolve_class(base, classes_by_name or {}) for base in class_node.bases)
+
+    return any(
+        base_class is not None
+        and is_django_model_class(
+            base_class,
+            field_aliases=field_aliases,
+            module_aliases=module_aliases,
+            classes_by_name=classes_by_name,
+            _seen=_seen,
+        )
+        for base_class in base_classes
     )

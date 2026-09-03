@@ -1,6 +1,6 @@
 import ast
 
-from boa_restrictor.common.ast_utils import node_name
+from boa_restrictor.common.ast_utils import index_classes_by_name, node_name
 from boa_restrictor.common.django_models import (
     find_bound_field_call,
     find_declared_field_calls,
@@ -304,3 +304,54 @@ def test_find_bound_field_call_with_non_assignment():
     statement = ast.parse("""models.CharField()""").body[0]
 
     assert find_bound_field_call(statement) is None
+
+
+def test_is_django_model_class_follows_a_base_declared_in_the_same_file():
+    source_tree = ast.parse("""class CommonInfo(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Invoice(CommonInfo):
+    STATUS = (("a", "A"),)""")
+    classes_by_name = index_classes_by_name(source_tree)
+
+    assert is_django_model_class(source_tree.body[1]) is False
+    assert is_django_model_class(source_tree.body[1], classes_by_name=classes_by_name) is True
+
+
+def test_is_django_model_class_follows_a_base_chain():
+    source_tree = ast.parse("""class CommonInfo(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Auditable(CommonInfo):
+    pass
+
+
+class Invoice(Auditable):
+    STATUS = (("a", "A"),)""")
+
+    assert is_django_model_class(source_tree.body[2], classes_by_name=index_classes_by_name(source_tree)) is True
+
+
+def test_is_django_model_class_does_not_follow_a_non_model_base():
+    source_tree = ast.parse("""class Mixin:
+    LABEL = "x"
+
+
+class Config(Mixin):
+    STATUS = (("a", "A"),)""")
+
+    assert is_django_model_class(source_tree.body[1], classes_by_name=index_classes_by_name(source_tree)) is False
+
+
+def test_is_django_model_class_survives_a_circular_base_chain():
+    """A cycle cannot arise in valid Python, but the index is name-based and must not recurse endlessly."""
+    source_tree = ast.parse("""class A(B):
+    pass
+
+
+class B(A):
+    pass""")
+
+    assert is_django_model_class(source_tree.body[0], classes_by_name=index_classes_by_name(source_tree)) is False

@@ -1,5 +1,6 @@
 import ast
 
+from boa_restrictor.common.ast_utils import index_classes_by_name
 from boa_restrictor.common.django_models import (
     find_model_field_aliases,
     find_model_module_aliases,
@@ -17,7 +18,8 @@ class AvoidTupleBasedModelChoices(Rule):
 
     Inside a model every tuple-of-pairs assignment counts; elsewhere only one whose name ends in "CHOICES",
     since a tuple of pairs is an ordinary data structure outside that context. A class counts as a model
-    when it declares model fields, so a base class defined in another file does not hide it.
+    when it declares model fields or inherits from a model declared in the same file, so neither an
+    abstract base next door nor one defined in another file hides it.
 
     Migrations are exempt: they are generated and out of the developer's hands.
 
@@ -73,12 +75,13 @@ class AvoidTupleBasedModelChoices(Rule):
 
         field_aliases = find_model_field_aliases(self.source_tree)
         module_aliases = find_model_module_aliases(self.source_tree)
+        classes_by_name = index_classes_by_name(self.source_tree)
 
         # First pass: check assignments inside Django model classes
         django_model_assignments: set[int] = set()
         for node in ast.walk(self.source_tree):
             if isinstance(node, ast.ClassDef) and is_django_model_class(
-                node, field_aliases=field_aliases, module_aliases=module_aliases
+                node, field_aliases=field_aliases, module_aliases=module_aliases, classes_by_name=classes_by_name
             ):
                 for stmt in node.body:
                     if isinstance(stmt, ast.Assign):
@@ -90,8 +93,11 @@ class AvoidTupleBasedModelChoices(Rule):
         for node in ast.walk(self.source_tree):
             if isinstance(node, ast.Assign) and id(node) not in django_model_assignments:
                 if self._is_tuple_based_choices(node.value):
-                    for target in node.targets:
-                        if isinstance(target, ast.Name) and self._is_choices_variable_name(target.id):
-                            occurrences.append(self._create_occurrence(node.lineno))
+                    # A chained assignment ("X_CHOICES = Y_CHOICES = ...") is one violation, not one per target.
+                    if any(
+                        isinstance(target, ast.Name) and self._is_choices_variable_name(target.id)
+                        for target in node.targets
+                    ):
+                        occurrences.append(self._create_occurrence(node.lineno))
 
-        return occurrences
+        return sorted(occurrences, key=lambda occurrence: occurrence.line_number)

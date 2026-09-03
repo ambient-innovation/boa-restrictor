@@ -266,3 +266,60 @@ def test_line_number_anchors_on_the_assignment_outside_a_model():
 
     assert len(occurrences) == 1
     assert occurrences[0].line_number == 1
+
+
+def test_tuple_based_choices_in_model_inheriting_a_base_from_the_same_file_found():
+    source_tree = ast.parse("""class CommonInfo(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Invoice(CommonInfo):
+    STATUS = (
+        ('a', 'A'),
+        ('b', 'B'),
+    )""")
+
+    occurrences = AvoidTupleBasedModelChoices.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0].line_number == 6  # noqa: PLR2004
+
+
+def test_tuple_in_class_inheriting_a_non_model_base_from_the_same_file_ok():
+    source_tree = ast.parse("""class Mixin:
+    LABEL = 'x'
+
+
+class Config(Mixin):
+    STATUS = (
+        ('a', 'A'),
+        ('b', 'B'),
+    )""")
+
+    occurrences = AvoidTupleBasedModelChoices.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert occurrences == []
+
+
+def test_occurrences_are_sorted_by_line_number():
+    source_tree = ast.parse("""TOP_CHOICES = (('a', 'A'), ('b', 'B'))
+
+
+class MyModel(models.Model):
+    STATUS = (('a', 'A'), ('b', 'B'))
+
+
+BOTTOM_CHOICES = (('a', 'A'), ('b', 'B'))""")
+
+    occurrences = AvoidTupleBasedModelChoices.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert [occurrence.line_number for occurrence in occurrences] == [1, 5, 8]
+
+
+def test_chained_assignment_is_reported_once():
+    source_tree = ast.parse("""STATUS_CHOICES = PRIORITY_CHOICES = (('a', 'A'), ('b', 'B'))""")
+
+    occurrences = AvoidTupleBasedModelChoices.run_check(file_path=Path("/path/to/file.py"), source_tree=source_tree)
+
+    assert len(occurrences) == 1
+    assert occurrences[0].line_number == 1

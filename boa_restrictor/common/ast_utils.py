@@ -13,6 +13,23 @@ def node_name(node) -> str | None:
     return None
 
 
+def index_classes_by_name(source_tree: ast.AST) -> dict[str, ast.ClassDef]:
+    """
+    Indexes every class in the given tree by its name, so a base class can be resolved as far as one file
+    allows. A name declared more than once resolves to the last definition, which is what the interpreter
+    would bind it to.
+    """
+    return {node.name: node for node in ast.walk(source_tree) if isinstance(node, ast.ClassDef)}
+
+
+def resolve_class(node, classes_by_name: dict[str, ast.ClassDef]) -> ast.ClassDef | None:
+    """
+    Returns the class the given base expression refers to, or None when it is defined in another file.
+    """
+    name = node_name(node)
+    return classes_by_name.get(name) if name is not None else None
+
+
 def is_test_function(node) -> TypeGuard[ast.FunctionDef | ast.AsyncFunctionDef]:
     """
     Returns whether the given AST node is a test function: a (sync or async) function whose name starts with
