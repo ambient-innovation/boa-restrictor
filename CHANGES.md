@@ -6,6 +6,7 @@
   * Fixed `DBR006` missing a model that inherits an abstract base declared in the same file and declares no field of its own (#83)
   * Fixed `DBR006` reporting occurrences out of line order, and reporting a chained assignment (`X_CHOICES = Y_CHOICES = ...`) twice (#83)
   * `DBR006` and `DBR007` now skip migrations, since they are generated and out of the developer's hands (#83)
+  * **Breaking change:** `DBR006` and `DBR007` now recognise models they previously missed, so a codebase that linted clean can report new violations after upgrading. Both rules under-reported before; the new findings are real (#83)
   * **Breaking change:** `DBR006` now reports a violation on the line the assignment starts on rather than on the first tuple element, so a `# noqa: DBR006` on the element line has to move up (#83)
 
 **1.17.0** (2026-08-27)
