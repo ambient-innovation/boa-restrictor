@@ -10,8 +10,8 @@
   * `DBR006` and `DBR007` now skip migrations, since they are generated and out of the developer's hands (#83)
 
 **1.17.0** (2026-08-27)
-  * Added support for Django 6.1
   * **Breaking change:** Dropped support for Django 4.2, whose extended support ended in April 2026
+  * Added support for Django 6.1
   * Updated the linting and CI setup to the current ambient-package-update template
 
 **1.16.2** (2026-07-16)
