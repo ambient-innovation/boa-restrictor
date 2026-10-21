@@ -10,7 +10,6 @@ from django.test import TestCase
 
 
 class MyTestCase(TestCase):
-
     def test_my_function(self):
         with self.assertRaises(RuntimeError):
             my_function()
@@ -23,7 +22,6 @@ from django.test import TestCase
 
 
 class MyTestCase(TestCase):
-
     def test_my_function(self):
         with self.assertRaisesMessage(RuntimeError, "Ooops, that's an error."):
             my_function()
