@@ -1,5 +1,12 @@
 # Changelog
 
+**1.18.1** (2026-10-21)
+  * Updated the linting and CI setup to the current ambient-package-update template (ruff 0.17.1, `actions/checkout` v7, `actions/setup-python` v7)
+  * Fixed the Sphinx configuration for sphinx-rtd-theme 3, removing the documentation build warnings
+  * Fixed broken links in the pre-commit section of `CONTRIBUTING.md`
+  * Reformatted the Python code examples in the documentation
+  * Stopped committing `uv.lock`, since the package is a library and the lockfile never reaches its users
+
 **1.18.0** (2026-09-03)
   * **Breaking change:** `DBR006` and `DBR007` now recognise models they previously missed, so a codebase that linted clean can report new violations after upgrading. Both rules under-reported before; the new findings are real (#83)
   * **Breaking change:** `DBR006` now reports a violation on the line the assignment starts on rather than on the first tuple element, so a `# noqa: DBR006` on the element line has to move up (#83)
