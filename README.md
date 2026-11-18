@@ -3,7 +3,7 @@
 [![Coverage](https://img.shields.io/badge/Coverage-100.0%25-success)](https://github.com/ambient-innovation/boa-restrictor/actions?workflow=CI)
 [![Linting](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Coding Style](https://img.shields.io/badge/code%20style-Ruff-000000.svg)](https://github.com/astral-sh/ruff)
-[![Documentation Status](https://readthedocs.org/projects/boa-restrictor/badge/?version=latest)](https://boa-restrictor.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://img.shields.io/readthedocs/boa-restrictor/latest)](https://boa-restrictor.readthedocs.io/en/latest/?badge=latest)
 
 Welcome to the **boa-restrictor** - a custom Python and Django linter from Beyonder Deutschland
 
@@ -17,7 +17,7 @@ Add the following to your .pre-commit-config.yaml file:
 
 ```yaml
   - repo: https://github.com/ambient-innovation/boa-restrictor
-    rev: v1.18.1
+    rev: v1.19.0
     hooks:
       - id: boa-restrictor
         args: [ --config=pyproject.toml ]
@@ -62,9 +62,9 @@ So please tag your commit and push it to GitHub.
 
 ### Maintenance
 
-Please note that this package supports the [ambient-package-update](https://pypi.org/project/ambient-package-update/).
+Please note that this package supports the [package-foundry](https://pypi.org/project/package-foundry/).
 So you don't have to worry about the maintenance of this package. This updater is rendering all important
 configuration and setup files. It works similar to well-known updaters like `pyupgrade` or `django-upgrade`.
 
-To run an update, refer to the [documentation page](https://pypi.org/project/ambient-package-update/)
-of the "ambient-package-update".
+To run an update, refer to the [documentation page](https://pypi.org/project/package-foundry/)
+of the "package-foundry".

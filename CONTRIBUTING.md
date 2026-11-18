@@ -18,7 +18,7 @@
 
 - Run tests
   ````
-  pytest --ds settings tests
+  pytest tests
   ````
 
 - Check coverage
